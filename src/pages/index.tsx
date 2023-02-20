@@ -1,12 +1,15 @@
 import Head from "next/head";
 
-import { Inter } from "@next/font/google";
 import styles from "@/styles/Home.module.css";
 import AudioPlayer from "@/components/AudioPlayer";
+import { useState } from "react";
 
-const inter = Inter({ subsets: ["latin"] });
+type SetisPlaying = (value: number) => void;
 
 export default function Home() {
+  // 0 === !isPlaying
+  const [isPlaying, setisPlaying] = useState<number>(0);
+
   return (
     <>
       <Head>
@@ -16,19 +19,29 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <div className="App">
-          <div className="music-player-container">
-            <div className="music-player-header">
-              <h2 className="profile-name">SO LOKI</h2>
-              <p className="amount-songs-total-duration">
-                3 songs, 59:56 minutes
-              </p>
-              <p className="artape-link">ARTAPE</p>
-            </div>
-            <AudioPlayer />
-            <AudioPlayer />
-            <AudioPlayer />
+        <div className={styles.musicPlayerContainer}>
+          <div className={styles.musicPlayerHeader}>
+            <h2 className={styles.profileName}>SO LOKI</h2>
+            <p className={styles.amountSongTotalDuration}>
+              3 songs, 59:56 minutes
+            </p>
+            <p className={styles.artapeLink}>ARTAPE</p>
           </div>
+          <AudioPlayer
+            index={1}
+            isPlaying={isPlaying}
+            setisPlaying={setisPlaying}
+          />
+          <AudioPlayer
+            index={2}
+            isPlaying={isPlaying}
+            setisPlaying={setisPlaying}
+          />
+          <AudioPlayer
+            index={3}
+            isPlaying={isPlaying}
+            setisPlaying={setisPlaying}
+          />
         </div>
       </main>
     </>
