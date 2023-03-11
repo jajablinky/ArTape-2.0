@@ -18,14 +18,19 @@ const AudioPlayer = ({
   songMetaData: string;
 }) => {
   const handlePlay = () => {
-    const audio = document.getElementById(songMetaData);
+    const audio = document.getElementById(songMetaData) as
+      | HTMLAudioElement
+      | null
+      | undefined;
     if (isPlaying === index) {
-      setisPlaying(0);
-      audio.pause();
-      audio.currentTime = 0;
+      if (audio) {
+        setisPlaying(0);
+        audio?.pause();
+        audio.currentTime = audio?.currentTime ?? 0;
+      }
     } else {
       setisPlaying(index);
-      audio.play();
+      audio?.play();
     }
   };
 
