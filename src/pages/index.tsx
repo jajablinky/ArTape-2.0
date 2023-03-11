@@ -23,7 +23,7 @@ export default function Home() {
           <div className={styles.musicPlayerHeader}>
             <h2 className={styles.profileName}>SO LOKI</h2>
             <p className={styles.amountSongTotalDuration}>
-              3 songs, 59:56 minutes
+              3 songs, 4:37 minutes
             </p>
             <p className={styles.artapeLink}>Watch Me Blue</p>
           </div>
