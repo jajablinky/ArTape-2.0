@@ -37,6 +37,8 @@
 }
 
 .musicPlayerLeftSide {
+  display: flex;
+  flex-direction: row;
   margin-right: 20em;
   text-align: left;
 }
@@ -48,4 +50,11 @@
 .musicPlayerRightSide {
   margin: auto;
   text-align: right;
+}
+
+.songArt {
+  width: 100px;
+  height: 100px;
+  background-color: var(--artape-lime-green);
+  margin-right: 20px;
 }

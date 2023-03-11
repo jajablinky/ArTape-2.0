@@ -31,16 +31,28 @@ export default function Home() {
             index={1}
             isPlaying={isPlaying}
             setisPlaying={setisPlaying}
+            audioLink={
+              "https://5jxkaucpt4jq2n5ceypa7tijr2vrqcrcgx567hisii27hymlqz2a.arweave.net/6m6gUE-fEw03oiYeD80JjqsYCiI1---dEkI18-GLhnQ"
+            }
+            songMetaData={"Blue Cowboy"}
           />
           <AudioPlayer
             index={2}
             isPlaying={isPlaying}
             setisPlaying={setisPlaying}
+            audioLink={
+              "https://cxdvxsxj6ps45rqsdjnskvgl2n3cc6bvohej5l27w7oof76rhcya.arweave.net/Fcdbyunz5c7GEhpbJVTL03YheDVxyJ6vX7fc4v_ROLA"
+            }
+            songMetaData={"American Pie"}
           />
           <AudioPlayer
             index={3}
             isPlaying={isPlaying}
             setisPlaying={setisPlaying}
+            audioLink={
+              "https://4hyskfaoe726dpdaczx3dmpswrqj4uydukvzozsuewmcan6wsovq.arweave.net/4fElFA4n9eG8YBZvsbHytGCeUwOiq5dmVCWYIDfWk6s"
+            }
+            songMetaData={"New Boots"}
           />
         </div>
       </main>

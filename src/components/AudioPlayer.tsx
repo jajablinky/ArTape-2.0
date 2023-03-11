@@ -8,53 +8,65 @@ const AudioPlayer = ({
   index,
   isPlaying,
   setisPlaying,
+  audioLink,
+  songMetaData,
 }: {
   index: number;
   isPlaying: number;
   setisPlaying: Dispatch<SetStateAction<number>>;
+  audioLink: string;
+  songMetaData: string;
 }) => {
   const handlePlay = () => {
+    const audio = document.getElementById(songMetaData);
     if (isPlaying === index) {
       setisPlaying(0);
+      audio.pause();
+      audio.currentTime = 0;
     } else {
       setisPlaying(index);
+      audio.play();
     }
   };
 
   return (
-    <button className={styles.musicPlayerTrack} onClick={() => handlePlay()}>
-      <source src="https://wghl3omv7p34qicdhl4iwe545yuqorbg6xz2ewdndenxeqivxo3q.arweave.net/sY69uZX798ggQzr4ixO87ikHRCb186JYbRkbckEVu7c" />
-      <div className={styles.musicPlayerLeftSide}>
-        <div className={styles.artistTitleTrack}>
-          <h1>Foo Fighters - Best of You</h1>
+    <>
+      <audio id={songMetaData} src={audioLink} preload="metadata"></audio>
+      <button className={styles.musicPlayerTrack} onClick={() => handlePlay()}>
+        <div className={styles.musicPlayerLeftSide}>
+          <div className={styles.songArt}></div>
+          <div className={styles.musicInfo}>
+            <div className={styles.artistTitleTrack}>
+              <h1>{songMetaData}</h1>
+            </div>
+            <div className={styles.durationBuyMp3}>
+              <p>
+                <span className={styles.duration}>4:14</span>
+              </p>
+            </div>
+          </div>
         </div>
-        <div className={styles.durationBuyMp3}>
-          <p>
-            <span className={styles.duration}>4:14</span> -{" "}
-            <span className={styles.buymp3}>PLAY THIS SONG</span>
-          </p>
+        <div className={styles.musicPlayerRightSide}>
+          <div className={styles.playButton}>
+            {isPlaying !== index ? (
+              <Image
+                src={"/startButton.svg"}
+                alt={"Play Button"}
+                width={25.5}
+                height={25.5}
+              />
+            ) : (
+              <Image
+                src={"/stopButton.svg"}
+                alt={"Stop Button"}
+                width={25.5}
+                height={25.5}
+              />
+            )}
+          </div>
         </div>
-      </div>
-      <div className={styles.musicPlayerRightSide}>
-        <div className={styles.playButton}>
-          {isPlaying !== index ? (
-            <Image
-              src={"/startButton.svg"}
-              alt={"Play Button"}
-              width={25.5}
-              height={25.5}
-            />
-          ) : (
-            <Image
-              src={"/stopButton.svg"}
-              alt={"Stop Button"}
-              width={25.5}
-              height={25.5}
-            />
-          )}
-        </div>
-      </div>
-    </button>
+      </button>
+    </>
   );
 };
 
