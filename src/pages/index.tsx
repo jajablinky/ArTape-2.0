@@ -25,7 +25,7 @@ export default function Home() {
             <p className={styles.amountSongTotalDuration}>
               3 songs, 59:56 minutes
             </p>
-            <p className={styles.artapeLink}>ARTAPE</p>
+            <p className={styles.artapeLink}>Watch Me Blue</p>
           </div>
           <AudioPlayer
             index={1}

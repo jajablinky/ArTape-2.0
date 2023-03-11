@@ -17,11 +17,11 @@ const AudioPlayer = ({
   audioLink: string;
   songMetaData: string;
 }) => {
+  const audio = document.getElementById(songMetaData) as
+    | HTMLAudioElement
+    | null
+    | undefined;
   const handlePlay = () => {
-    const audio = document.getElementById(songMetaData) as
-      | HTMLAudioElement
-      | null
-      | undefined;
     if (isPlaying === index) {
       if (audio) {
         setisPlaying(0);
@@ -31,6 +31,17 @@ const AudioPlayer = ({
     } else {
       setisPlaying(index);
       audio?.play();
+    }
+  };
+
+  const handleDuration = () => {
+    if (audio) {
+      const seconds = audio?.duration;
+      let minutes = Math.floor(seconds / 60);
+      minutes = minutes < 10 ? 0 + minutes : minutes;
+      let extraSeconds = Math.floor(seconds % 60);
+      extraSeconds = extraSeconds < 10 ? 0 + extraSeconds : extraSeconds;
+      return `${minutes}:${extraSeconds}`;
     }
   };
 
@@ -46,7 +57,7 @@ const AudioPlayer = ({
             </div>
             <div className={styles.durationBuyMp3}>
               <p>
-                <span className={styles.duration}>4:14</span>
+                <span className={styles.duration}>{handleDuration()}</span>
               </p>
             </div>
           </div>
