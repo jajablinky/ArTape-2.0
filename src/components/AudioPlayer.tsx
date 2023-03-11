@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { SetStateAction, Dispatch } from "react";
 
 import styles from "@/styles/Home.module.css";
@@ -17,10 +17,14 @@ const AudioPlayer = ({
   audioLink: string;
   songMetaData: string;
 }) => {
-  const audio = document.getElementById(songMetaData) as
-    | HTMLAudioElement
-    | null
-    | undefined;
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  useEffect(() => {
+    const audio = document.getElementById(
+      songMetaData
+    ) as HTMLAudioElement | null;
+    setAudio(audio);
+  }, []);
+
   const handlePlay = () => {
     if (isPlaying === index) {
       if (audio) {
