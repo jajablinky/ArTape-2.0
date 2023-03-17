@@ -27,6 +27,7 @@ export default function Home() {
   const [currentSongIndex, setCurrentSongIndex] = useState<number>(0);
   const [isPlaying, setisPlaying] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(1);
+
   const audioPlayer = useRef<HTMLAudioElement | null>(null);
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const newVolume = parseFloat(e.target.value);
@@ -46,6 +47,12 @@ export default function Home() {
       audioPlayer.current.removeEventListener("ended", handleEnded);
       audioPlayer.current.src = songs[currentSongIndex].src;
       audioPlayer.current.addEventListener("ended", handleEnded);
+
+      if (isPlaying) {
+        audioPlayer.current.play();
+      } else {
+        audioPlayer.current.pause();
+      }
     }
 
     return () => {
@@ -53,17 +60,7 @@ export default function Home() {
         audioPlayer.current.removeEventListener("ended", handleEnded);
       }
     };
-  }, [currentSongIndex]);
-
-  useEffect(() => {
-    if (audioPlayer.current) {
-      if (isPlaying) {
-        audioPlayer.current.play();
-      } else {
-        audioPlayer.current.pause();
-      }
-    }
-  }, [isPlaying]);
+  }, [currentSongIndex, isPlaying]);
 
   const handlePlayPause = (): void => {
     if (audioPlayer.current) {
@@ -80,10 +77,13 @@ export default function Home() {
     setCurrentSongIndex(
       currentSongIndex === songs.length - 1 ? 0 : currentSongIndex + 1
     );
+    setisPlaying(true);
   };
 
   const handlePrevSong = (): void => {
     setCurrentSongIndex(currentSongIndex === 0 ? 0 : currentSongIndex - 1);
+
+    setisPlaying(true);
   };
 
   const handleEnded = (): void => {
