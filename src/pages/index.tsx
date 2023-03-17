@@ -46,12 +46,6 @@ export default function Home() {
       audioPlayer.current.removeEventListener("ended", handleEnded);
       audioPlayer.current.src = songs[currentSongIndex].src;
       audioPlayer.current.addEventListener("ended", handleEnded);
-
-      if (isPlaying) {
-        audioPlayer.current.play();
-      } else {
-        audioPlayer.current.pause();
-      }
     }
 
     return () => {
@@ -59,10 +53,27 @@ export default function Home() {
         audioPlayer.current.removeEventListener("ended", handleEnded);
       }
     };
-  }, [currentSongIndex, isPlaying]);
+  }, [currentSongIndex]);
 
-  const handlePlayStop = (): void => {
-    setisPlaying(!isPlaying);
+  useEffect(() => {
+    if (audioPlayer.current) {
+      if (isPlaying) {
+        audioPlayer.current.play();
+      } else {
+        audioPlayer.current.pause();
+      }
+    }
+  }, [isPlaying]);
+
+  const handlePlayPause = (): void => {
+    if (audioPlayer.current) {
+      if (isPlaying) {
+        audioPlayer.current.pause();
+      } else {
+        audioPlayer.current.play();
+      }
+      setisPlaying(!isPlaying);
+    }
   };
 
   const handleNextSong = (): void => {
@@ -100,7 +111,9 @@ export default function Home() {
             <p className={styles.artapeLink}>Watch Me Blue</p>
             <button onClick={() => handleNextSong()}>Next Song</button>
             <button onClick={() => handlePrevSong()}>Prev Song</button>
-            <button onClick={() => handlePlayStop()}>Play/Stop</button>
+            <button onClick={() => handlePlayPause()}>
+              {isPlaying ? "Pause" : "Play"}
+            </button>
             <input
               type="range"
               min="0"
