@@ -26,19 +26,54 @@ const songs: Song[] = [
 export default function Home() {
   const [currentSongIndex, setCurrentSongIndex] = useState<number>(0);
   const [isPlaying, setisPlaying] = useState<boolean>(false);
-  const audioPlayer = useRef<HTMLAudioElement>(new Audio());
+  const [volume, setVolume] = useState<number>(1);
+  const audioPlayer = useRef<HTMLAudioElement | null>(null);
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const newVolume = parseFloat(e.target.value);
+    setVolume(newVolume);
+
+    if (audioPlayer.current) {
+      audioPlayer.current.volume = newVolume;
+    }
+  };
 
   useEffect(() => {
-    audioPlayer.current.src = songs[currentSongIndex].src;
-    if (isPlaying) {
-      audioPlayer.current.play();
-    } else {
-      audioPlayer.current.pause();
+    if (!audioPlayer.current) {
+      audioPlayer.current = new Audio();
     }
-  }, [currentSongIndex, isPlaying]);
+
+    if (audioPlayer.current) {
+      audioPlayer.current.removeEventListener("ended", handleEnded);
+      audioPlayer.current.src = songs[currentSongIndex].src;
+      audioPlayer.current.addEventListener("ended", handleEnded);
+    }
+
+    return () => {
+      if (audioPlayer.current) {
+        audioPlayer.current.removeEventListener("ended", handleEnded);
+      }
+    };
+  }, [currentSongIndex]);
+
+  useEffect(() => {
+    if (audioPlayer.current) {
+      if (isPlaying) {
+        audioPlayer.current.play();
+      } else {
+        audioPlayer.current.pause();
+      }
+    }
+  }, [isPlaying]);
 
   const handlePlayPause = (): void => {
-    setisPlaying(!isPlaying);
+    if (audioPlayer.current) {
+      if (isPlaying) {
+        audioPlayer.current.pause();
+      } else {
+        audioPlayer.current.play();
+      }
+      setisPlaying(!isPlaying);
+    }
   };
 
   const handleNextSong = (): void => {
@@ -74,11 +109,29 @@ export default function Home() {
             <h2 className={styles.profileName}>SO LOKI</h2>
             <p className={styles.amounttotalDuration}>3 songs, 4:37 minutes</p>
             <p className={styles.artapeLink}>Watch Me Blue</p>
+            <button onClick={() => handleNextSong()}>Next Song</button>
+            <button onClick={() => handlePrevSong()}>Prev Song</button>
+            <button onClick={() => handlePlayPause()}>
+              {isPlaying ? "Pause" : "Play"}
+            </button>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={volume}
+              onChange={handleVolumeChange}
+              className={styles.volumeSlider}
+            />
           </div>
           <audio onEnded={handleEnded} ref={audioPlayer} />
           <ul>
             {songs.map((song: Song, index: number) => (
-              <li key={index} onClick={() => handleTrackSelect(index)}>
+              <li
+                style={{ cursor: "pointer" }}
+                key={index}
+                onClick={() => handleTrackSelect(index)}
+              >
                 {song.title}
               </li>
             ))}
