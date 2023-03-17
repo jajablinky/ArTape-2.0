@@ -81,9 +81,16 @@ export default function Home() {
   };
 
   const handlePrevSong = (): void => {
-    setCurrentSongIndex(currentSongIndex === 0 ? 0 : currentSongIndex - 1);
-
-    setisPlaying(true);
+    if (currentSongIndex === 0) {
+      if (audioPlayer.current) {
+        audioPlayer.current.currentTime = 0;
+        if (!isPlaying) {
+          setisPlaying(true);
+        }
+      }
+    } else {
+      setCurrentSongIndex(currentSongIndex - 1);
+    }
   };
 
   const handleEnded = (): void => {
