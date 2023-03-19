@@ -58,3 +58,16 @@
   background-color: var(--artape-lime-green);
   margin-right: 20px;
 }
+
+.gridProfile {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 16px; /* Adjust this value according to your desired spacing between the modules */
+}
+
+.profileModule {
+  background-color: #f0f0f0; /* Change this to your desired background color */
+  width: 350px;
+  height: 350px;
+  border-radius: 4px; /* Adjust this value according to your desired border radius */
+}
