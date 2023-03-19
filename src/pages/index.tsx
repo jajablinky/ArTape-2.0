@@ -65,6 +65,9 @@ export default function Home() {
   }, [currentSongIndex, isPlaying]);
 
   const handlePlayPause = (): void => {
+    if (currentSongIndex === -1) {
+      setCurrentSongIndex(0);
+    }
     if (audioPlayer.current) {
       if (isPlaying) {
         audioPlayer.current.pause();
