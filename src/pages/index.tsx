@@ -24,9 +24,10 @@ const songs: Song[] = [
 ];
 
 export default function Home() {
-  const [currentSongIndex, setCurrentSongIndex] = useState<number>(0);
+  const [currentSongIndex, setCurrentSongIndex] = useState<number>(-1);
   const [isPlaying, setisPlaying] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(1);
+  const [currentSong, setCurrentSong] = useState<Song | null>(null);
 
   const audioPlayer = useRef<HTMLAudioElement | null>(null);
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -42,8 +43,9 @@ export default function Home() {
     if (!audioPlayer.current) {
       audioPlayer.current = new Audio();
     }
+    setCurrentSong(songs[currentSongIndex]);
 
-    if (audioPlayer.current) {
+    if (audioPlayer.current && currentSongIndex !== -1) {
       audioPlayer.current.removeEventListener("ended", handleEnded);
       audioPlayer.current.src = songs[currentSongIndex].src;
       audioPlayer.current.addEventListener("ended", handleEnded);
@@ -63,11 +65,25 @@ export default function Home() {
   }, [currentSongIndex, isPlaying]);
 
   const handlePlayPause = (): void => {
+    if (currentSongIndex === -1) {
+      setCurrentSongIndex(0);
+    }
     if (audioPlayer.current) {
       if (isPlaying) {
         audioPlayer.current.pause();
       } else {
         audioPlayer.current.play();
+      }
+      setisPlaying(!isPlaying);
+    }
+  };
+
+  const handleStop = (): void => {
+    if (audioPlayer.current) {
+      if (isPlaying) {
+        audioPlayer.current.pause();
+        audioPlayer.current.currentTime = 0;
+        setCurrentSongIndex(-1);
       }
       setisPlaying(!isPlaying);
     }
@@ -99,6 +115,7 @@ export default function Home() {
 
   const handleTrackSelect = (index: number) => {
     setCurrentSongIndex(index);
+    setCurrentSong(songs[index]);
     setisPlaying(true);
   };
 
@@ -116,11 +133,17 @@ export default function Home() {
             <h2 className={styles.profileName}>SO LOKI</h2>
             <p className={styles.amounttotalDuration}>3 songs, 4:37 minutes</p>
             <p className={styles.artapeLink}>Watch Me Blue</p>
-            <button onClick={() => handleNextSong()}>Next Song</button>
+
+            <p className={styles.currentSongTitle}>{currentSong?.title}</p>
+
             <button onClick={() => handlePrevSong()}>Prev Song</button>
+            <button onClick={() => handleNextSong()}>Next Song</button>
             <button onClick={() => handlePlayPause()}>
               {isPlaying ? "Pause" : "Play"}
             </button>
+            {isPlaying ? (
+              <button onClick={() => handleStop()}>Stop</button>
+            ) : null}
             <input
               type="range"
               min="0"
