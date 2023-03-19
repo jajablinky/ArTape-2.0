@@ -3,7 +3,6 @@
   --artape-white: rgba(255, 255, 255, 0.87);
   --artape-lime-green: #3bff67;
   --artape-black: #242424;
-  --artape-black: #242424;
 }
 
 .profileName {
@@ -70,4 +69,6 @@
   width: 350px;
   height: 350px;
   border-radius: 4px; /* Adjust this value according to your desired border radius */
+  color: black;
+  text-align: center;
 }
