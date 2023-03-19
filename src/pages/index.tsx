@@ -73,6 +73,16 @@ export default function Home() {
     }
   };
 
+  const handleStop = (): void => {
+    if (audioPlayer.current) {
+      if (isPlaying) {
+        audioPlayer.current.pause();
+        audioPlayer.current.currentTime = 0;
+      }
+      setisPlaying(!isPlaying);
+    }
+  };
+
   const handleNextSong = (): void => {
     setCurrentSongIndex(
       currentSongIndex === songs.length - 1 ? 0 : currentSongIndex + 1
@@ -116,11 +126,14 @@ export default function Home() {
             <h2 className={styles.profileName}>SO LOKI</h2>
             <p className={styles.amounttotalDuration}>3 songs, 4:37 minutes</p>
             <p className={styles.artapeLink}>Watch Me Blue</p>
-            <button onClick={() => handleNextSong()}>Next Song</button>
             <button onClick={() => handlePrevSong()}>Prev Song</button>
+            <button onClick={() => handleNextSong()}>Next Song</button>
             <button onClick={() => handlePlayPause()}>
               {isPlaying ? "Pause" : "Play"}
             </button>
+            {isPlaying ? (
+              <button onClick={() => handleStop()}>"Stop"</button>
+            ) : null}
             <input
               type="range"
               min="0"
