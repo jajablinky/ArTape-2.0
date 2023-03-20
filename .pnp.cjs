@@ -33,6 +33,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/node", "npm:18.14.0"],\
             ["@types/react", "npm:18.0.28"],\
             ["@types/react-dom", "npm:18.0.11"],\
+            ["framer-motion", "virtual:4be437df26beafef60daf8379fc853ce96e9ee9bd39c178ee62fabc557db150770dd72e14e4b04697fac46640225e7b5d2c5a097d87195445e6c677e339cc1e6#npm:10.6.0"],\
             ["next", "virtual:4be437df26beafef60daf8379fc853ce96e9ee9bd39c178ee62fabc557db150770dd72e14e4b04697fac46640225e7b5d2c5a097d87195445e6c677e339cc1e6#npm:13.1.6"],\
             ["react", "npm:18.2.0"],\
             ["react-dom", "virtual:4be437df26beafef60daf8379fc853ce96e9ee9bd39c178ee62fabc557db150770dd72e14e4b04697fac46640225e7b5d2c5a097d87195445e6c677e339cc1e6#npm:18.2.0"],\
@@ -110,6 +111,25 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packagePeers": [\
             "@types/rxjs",\
             "rxjs"\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@emotion/is-prop-valid", [\
+        ["npm:0.8.8", {\
+          "packageLocation": "./.yarn/cache/@emotion-is-prop-valid-npm-0.8.8-261a0f2426-bb7ec6d48c.zip/node_modules/@emotion/is-prop-valid/",\
+          "packageDependencies": [\
+            ["@emotion/is-prop-valid", "npm:0.8.8"],\
+            ["@emotion/memoize", "npm:0.7.4"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@emotion/memoize", [\
+        ["npm:0.7.4", {\
+          "packageLocation": "./.yarn/cache/@emotion-memoize-npm-0.7.4-5648cf11b8-4e3920d4ec.zip/node_modules/@emotion/memoize/",\
+          "packageDependencies": [\
+            ["@emotion/memoize", "npm:0.7.4"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -405,6 +425,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/node", "npm:18.14.0"],\
             ["@types/react", "npm:18.0.28"],\
             ["@types/react-dom", "npm:18.0.11"],\
+            ["framer-motion", "virtual:4be437df26beafef60daf8379fc853ce96e9ee9bd39c178ee62fabc557db150770dd72e14e4b04697fac46640225e7b5d2c5a097d87195445e6c677e339cc1e6#npm:10.6.0"],\
             ["next", "virtual:4be437df26beafef60daf8379fc853ce96e9ee9bd39c178ee62fabc557db150770dd72e14e4b04697fac46640225e7b5d2c5a097d87195445e6c677e339cc1e6#npm:13.1.6"],\
             ["react", "npm:18.2.0"],\
             ["react-dom", "virtual:4be437df26beafef60daf8379fc853ce96e9ee9bd39c178ee62fabc557db150770dd72e14e4b04697fac46640225e7b5d2c5a097d87195445e6c677e339cc1e6#npm:18.2.0"],\
@@ -576,6 +597,34 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packagePeers": [\
             "@types/debug",\
             "debug"\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["framer-motion", [\
+        ["npm:10.6.0", {\
+          "packageLocation": "./.yarn/cache/framer-motion-npm-10.6.0-71e87c2d71-83de861483.zip/node_modules/framer-motion/",\
+          "packageDependencies": [\
+            ["framer-motion", "npm:10.6.0"]\
+          ],\
+          "linkType": "SOFT"\
+        }],\
+        ["virtual:4be437df26beafef60daf8379fc853ce96e9ee9bd39c178ee62fabc557db150770dd72e14e4b04697fac46640225e7b5d2c5a097d87195445e6c677e339cc1e6#npm:10.6.0", {\
+          "packageLocation": "./.yarn/__virtual__/framer-motion-virtual-5b2b8bea35/0/cache/framer-motion-npm-10.6.0-71e87c2d71-83de861483.zip/node_modules/framer-motion/",\
+          "packageDependencies": [\
+            ["framer-motion", "virtual:4be437df26beafef60daf8379fc853ce96e9ee9bd39c178ee62fabc557db150770dd72e14e4b04697fac46640225e7b5d2c5a097d87195445e6c677e339cc1e6#npm:10.6.0"],\
+            ["@emotion/is-prop-valid", "npm:0.8.8"],\
+            ["@types/react", "npm:18.0.28"],\
+            ["@types/react-dom", "npm:18.0.11"],\
+            ["react", "npm:18.2.0"],\
+            ["react-dom", "virtual:4be437df26beafef60daf8379fc853ce96e9ee9bd39c178ee62fabc557db150770dd72e14e4b04697fac46640225e7b5d2c5a097d87195445e6c677e339cc1e6#npm:18.2.0"],\
+            ["tslib", "npm:2.5.0"]\
+          ],\
+          "packagePeers": [\
+            "@types/react-dom",\
+            "@types/react",\
+            "react-dom",\
+            "react"\
           ],\
           "linkType": "HARD"\
         }]\

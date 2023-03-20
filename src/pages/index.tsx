@@ -1,9 +1,16 @@
+import { useState } from "react";
 import Head from "next/head";
 import styles from "@/styles/Home.module.css";
 import AudioPlayer from "@/components/AudioPlayer";
 import Image from "next/image";
+import Modal from "@/components/Modal";
 
 export default function Home() {
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const close = () => setModalOpen(false);
+  const open = () => setModalOpen(true);
+
   return (
     <>
       <Head>
@@ -18,7 +25,10 @@ export default function Home() {
           <p>Vancouver, Canada</p>
         </div>
         <div className={styles.gridProfile}>
-          <div className={styles.profileModule}>
+          <div
+            className={styles.profileModule}
+            onClick={() => (modalOpen ? close() : open())}
+          >
             <AudioPlayer />
           </div>
           <div className={styles.profileModule}>
@@ -86,6 +96,7 @@ export default function Home() {
             />
           </div>
         </div>
+        {modalOpen && <Modal modalOpen={modalOpen} handleClose={close} />}
       </main>
     </>
   );
