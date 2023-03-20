@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import Backdrop from "../Backdrop";
 import styles from "@/styles/Home.module.css";
 import AudioPlayer from "../AudioPlayer";
@@ -16,14 +15,7 @@ const dropIn = {
 const Modal = ({ handleClose, text }) => {
   return (
     <Backdrop onClick={handleClose}>
-      <motion.div
-        className={styles.modal}
-        onClick={(e) => e.stopPropagation()}
-        variants={dropIn}
-        initial="hidden"
-        animate="visible"
-        exit="ext"
-      ></motion.div>
+      <AudioPlayer />
     </Backdrop>
   );
 };

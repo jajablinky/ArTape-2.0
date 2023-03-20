@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import styles from "@/styles/Home.module.css";
 import Image from "next/image";
 
@@ -119,7 +120,10 @@ const AudioPlayer = () => {
 
   return (
     <>
-      <div className={styles.musicPlayerContainer}>
+      <motion.div
+        className={styles.musicPlayerContainer}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className={styles.musicPlayerHeader}>
           <audio onEnded={handleEnded} ref={audioPlayer} />
           <h2 className={styles.profileName}>SO LOKI</h2>
@@ -185,7 +189,7 @@ const AudioPlayer = () => {
             </div>
           </button>
         ))}
-      </div>
+      </motion.div>
     </>
   );
 };
