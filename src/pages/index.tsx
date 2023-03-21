@@ -4,6 +4,7 @@ import styles from "@/styles/Home.module.css";
 import AudioPlayer from "@/components/AudioPlayer";
 import Image from "next/image";
 import Modal from "@/components/Modal";
+import { Akord } from "@akord/akord-js";
 
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
