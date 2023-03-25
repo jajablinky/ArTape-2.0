@@ -1,7 +1,16 @@
-import { motion } from "framer-motion";
-import styles from "@/styles/Home.module.css";
+import React, { ReactNode } from 'react';
+import { motion } from 'framer-motion';
+import styles from '@/styles/Home.module.css';
 
-const Backdrop = ({ children, onClick }) => {
+interface BackdropProps {
+  children: ReactNode;
+  onClick: () => void;
+}
+
+const Backdrop: React.FC<BackdropProps> = ({
+  children,
+  onClick,
+}: BackdropProps) => {
   return (
     <motion.div
       className={styles.backdrop}
