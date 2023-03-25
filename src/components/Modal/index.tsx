@@ -6,7 +6,7 @@ import AudioPlayer from '../AudioPlayer';
 interface ModalProps {
   modalOpen: boolean;
   handleClose: () => void;
-  text: string;
+  text?: string;
 }
 
 const dropIn = {
