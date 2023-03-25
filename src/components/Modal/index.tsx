@@ -4,6 +4,7 @@ import styles from '@/styles/Home.module.css';
 import AudioPlayer from '../AudioPlayer';
 
 interface ModalProps {
+  modalOpen: boolean;
   handleClose: () => void;
   text: string;
 }
@@ -24,9 +25,14 @@ const dropIn = {
 };
 
 const Modal: React.FC<ModalProps> = ({
+  modalOpen,
   handleClose,
   text,
 }: ModalProps) => {
+  if (!modalOpen) {
+    return null;
+  }
+
   return (
     <Backdrop onClick={handleClose}>
       <AudioPlayer />
