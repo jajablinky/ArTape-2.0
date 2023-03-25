@@ -1,7 +1,7 @@
 .main {
   max-width: 1280px;
   --artape-white: rgba(255, 255, 255, 0.87);
-  --artape-lime-green: #3bff67;
+  --artape-primary-color: #d6e1db;
   --artape-black: #242424;
 }
 
@@ -15,7 +15,8 @@
 .musicPlayerContainer {
   border: 1px solid var(--artape-white);
   border-radius: 8px;
-  width: 100%;
+  width: clamp(50%, 700px, 90%);
+  height: min(50%, 300px);
 }
 
 .musicPlayerHeader {
@@ -23,7 +24,7 @@
   border: 1px solid var(--artape-white);
   border-radius: 8px;
 
-  background: var(--artape-lime-green);
+  background: var(--artape-primary-color);
   padding: 0.6em 1.2em;
 }
 
@@ -54,21 +55,65 @@
 .songArt {
   width: 100px;
   height: 100px;
-  background-color: var(--artape-lime-green);
+  background-color: var(--artape-primary-color);
   margin-right: 20px;
 }
 
 .gridProfile {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-gap: 16px; /* Adjust this value according to your desired spacing between the modules */
+  grid-gap: 30px;
 }
 
 .profileModule {
-  background-color: #f0f0f0; /* Change this to your desired background color */
+  position: relative;
+  object-fit: cover;
+  background-color: var(--artape-primary-color);
   width: 350px;
   height: 350px;
-  border-radius: 4px; /* Adjust this value according to your desired border radius */
-  color: black;
+  border-radius: 10px;
   text-align: center;
+  border: 1px solid var(--artape-primary-color);
+  transition: all 100ms ease-in-out;
+  overflow: hidden;
+}
+
+/* Add the ::before element for the opacity layer */
+.profileModule::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--artape-primary-color);
+  opacity: 0; /* Set the initial opacity to 0 */
+  border-radius: 10px;
+  transition: opacity 100ms ease-in-out; /* Add transition for smooth opacity change */
+  pointer-events: none; /* To not block interaction with elements underneath */
+}
+
+.profileModule:hover {
+  border: 0px solid transparent;
+}
+
+.profileModule:hover::before {
+  opacity: 0.3;
+}
+
+.backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000000e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  width: clamp(50%, 700px, 90%);
+  height: min(50%, 300px);
 }
