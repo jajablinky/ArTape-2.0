@@ -30,9 +30,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["@akord/akord-js", "npm:3.11.0"],\
             ["@next/font", "npm:13.1.6"],\
-            ["@types/node", "npm:18.14.0"],\
+            ["@types/node", "npm:18.15.8"],\
             ["@types/react", "npm:18.0.28"],\
             ["@types/react-dom", "npm:18.0.11"],\
+            ["base64-js", "npm:1.5.1"],\
+            ["dotenv", "npm:16.0.3"],\
             ["framer-motion", "virtual:4be437df26beafef60daf8379fc853ce96e9ee9bd39c178ee62fabc557db150770dd72e14e4b04697fac46640225e7b5d2c5a097d87195445e6c677e339cc1e6#npm:10.6.0"],\
             ["next", "virtual:4be437df26beafef60daf8379fc853ce96e9ee9bd39c178ee62fabc557db150770dd72e14e4b04697fac46640225e7b5d2c5a097d87195445e6c677e339cc1e6#npm:13.1.6"],\
             ["react", "npm:18.2.0"],\
@@ -337,10 +339,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@types/node", [\
-        ["npm:18.14.0", {\
-          "packageLocation": "./.yarn/cache/@types-node-npm-18.14.0-ddc1a221d2-d83fcf5e4e.zip/node_modules/@types/node/",\
+        ["npm:18.15.8", {\
+          "packageLocation": "./.yarn/cache/@types-node-npm-18.15.8-fd87c998e4-795695b9f5.zip/node_modules/@types/node/",\
           "packageDependencies": [\
-            ["@types/node", "npm:18.14.0"]\
+            ["@types/node", "npm:18.15.8"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -422,9 +424,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["artape-2", "workspace:."],\
             ["@akord/akord-js", "npm:3.11.0"],\
             ["@next/font", "npm:13.1.6"],\
-            ["@types/node", "npm:18.14.0"],\
+            ["@types/node", "npm:18.15.8"],\
             ["@types/react", "npm:18.0.28"],\
             ["@types/react-dom", "npm:18.0.11"],\
+            ["base64-js", "npm:1.5.1"],\
+            ["dotenv", "npm:16.0.3"],\
             ["framer-motion", "virtual:4be437df26beafef60daf8379fc853ce96e9ee9bd39c178ee62fabc557db150770dd72e14e4b04697fac46640225e7b5d2c5a097d87195445e6c677e339cc1e6#npm:10.6.0"],\
             ["next", "virtual:4be437df26beafef60daf8379fc853ce96e9ee9bd39c178ee62fabc557db150770dd72e14e4b04697fac46640225e7b5d2c5a097d87195445e6c677e339cc1e6#npm:13.1.6"],\
             ["react", "npm:18.2.0"],\
@@ -553,6 +557,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/dommatrix-npm-1.0.3-1a95bacd36-8ac727c1a1.zip/node_modules/dommatrix/",\
           "packageDependencies": [\
             ["dommatrix", "npm:1.0.3"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["dotenv", [\
+        ["npm:16.0.3", {\
+          "packageLocation": "./.yarn/cache/dotenv-npm-16.0.3-4cc29121dc-afcf03f373.zip/node_modules/dotenv/",\
+          "packageDependencies": [\
+            ["dotenv", "npm:16.0.3"]\
           ],\
           "linkType": "HARD"\
         }]\

@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
-import styles from "@/styles/Home.module.css";
-import Image from "next/image";
+import React, { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
+import styles from '@/styles/Home.module.css';
+import Image from 'next/image';
+import { Akord } from '@akord/akord-js';
 
 interface Song {
   title: string;
@@ -10,27 +11,32 @@ interface Song {
 
 const songs: Song[] = [
   {
-    title: "Blue Cowboy",
-    src: "https://5jxkaucpt4jq2n5ceypa7tijr2vrqcrcgx567hisii27hymlqz2a.arweave.net/6m6gUE-fEw03oiYeD80JjqsYCiI1---dEkI18-GLhnQ",
+    title: 'Blue Cowboy',
+    src: 'https://5jxkaucpt4jq2n5ceypa7tijr2vrqcrcgx567hisii27hymlqz2a.arweave.net/6m6gUE-fEw03oiYeD80JjqsYCiI1---dEkI18-GLhnQ',
   },
   {
-    title: "Dearly Departed",
-    src: "https://cxdvxsxj6ps45rqsdjnskvgl2n3cc6bvohej5l27w7oof76rhcya.arweave.net/Fcdbyunz5c7GEhpbJVTL03YheDVxyJ6vX7fc4v_ROLA",
+    title: 'Dearly Departed',
+    src: 'https://cxdvxsxj6ps45rqsdjnskvgl2n3cc6bvohej5l27w7oof76rhcya.arweave.net/Fcdbyunz5c7GEhpbJVTL03YheDVxyJ6vX7fc4v_ROLA',
   },
   {
-    title: "Helmut Lang",
-    src: "https://4hyskfaoe726dpdaczx3dmpswrqj4uydukvzozsuewmcan6wsovq.arweave.net/4fElFA4n9eG8YBZvsbHytGCeUwOiq5dmVCWYIDfWk6s",
+    title: 'Helmut Lang',
+    src: 'https://4hyskfaoe726dpdaczx3dmpswrqj4uydukvzozsuewmcan6wsovq.arweave.net/4fElFA4n9eG8YBZvsbHytGCeUwOiq5dmVCWYIDfWk6s',
   },
 ];
 
 const AudioPlayer = () => {
-  const [currentSongIndex, setCurrentSongIndex] = useState<number>(-1);
+  const [vaultName, setVaultName] = useState<string>('');
+  const [currentSongIndex, setCurrentSongIndex] =
+    useState<number>(-1);
   const [isPlaying, setisPlaying] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(1);
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
   const audioPlayer = useRef<HTMLAudioElement | null>(null);
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleVolumeChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): void => {
     const newVolume = parseFloat(e.target.value);
     setVolume(newVolume);
 
@@ -40,15 +46,40 @@ const AudioPlayer = () => {
   };
 
   useEffect(() => {
+    const fetchAuthData = async () => {
+      try {
+        const response = await fetch('/api/auth');
+        const data = await response.json();
+        const akord = await Akord.init(data.wallet, data.jwtToken);
+        const vaults = await akord.vault.list();
+        const vaultId = await vaults[0].id;
+        const { items } = await akord.stack.list(vaultId);
+        const stackId = await items[0].id;
+        const { data: decryptedAudio } = await akord.stack.getVersion(
+          stackId
+        );
+        const blobUrl = URL.createObjectURL(
+          new Blob([decryptedAudio])
+        );
+        setAudioUrl(blobUrl);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchAuthData();
+  }, []);
+
+  useEffect(() => {
     if (!audioPlayer.current) {
       audioPlayer.current = new Audio();
     }
     setCurrentSong(songs[currentSongIndex]);
 
     if (audioPlayer.current && currentSongIndex !== -1) {
-      audioPlayer.current.removeEventListener("ended", handleEnded);
+      audioPlayer.current.removeEventListener('ended', handleEnded);
       audioPlayer.current.src = songs[currentSongIndex].src;
-      audioPlayer.current.addEventListener("ended", handleEnded);
+      audioPlayer.current.addEventListener('ended', handleEnded);
 
       if (isPlaying) {
         audioPlayer.current.play();
@@ -59,7 +90,7 @@ const AudioPlayer = () => {
 
     return () => {
       if (audioPlayer.current) {
-        audioPlayer.current.removeEventListener("ended", handleEnded);
+        audioPlayer.current.removeEventListener('ended', handleEnded);
       }
     };
   }, [currentSongIndex, isPlaying]);
@@ -126,14 +157,20 @@ const AudioPlayer = () => {
       >
         <div className={styles.musicPlayerHeader}>
           <audio onEnded={handleEnded} ref={audioPlayer} />
-          <h2 className={styles.profileName}>SO LOKI</h2>
-          <p className={styles.amounttotalDuration}>3 songs, 4:37 minutes</p>
+          <h2 className={styles.profileName}>{vaultName}</h2>
+          <p className={styles.amounttotalDuration}>
+            3 songs, 4:37 minutes
+          </p>
           <p className={styles.artapeLink}>Watch Me Blue</p>
-          <p className={styles.currentSongTitle}>{currentSong?.title}</p>
+          <p className={styles.currentSongTitle}>
+            {currentSong?.title}
+          </p>
           {currentSongIndex !== -1 ? (
-            <button onClick={() => handlePrevSong()}>Prev Song</button>
+            <button onClick={() => handlePrevSong()}>
+              Prev Song
+            </button>
           ) : (
-            ""
+            ''
           )}
           <button onClick={() => handleNextSong()}>Next Song</button>
           {isPlaying ? (
@@ -149,6 +186,14 @@ const AudioPlayer = () => {
             className={styles.volumeSlider}
           />
         </div>
+        {audioUrl ? (
+          <audio controls>
+            <source src={audioUrl} type="audio/mpeg" />
+            Your browser does not support the audio element.
+          </audio>
+        ) : (
+          <p>Loading audio...</p>
+        )}
         {songs.map((song: Song, index: number) => (
           <button
             className={styles.musicPlayerTrack}
@@ -172,15 +217,15 @@ const AudioPlayer = () => {
               <div className={styles.playButton}>
                 {isPlaying && currentSongIndex === index ? (
                   <Image
-                    src={"/stopButton.svg"}
-                    alt={"Stop Button"}
+                    src={'/stopButton.svg'}
+                    alt={'Stop Button'}
                     width={25.5}
                     height={25.5}
                   />
                 ) : (
                   <Image
-                    src={"/startButton.svg"}
-                    alt={"Play Button"}
+                    src={'/startButton.svg'}
+                    alt={'Play Button'}
                     width={25.5}
                     height={25.5}
                   />
