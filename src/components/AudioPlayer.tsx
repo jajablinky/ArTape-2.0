@@ -51,7 +51,7 @@ const AudioPlayer = ({ akord }) => {
   const [tape, setTape] = useState<Tape>({
     id: '',
     title: '',
-    length: null,
+    length: 0,
     type: '',
     duration: '',
     tracks: [],
