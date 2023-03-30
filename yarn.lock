@@ -6,8 +6,8 @@ __metadata:
   cacheKey: 8
 
 "@akord/akord-js@npm:^3.11.0":
-  version: 3.11.0
-  resolution: "@akord/akord-js@npm:3.11.0"
+  version: 3.11.1
+  resolution: "@akord/akord-js@npm:3.11.1"
   dependencies:
     "@akord/crypto": 0.10.0
     "@akord/ts-cacheable": 1.0.11
@@ -22,7 +22,7 @@ __metadata:
     streamsaver: ^2.0.6
     uuid: ^8.3.2
     web-streams-polyfill: ^3.2.1
-  checksum: 837c95921d68f2ce527b84d51e911e5d17b96c3053505de529f81d3f51702fdd8eaa3c13c291a14a80c7f01f4602bb0fe0669150ff34345164fa7df422f4afbd
+  checksum: be97ad4e783be3c744428ce6073f12905896bdcddfda6921cd904baa67220f372ef8c1662b85d8497eb396f860e1cd5ec49514840b8d6fe572ba1e7533f3d961
   languageName: node
   linkType: hard
 
@@ -244,9 +244,9 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:^18.15.8":
-  version: 18.15.8
-  resolution: "@types/node@npm:18.15.8"
-  checksum: 795695b9f5bbfaea864261d3179da530dbe8c615bd525d6afcaa0d508f0b73f252507b54c735b1d744932677e30f55161bbe9b78487a60bd6a93b2d03027d30d
+  version: 18.15.9
+  resolution: "@types/node@npm:18.15.9"
+  checksum: 5165f84f2fe25699879129b98c405c05e8d0428414c99fa544e22bdd0ea502aac384d26418298a31983064fa18c98e2fba5791b9c907bd78ccbcb49c23101bee
   languageName: node
   linkType: hard
 
@@ -257,7 +257,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:18.0.11":
+"@types/react-dom@npm:^18.0.11":
   version: 18.0.11
   resolution: "@types/react-dom@npm:18.0.11"
   dependencies:
@@ -266,21 +266,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:18.0.28":
-  version: 18.0.28
-  resolution: "@types/react@npm:18.0.28"
+"@types/react@npm:*, @types/react@npm:^18.0.29":
+  version: 18.0.29
+  resolution: "@types/react@npm:18.0.29"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: e752df961105e5127652460504785897ca6e77259e0da8f233f694f9e8f451cde7fa0709d4456ade0ff600c8ce909cfe29f9b08b9c247fa9b734e126ec53edd7
+  checksum: 75f56f81d80a1c15ee3fcd2039bdc5f7a70f49cf69827ee0fc8beece9809b234f245dd62552e91018d8f25792986bd513b44caf054554d5c5eb979a5f9460214
   languageName: node
   linkType: hard
 
 "@types/scheduler@npm:*":
-  version: 0.16.2
-  resolution: "@types/scheduler@npm:0.16.2"
-  checksum: b6b4dcfeae6deba2e06a70941860fb1435730576d3689225a421280b7742318d1548b3d22c1f66ab68e414f346a9542f29240bc955b6332c5b11e561077583bc
+  version: 0.16.3
+  resolution: "@types/scheduler@npm:0.16.3"
+  checksum: 2b0aec39c24268e3ce938c5db2f2e77f5c3dd280e05c262d9c2fe7d890929e4632a6b8e94334017b66b45e4f92a5aa42ba3356640c2a1175fa37bef2f5200767
   languageName: node
   linkType: hard
 
@@ -319,15 +319,15 @@ __metadata:
     "@akord/akord-js": ^3.11.0
     "@next/font": 13.1.6
     "@types/node": ^18.15.8
-    "@types/react": 18.0.28
-    "@types/react-dom": 18.0.11
+    "@types/react": ^18.0.29
+    "@types/react-dom": ^18.0.11
     base64-js: ^1.5.1
     dotenv: ^16.0.3
     framer-motion: ^10.6.0
     next: 13.1.6
     react: 18.2.0
     react-dom: 18.2.0
-    typescript: 4.9.5
+    typescript: ^5.0.2
   languageName: unknown
   linkType: soft
 
@@ -385,9 +385,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001406":
-  version: 1.0.30001456
-  resolution: "caniuse-lite@npm:1.0.30001456"
-  checksum: c2cc479962149abd09a25b64699ee7484d9c433db2bad0a489f7b51b09a463c991f6efd7b8e201bc1a1ccf3294263f88503a3adf0a57db9046939ee7e58b76a6
+  version: 1.0.30001469
+  resolution: "caniuse-lite@npm:1.0.30001469"
+  checksum: 8e496509d7e9ff189c72205675b5db0c5f1b6a09917027441e835efae0848a468a8c4e7d2b409ffc202438fcd23ae53e017f976a03c22c04d12d3c0e1e33e5de
   languageName: node
   linkType: hard
 
@@ -472,8 +472,8 @@ __metadata:
   linkType: hard
 
 "framer-motion@npm:^10.6.0":
-  version: 10.6.0
-  resolution: "framer-motion@npm:10.6.0"
+  version: 10.9.1
+  resolution: "framer-motion@npm:10.9.1"
   dependencies:
     "@emotion/is-prop-valid": ^0.8.2
     tslib: ^2.4.0
@@ -488,7 +488,7 @@ __metadata:
       optional: true
     react-dom:
       optional: true
-  checksum: 83de861483cd5fe820284ee883fb5a78ae9463f083aca8e8588e9403d3fcc7d98a1f9bcf96aefcdd5058aeb2aca07a55cb6d1ce3a979e5fe9fd44d084e948c27
+  checksum: d2eacc83a1ab308a8cfa404b95fb5fb821b6ff821238e365b6bf0b999a1342b00287c58c9c6d29c00b84066315fdf86acc081d4289c03c17f2f4e58e5bfc2e3e
   languageName: node
   linkType: hard
 
@@ -880,23 +880,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:4.9.5":
-  version: 4.9.5
-  resolution: "typescript@npm:4.9.5"
+"typescript@npm:^5.0.2":
+  version: 5.0.2
+  resolution: "typescript@npm:5.0.2"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: ee000bc26848147ad423b581bd250075662a354d84f0e06eb76d3b892328d8d4440b7487b5a83e851b12b255f55d71835b008a66cbf8f255a11e4400159237db
+  checksum: bef1dcd166acfc6934b2ec4d72f93edb8961a5fab36b8dd2aaf6f4f4cd5c0210f2e0850aef4724f3b4913d5aef203a94a28ded731b370880c8bcff7e4ff91fc1
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@4.9.5#~builtin<compat/typescript>":
-  version: 4.9.5
-  resolution: "typescript@patch:typescript@npm%3A4.9.5#~builtin<compat/typescript>::version=4.9.5&hash=23ec76"
+"typescript@patch:typescript@^5.0.2#~builtin<compat/typescript>":
+  version: 5.0.2
+  resolution: "typescript@patch:typescript@npm%3A5.0.2#~builtin<compat/typescript>::version=5.0.2&hash=1f5320"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: ab417a2f398380c90a6cf5a5f74badd17866adf57f1165617d6a551f059c3ba0a3e4da0d147b3ac5681db9ac76a303c5876394b13b3de75fdd5b1eaa06181c9d
+  checksum: bdbf3d0aac0d6cf010fbe0536753dc19f278eb4aba88140dcd25487dfe1c56ca8b33abc0dcd42078790a939b08ebc4046f3e9bb961d77d3d2c3cfa9829da4d53
   languageName: node
   linkType: hard
 
