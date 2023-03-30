@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
 import { Akord } from '@akord/akord-js';
-import tapeInfo from '../tapeInfo.json';
 
 interface Track {
   track_number: number;
@@ -19,6 +18,7 @@ interface Tape {
   title: string;
   type: string;
   duration: string;
+  length: number;
   tracks: Track[];
 }
 
@@ -47,16 +47,15 @@ function totalTapeLength(tape: Tape): string {
   return totalDurationFormatted;
 }
 
-const tape: Tape[] = {
-  id: tapeInfo.tape.id,
-  title: tapeInfo.tape.title,
-  type: tapeInfo.tape.type,
-  length: tapeInfo.tape.length,
-  duration: totalTapeLength(tapeInfo.tape),
-  tracks: tapeInfo.tape.tracks,
-};
-
 const AudioPlayer = ({ akord }) => {
+  const [tape, setTape] = useState<Tape>({
+    id: '',
+    title: '',
+    length: null,
+    type: '',
+    duration: '',
+    tracks: [],
+  });
   const [audioFetched, setAudioFetched] = useState<boolean>(false);
 
   const [vaultName, setVaultName] = useState<string>('');
@@ -92,9 +91,28 @@ const AudioPlayer = ({ akord }) => {
         const { items } = await akord.stack.list(vaultId);
         const audioUrls = [];
         for (let i = 0; i < items.length; i++) {
-          // Cycle through items to get IDs if they are audio objects
+          // Cycle through items to get IDs and organize
           if (items[i].name === 'tapeInfo.json') {
             const tapeInfoId = await items[i].id;
+            const { data: decryptedTapeInfo } =
+              await akord.stack.getVersion(tapeInfoId);
+
+            // Decode Uint8Array into a string
+            const tapeInfoString = new TextDecoder().decode(
+              decryptedTapeInfo
+            );
+
+            // Parse the string into a JavaScript object
+            const tapeInfoJSON = JSON.parse(tapeInfoString);
+
+            // Update the tape state
+            setTape({
+              id: tapeInfoJSON.tape.id,
+              title: tapeInfoJSON.tape.title,
+              type: tapeInfoJSON.tape.type,
+              duration: totalTapeLength(tapeInfoJSON.tape),
+              tracks: tapeInfoJSON.tape.tracks,
+            });
           }
           if (items[i].versions[0].type === 'audio/wav') {
             const audioId = await items[i].id;
@@ -107,12 +125,13 @@ const AudioPlayer = ({ akord }) => {
           }
         }
 
-        // Update the tape.tracks array with the fetched URLs
-        const updatedTracks = await tape.tracks.map((track) => ({
-          ...track,
-          src: audioUrls[track.track_number],
+        setTape((prevTape) => ({
+          ...prevTape,
+          tracks: prevTape.tracks.map((track, index) => ({
+            ...track,
+            src: audioUrls[index + 1],
+          })),
         }));
-        tape.tracks = updatedTracks;
         setAudioFetched(true);
       } catch (error) {
         console.error(error);
