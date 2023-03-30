@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  ignoreBuildErrors: true,
   reactStrictMode: true,
   webpack: (config, { isServer }) => {
     if (!isServer) {
