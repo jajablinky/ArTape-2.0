@@ -12,8 +12,6 @@
     "@akord/akord-js": "^3.11.0",
     "@next/font": "13.1.6",
     "@types/node": "^18.15.8",
-    "@types/react": "^18.0.29",
-    "@types/react-dom": "^18.0.11",
     "base64-js": "^1.5.1",
     "dotenv": "^16.0.3",
     "framer-motion": "^10.6.0",
@@ -22,6 +20,8 @@
     "react-dom": "18.2.0"
   },
   "devDependencies": {
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
     "typescript": "^5.0.2"
   }
 }
