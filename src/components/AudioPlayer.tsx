@@ -58,13 +58,11 @@ const AudioPlayer = ({ akord }) => {
   });
   const [audioFetched, setAudioFetched] = useState<boolean>(false);
 
-  const [vaultName, setVaultName] = useState<string>('');
   const [currentSongIndex, setCurrentSongIndex] =
     useState<number>(-1);
   const [isPlaying, setisPlaying] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(1);
   const [currentSong, setCurrentSong] = useState<Track | null>(null);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
   const audioPlayer = useRef<HTMLAudioElement | null>(null);
   const handleVolumeChange = (
