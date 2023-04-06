@@ -4,21 +4,28 @@ import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useRouter } from 'next/router';
+import { Akord } from '@akord/akord-js';
 
 import ArTapeLogo from '../../public/ArTAPE.svg';
 import CassetteLogo from '../../public/Artape-Cassete-Logo.gif';
 import Link from 'next/link';
 
 type VaultValues = {
-  vaultId: number;
+  email: string;
+  password: string;
 };
 
 export default function Home() {
+  const [akord, setAkord] = useState<Akord | null>();
   const { register, handleSubmit } = useForm<VaultValues>();
   const router = useRouter();
-  const onSubmit: SubmitHandler<VaultValues> = (data) => {
-    console.log(data);
-    router.push(`/tape/${data.vaultId}`);
+  const onSubmit: SubmitHandler<VaultValues> = async (data) => {
+    const { jwtToken, wallet } = await Akord.auth.signIn(
+      data.email,
+      data.password
+    );
+    const akord = await Akord.init(wallet, jwtToken);
+    setAkord(akord);
   };
 
   const [showVaultIdForm, setShowVaultIdForm] = useState(false);
@@ -34,9 +41,23 @@ export default function Home() {
       onSubmit={handleSubmit(onSubmit)}
     >
       <input
-        {...register('vaultId')}
+        {...register('email')}
         required
-        placeholder="Please Enter Vault ID"
+        type="email"
+        placeholder="Email"
+        style={{
+          background: 'transparent',
+          border: 'none',
+          borderBottom: '1px solid white',
+          textAlign: 'right',
+        }}
+      />
+
+      <input
+        {...register('password')}
+        required
+        type="password"
+        placeholder="Password"
         style={{
           background: 'transparent',
           border: 'none',
@@ -52,7 +73,6 @@ export default function Home() {
           color: 'black',
           fontSize: '12px',
         }}
-        onClick={() => setShowVaultIdForm(true)}
       >
         Go
       </button>
@@ -108,7 +128,7 @@ export default function Home() {
                   }}
                   onClick={() => setShowVaultIdForm(true)}
                 >
-                  Enter In Vault #
+                  Sign In
                 </button>
                 <Link href="/create">
                   <button
