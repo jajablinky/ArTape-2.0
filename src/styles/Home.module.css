@@ -118,3 +118,8 @@
   width: clamp(50%, 700px, 90%);
   height: min(50%, 300px);
 }
+
+.placeholder {
+  position: relative;
+  font-size: 32px;
+}

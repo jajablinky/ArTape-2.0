@@ -2,15 +2,62 @@ import { useState } from 'react';
 import Head from 'next/head';
 import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
-import Modal from '@/components/Modal';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { useRouter } from 'next/router';
+
 import ArTapeLogo from '../../public/ArTAPE.svg';
 import CassetteLogo from '../../public/Artape-Cassete-Logo.gif';
+import Link from 'next/link';
+
+type VaultValues = {
+  vaultId: number;
+};
 
 export default function Home() {
-  const [modalOpen, setModalOpen] = useState(false);
-  const close = () => setModalOpen(false);
-  const open = () => setModalOpen(true);
+  const { register, handleSubmit } = useForm<VaultValues>();
+  const router = useRouter();
+  const onSubmit: SubmitHandler<VaultValues> = (data) => {
+    console.log(data);
+    router.push(`/tape/${data.vaultId}`);
+  };
 
+  const [showVaultIdForm, setShowVaultIdForm] = useState(false);
+
+  const vaultIdInputForm = (
+    <form
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '24px',
+        width: '300px',
+      }}
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      <input
+        {...register('vaultId')}
+        required
+        placeholder="Please Enter Vault ID"
+        style={{
+          background: 'transparent',
+          border: 'none',
+          borderBottom: '1px solid white',
+          textAlign: 'right',
+        }}
+      />
+
+      <button
+        type="submit"
+        style={{
+          backgroundColor: 'white',
+          color: 'black',
+          fontSize: '12px',
+        }}
+        onClick={() => setShowVaultIdForm(true)}
+      >
+        Go
+      </button>
+    </form>
+  );
   return (
     <>
       <Head>
@@ -49,24 +96,33 @@ export default function Home() {
               gap: '14px',
             }}
           >
-            <button
-              style={{
-                backgroundColor: 'white',
-                color: 'black',
-                fontSize: '12px',
-              }}
-            >
-              Enter In Vault Number
-            </button>
-            <button
-              style={{
-                background: 'transparent',
-                color: '#ABABAB',
-                fontSize: '12px',
-              }}
-            >
-              Create A New Vault
-            </button>
+            {showVaultIdForm ? (
+              vaultIdInputForm
+            ) : (
+              <>
+                <button
+                  style={{
+                    backgroundColor: 'white',
+                    color: 'black',
+                    fontSize: '12px',
+                  }}
+                  onClick={() => setShowVaultIdForm(true)}
+                >
+                  Enter In Vault #
+                </button>
+                <Link href="/create">
+                  <button
+                    style={{
+                      background: 'transparent',
+                      color: '#ABABAB',
+                      fontSize: '12px',
+                    }}
+                  >
+                    Create A New Vault
+                  </button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </main>
