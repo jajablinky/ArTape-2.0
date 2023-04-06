@@ -1,4 +1,5 @@
 import React from 'react';
+import Akord from '@akord/akord-js';
 import Backdrop from '../Backdrop';
 import styles from '@/styles/Home.module.css';
 import AudioPlayer from '../AudioPlayer';
@@ -7,6 +8,7 @@ interface ModalProps {
   modalOpen: boolean;
   handleClose: () => void;
   text?: string;
+  akord: Akord | null;
 }
 
 const dropIn = {
@@ -28,6 +30,7 @@ const Modal: React.FC<ModalProps> = ({
   modalOpen,
   handleClose,
   text,
+  akord,
 }: ModalProps) => {
   if (!modalOpen) {
     return null;
@@ -35,7 +38,7 @@ const Modal: React.FC<ModalProps> = ({
 
   return (
     <Backdrop onClick={handleClose}>
-      <AudioPlayer />
+      <AudioPlayer akord={akord} />
     </Backdrop>
   );
 };

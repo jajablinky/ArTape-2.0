@@ -1,108 +1,130 @@
-import { useState } from "react";
-import Head from "next/head";
-import styles from "@/styles/Home.module.css";
-import AudioPlayer from "@/components/AudioPlayer";
-import Image from "next/image";
-import Modal from "@/components/Modal";
-import { Akord } from "@akord/akord-js";
+import { useState } from 'react';
+import Head from 'next/head';
+import styles from '@/styles/Home.module.css';
+import Image from 'next/image';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { useRouter } from 'next/router';
+
+import ArTapeLogo from '../../public/ArTAPE.svg';
+import CassetteLogo from '../../public/Artape-Cassete-Logo.gif';
+import Link from 'next/link';
+
+type VaultValues = {
+  vaultId: number;
+};
 
 export default function Home() {
-  const [modalOpen, setModalOpen] = useState(false);
+  const { register, handleSubmit } = useForm<VaultValues>();
+  const router = useRouter();
+  const onSubmit: SubmitHandler<VaultValues> = (data) => {
+    console.log(data);
+    router.push(`/tape/${data.vaultId}`);
+  };
 
-  const close = () => setModalOpen(false);
-  const open = () => setModalOpen(true);
+  const [showVaultIdForm, setShowVaultIdForm] = useState(false);
 
+  const vaultIdInputForm = (
+    <form
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '24px',
+        width: '300px',
+      }}
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      <input
+        {...register('vaultId')}
+        required
+        placeholder="Please Enter Vault ID"
+        style={{
+          background: 'transparent',
+          border: 'none',
+          borderBottom: '1px solid white',
+          textAlign: 'right',
+        }}
+      />
+
+      <button
+        type="submit"
+        style={{
+          backgroundColor: 'white',
+          color: 'black',
+          fontSize: '12px',
+        }}
+        onClick={() => setShowVaultIdForm(true)}
+      >
+        Go
+      </button>
+    </form>
+  );
   return (
     <>
       <Head>
         <title>ArTape</title>
         <meta name="description" content="Modern Web3 listening" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1"
+        />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <div style={{ display: "flex", marginBottom: "10px" }}>
-          <div>
-            <h1>So Loki</h1>
-          </div>
-        </div>
-        <div className={styles.gridProfile}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '64px',
+            alignItems: 'center',
+          }}
+        >
           <div
-            className={styles.profileModule}
-            onClick={() => (modalOpen ? close() : open())}
             style={{
-              cursor: "pointer",
-              backgroundColor: "var(--artape-primary-color)",
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '24px',
             }}
           >
-            Play
+            <Image src={CassetteLogo} width={25} alt="artape-logo" />
+            <Image src={ArTapeLogo} width={300} alt="artape-logo" />
           </div>
-          <div className={styles.profileModule}>
-            <Image
-              src={"/artwork1.webp"}
-              alt={"artwork-cry-eyes"}
-              width={400}
-              height={400}
-            />
-          </div>
-          <div className={styles.profileModule}>
-            <Image
-              src={"/artwork1.webp"}
-              alt={"artwork-cry-eyes"}
-              width={350}
-              height={350}
-            />
-          </div>
-          <div className={styles.profileModule}>
-            <Image
-              src={"/artwork1.webp"}
-              alt={"artwork-cry-eyes"}
-              width={350}
-              height={350}
-            />
-          </div>
-          <div className={styles.profileModule}>
-            <Image
-              src={"/artwork1.webp"}
-              alt={"artwork-cry-eyes"}
-              width={350}
-              height={350}
-            />
-          </div>
-          <div className={styles.profileModule}>
-            <Image
-              src={"/artwork1.webp"}
-              alt={"artwork-cry-eyes"}
-              width={350}
-              height={350}
-            />
-          </div>
-          <div className={styles.profileModule}>
-            <Image
-              src={"/artwork1.webp"}
-              alt={"artwork-cry-eyes"}
-              width={350}
-              height={350}
-            />
-          </div>
-          <div className={styles.profileModule}>
-            <Image
-              src={"/artwork1.webp"}
-              alt={"artwork-cry-eyes"}
-              width={350}
-              height={350}
-            />
-          </div>
-          <div className={styles.profileModule}>
-            <Image
-              src={"/artwork1.webp"}
-              alt={"artwork-cry-eyes"}
-              width={350}
-              height={350}
-            />
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '14px',
+            }}
+          >
+            {showVaultIdForm ? (
+              vaultIdInputForm
+            ) : (
+              <>
+                <button
+                  style={{
+                    backgroundColor: 'white',
+                    color: 'black',
+                    fontSize: '12px',
+                  }}
+                  onClick={() => setShowVaultIdForm(true)}
+                >
+                  Enter In Vault #
+                </button>
+                <Link href="/create">
+                  <button
+                    style={{
+                      background: 'transparent',
+                      color: '#ABABAB',
+                      fontSize: '12px',
+                    }}
+                  >
+                    Create A New Vault
+                  </button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
-        {modalOpen && <Modal modalOpen={modalOpen} handleClose={close} />}
       </main>
     </>
   );
