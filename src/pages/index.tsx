@@ -16,19 +16,42 @@ type VaultValues = {
 };
 
 export default function Home() {
+  const [loading, setLoading] = useState(false);
   const [akord, setAkord] = useState<Akord | null>();
-  const { register, handleSubmit } = useForm<VaultValues>();
   const router = useRouter();
+
+  const {
+    register,
+    formState: { errors, isSubmitSuccessful },
+    handleSubmit,
+  } = useForm<VaultValues>();
   const onSubmit: SubmitHandler<VaultValues> = async (data) => {
+    setLoading(true);
     const { jwtToken, wallet } = await Akord.auth.signIn(
       data.email,
       data.password
     );
-    const akord = await Akord.init(wallet, jwtToken);
-    setAkord(akord);
+    const akordInstance = await Akord.init(wallet, jwtToken);
+    console.log(akordInstance);
+    setAkord(akordInstance);
+    // select first vault and console log the vault id
+    const vaults = await akordInstance.vault.list();
+    const vaultId = vaults[0].id;
+    console.log(vaultId);
+
+    setLoading(false);
   };
 
   const [showVaultIdForm, setShowVaultIdForm] = useState(false);
+
+  const loader = (
+    <Image
+      src={CassetteLogo}
+      width={15}
+      alt="artape-logo"
+      style={{ filter: 'invert(1)' }}
+    />
+  );
 
   const vaultIdInputForm = (
     <form
@@ -41,8 +64,7 @@ export default function Home() {
       onSubmit={handleSubmit(onSubmit)}
     >
       <input
-        {...register('email')}
-        required
+        {...register('email', { required: true })}
         type="email"
         placeholder="Email"
         style={{
@@ -52,10 +74,9 @@ export default function Home() {
           textAlign: 'right',
         }}
       />
-
+      {errors.email && 'email is required'}
       <input
-        {...register('password')}
-        required
+        {...register('password', { required: true })}
         type="password"
         placeholder="Password"
         style={{
@@ -65,6 +86,7 @@ export default function Home() {
           textAlign: 'right',
         }}
       />
+      {errors.password && 'password is required'}
 
       <button
         type="submit"
@@ -74,7 +96,7 @@ export default function Home() {
           fontSize: '12px',
         }}
       >
-        Go
+        {loading ? loader : <span>Go</span>}
       </button>
     </form>
   );
