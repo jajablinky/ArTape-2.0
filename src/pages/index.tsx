@@ -38,10 +38,10 @@ export default function Home() {
     const vaults = await akordInstance.vault.list();
     const vaultId = vaults[0].id;
     const { items } = await akordInstance.stack.list(vaultId);
-    const audioUrls = [];
-    for (let i = 0; i < items.length; i++) {
-      if (items[i].name === 'tapeInfo.json') {
-        const tapeInfoId = await items[i].id;
+
+    const audioPromises = items.map(async (item) => {
+      if (item.name === 'tapeInfo.json') {
+        const tapeInfoId = await item.id;
         const { data: decryptedTapeInfo } =
           await akordInstance.stack.getVersion(tapeInfoId);
         const tapeInfoString = new TextDecoder().decode(
@@ -50,16 +50,21 @@ export default function Home() {
         const tapeInfoJSON = JSON.parse(tapeInfoString);
         console.log('collected audio metadata');
       }
-      if (items[i].versions[0].type === 'audio/wav') {
-        const audioId = items[i].id;
+      if (item.versions[0].type === 'audio/wav') {
+        const audioId = item.id;
         const { data: decryptedAudio } =
           await akordInstance.stack.getVersion(audioId);
         const blobUrl = URL.createObjectURL(
           new Blob([decryptedAudio])
         );
-        audioUrls[i] = blobUrl;
+        return blobUrl;
       }
-    }
+      return null;
+    });
+
+    const audioUrls = (await Promise.all(audioPromises)).filter(
+      (url) => url !== null
+    );
     console.log(audioUrls, 'collected songs');
     router.push({
       pathname: `/vault/${[vaultId]}`,
