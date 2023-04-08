@@ -61,6 +61,9 @@ export default function Home() {
       }
     }
     console.log(audioUrls, 'collected songs');
+    router.push({
+      pathname: `/vault/${[vaultId]}`,
+    });
     setLoading(false);
   };
 
