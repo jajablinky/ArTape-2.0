@@ -1,10 +1,11 @@
-import React, { SetStateAction, useState } from 'react';
+import React, { useState } from 'react';
 import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
 
 import ArTapeLogo from '../../public/ArTAPE.svg';
 import CassetteLogo from '../../public/Artape-Cassete-Logo.gif';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { useRouter } from 'next/router';
 
 type VaultValues = {
   email: string;
@@ -25,9 +26,37 @@ const create = () => {
   const [loading, setLoading] = useState(false);
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [userInfo, setUserInfo] = useState({});
-  const [picture, setPicture] = useState(null);
-  const onChangePicture = (e) => {
-    setPicture(URL.createObjectURL(e.target.files[0]));
+  const [files, setFiles] = useState(null);
+  const onChangeFiles = (e) => {
+    const newFiles = Array.from(e.target.files);
+    setFiles(newFiles);
+  };
+
+  const renderFile = (file: File, index: number) => {
+    const fileType = file.type.split('/')[0];
+    const fileURL = URL.createObjectURL(file);
+
+    if (fileType === 'image') {
+      return (
+        <img
+          src={fileURL}
+          key={index}
+          className="image"
+          alt={`uploaded-image-${index}`}
+        />
+      );
+    } else if (fileType === 'audio') {
+      return (
+        <audio
+          key={index}
+          controls
+          style={{ width: '100%', marginTop: '10px' }}
+        >
+          <source src={fileURL} type={file.type} />
+          Your Browser Does Not Support the Audio Element
+        </audio>
+      );
+    }
   };
 
   const {
@@ -45,36 +74,41 @@ const create = () => {
   };
 
   const uploadForm = (
-    <form
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '24px',
-        width: '300px',
-      }}
-      onSubmit={handleSubmit(onSubmit)}
-    >
-      <input
-        type="file"
-        multiple
-        {...register('file', { required: true })}
-        onChange={onChangePicture}
-      />
-      {errors.file && <p>Upload Multiple Files</p>}
-
-      <img className="image" src={picture && picture} alt="" />
-
-      <button
-        type="submit"
+    <>
+      <form
         style={{
-          backgroundColor: 'white',
-          color: 'black',
-          fontSize: '12px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '24px',
+          width: '300px',
         }}
+        onSubmit={handleSubmit(onSubmit)}
       >
-        {loading ? loader : <span>Upload</span>}
+        <input
+          type="file"
+          multiple
+          {...register('file', { required: true })}
+          onChange={onChangeFiles}
+        />
+        {errors.file && <p>Upload Multiple Files</p>}
+
+        {files && files.map((file, index) => renderFile(file, index))}
+
+        <button
+          type="submit"
+          style={{
+            backgroundColor: 'white',
+            color: 'black',
+            fontSize: '12px',
+          }}
+        >
+          {loading ? loader : <span>Upload</span>}
+        </button>
+      </form>
+      <button onClick={() => setShowUploadForm(false)}>
+        Go Back
       </button>
-    </form>
+    </>
   );
 
   const accountInfoForm = (
