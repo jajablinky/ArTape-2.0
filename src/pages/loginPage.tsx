@@ -103,7 +103,6 @@ const loginPage = () => {
       );
       const akord = await Akord.init(wallet, jwtToken);
       setAkord(akord);
-      setVaultId();
       setIsLoading(false);
       setIsSuccess(true);
     } catch (e) {
