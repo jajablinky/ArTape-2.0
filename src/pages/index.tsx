@@ -6,6 +6,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { useRouter } from 'next/router';
 import { Akord } from '@akord/akord-js';
 
+import { useTape } from '@/components/TapeContext';
 import ArTapeLogo from '../../public/ArTAPE.svg';
 import CassetteLogo from '../../public/Artape-Cassete-Logo.gif';
 import Link from 'next/link';
@@ -16,6 +17,7 @@ type VaultValues = {
 };
 
 export default function Home() {
+  const { tape, setTape } = useTape();
   const [loading, setLoading] = useState(false);
   const [akord, setAkord] = useState<Akord | null>();
   const router = useRouter();
@@ -38,7 +40,7 @@ export default function Home() {
     const vaults = await akordInstance.vault.list();
     const vaultId = vaults[0].id;
     const { items } = await akordInstance.stack.list(vaultId);
-
+    let tapeInfoJSON;
     const audioPromises = items.map(async (item) => {
       if (item.name === 'tapeInfo.json') {
         const tapeInfoId = await item.id;
@@ -47,7 +49,7 @@ export default function Home() {
         const tapeInfoString = new TextDecoder().decode(
           decryptedTapeInfo
         );
-        const tapeInfoJSON = JSON.parse(tapeInfoString);
+        tapeInfoJSON = JSON.parse(tapeInfoString);
         console.log('collected audio metadata');
       }
       if (item.versions[0].type === 'audio/wav') {
@@ -66,8 +68,13 @@ export default function Home() {
       (url) => url !== null
     );
     console.log(audioUrls, 'collected songs');
+    const filteredAudioUrls = audioUrls.filter(
+      (url) => url !== null
+    ) as string[];
+    setTape({ audioUrls: filteredAudioUrls, tapeInfoJSON });
+
     router.push({
-      pathname: `/vault/${[vaultId]}`,
+      pathname: `/tape/${[vaultId]}`,
     });
     setLoading(false);
   };
