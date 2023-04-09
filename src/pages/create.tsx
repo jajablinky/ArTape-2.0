@@ -1,21 +1,22 @@
-import React, {
-  useState,
-  ChangeEvent,
-  ReactElement,
-  FunctionComponent,
-} from 'react';
+import React, { useState, ChangeEvent } from 'react';
 import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
 
 import ArTapeLogo from '../../public/ArTAPE.svg';
 import CassetteLogo from '../../public/Artape-Cassete-Logo.gif';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { useRouter } from 'next/router';
+
+import { Akord } from '@akord/akord-js';
 
 type VaultValues = {
   email: string;
   password: string;
   file: string;
+};
+
+type User = {
+  jwtToken?: any;
+  wallet?: any;
 };
 
 const loader = (
@@ -27,10 +28,41 @@ const loader = (
   />
 );
 
-const create: FunctionComponent = () => {
+const create = () => {
   const [loading, setLoading] = useState(false);
   const [showUploadForm, setShowUploadForm] = useState(false);
-  const [userInfo, setUserInfo] = useState({});
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<VaultValues>();
+  const onSubmit: SubmitHandler<VaultValues> = async (data) => {
+    setLoading(true);
+
+    if (data.email && data.password && files) {
+      const { jwtToken, wallet, akord } = await Akord.auth.signIn(
+        data.email,
+        data.password
+      );
+      console.log('successful sign-in and verification');
+      const { vaultId } = await akord.vault.create('my first vault');
+      console.log(`successfully created vault: ${vaultId}`);
+      for (const file of files) {
+        const { stackId } = await akord.stack.create(
+          vaultId,
+          file,
+          'file'
+        );
+        console.log(
+          `Uploaded file: ${file.name}, Stack ID: ${stackId}`
+        );
+      }
+      console.log('uploaded all files');
+    }
+    setLoading(false);
+  };
+
   const [files, setFiles] = useState<File[] | null>(null);
   const onChangeFiles = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -69,18 +101,6 @@ const create: FunctionComponent = () => {
     }
   };
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<VaultValues>();
-  const onSubmit: SubmitHandler<VaultValues> = async (data) => {
-    setLoading(true);
-    if (data.email && data.password) {
-      setUserInfo({ email: data.email, password: data.password });
-    }
-  };
-
   const uploadForm = (
     <>
       <form
@@ -92,6 +112,30 @@ const create: FunctionComponent = () => {
         }}
         onSubmit={handleSubmit(onSubmit)}
       >
+        <input
+          {...register('email', { required: true })}
+          type="email"
+          placeholder="Email"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            borderBottom: '1px solid white',
+            textAlign: 'right',
+          }}
+        />
+        {errors.email && 'email is required'}
+        <input
+          {...register('password', { required: true })}
+          type="password"
+          placeholder="Password"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            borderBottom: '1px solid white',
+            textAlign: 'right',
+          }}
+        />
+        {errors.password && 'password is required'}
         <input
           type="file"
           multiple
@@ -165,67 +209,9 @@ const create: FunctionComponent = () => {
           )}
         </button>
       </form>
-      <button
-        style={{
-          background: 'transparent',
-          color: '#ABABAB',
-          fontSize: '12px',
-        }}
-        onClick={() => setShowUploadForm(false)}
-      >
-        Go Back
-      </button>
     </>
   );
 
-  const accountInfoForm = (
-    <form
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '24px',
-        width: '300px',
-      }}
-      onSubmit={handleSubmit(onSubmit)}
-    >
-      <input
-        {...register('email', { required: true })}
-        type="email"
-        placeholder="Email"
-        style={{
-          background: 'transparent',
-          border: 'none',
-          borderBottom: '1px solid white',
-          textAlign: 'right',
-        }}
-      />
-      {errors.email && 'email is required'}
-      <input
-        {...register('password', { required: true })}
-        type="password"
-        placeholder="Password"
-        style={{
-          background: 'transparent',
-          border: 'none',
-          borderBottom: '1px solid white',
-          textAlign: 'right',
-        }}
-      />
-      {errors.password && 'password is required'}
-
-      <button
-        type="submit"
-        style={{
-          backgroundColor: 'white',
-          color: 'black',
-          fontSize: '12px',
-        }}
-        onClick={() => setShowUploadForm(true)}
-      >
-        {loading ? loader : <span>Go</span>}
-      </button>
-    </form>
-  );
   return (
     <>
       <main className={styles.main}>
@@ -255,7 +241,7 @@ const create: FunctionComponent = () => {
               gap: '14px',
             }}
           >
-            {showUploadForm ? uploadForm : accountInfoForm}
+            {uploadForm}
           </div>
         </div>
       </main>
