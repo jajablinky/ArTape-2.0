@@ -29,23 +29,23 @@ export default function Home() {
   } = useForm<VaultValues>();
   const onSubmit: SubmitHandler<VaultValues> = async (data) => {
     setLoading(true);
-    const { jwtToken, wallet } = await Akord.auth.signIn(
+    const { jwtToken, wallet, akord } = await Akord.auth.signIn(
       data.email,
       data.password
     );
-    const akordInstance = await Akord.init(wallet, jwtToken);
     console.log('successful sign-in');
-    setAkord(akordInstance);
+    setAkord(akord);
+
     // select first vault and console log the vault id
-    const vaults = await akordInstance.vault.list();
+    const vaults = await akord.vault.list();
     const vaultId = vaults[0].id;
-    const { items } = await akordInstance.stack.list(vaultId);
+    const { items } = await akord.stack.list(vaultId);
     let tapeInfoJSON;
     const audioPromises = items.map(async (item) => {
       if (item.name === 'tapeInfo.json') {
         const tapeInfoId = await item.id;
         const { data: decryptedTapeInfo } =
-          await akordInstance.stack.getVersion(tapeInfoId);
+          await akord.stack.getVersion(tapeInfoId);
         const tapeInfoString = new TextDecoder().decode(
           decryptedTapeInfo
         );
@@ -54,8 +54,9 @@ export default function Home() {
       }
       if (item.versions[0].type === 'audio/wav') {
         const audioId = item.id;
-        const { data: decryptedAudio } =
-          await akordInstance.stack.getVersion(audioId);
+        const { data: decryptedAudio } = await akord.stack.getVersion(
+          audioId
+        );
         const blobUrl = URL.createObjectURL(
           new Blob([decryptedAudio])
         );

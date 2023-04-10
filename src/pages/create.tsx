@@ -1,13 +1,18 @@
-import React, { useState, ChangeEvent } from 'react';
-import styles from '@/styles/Home.module.css';
-import Image from 'next/image';
+import React, { useState, ChangeEvent, CSSProperties } from 'react';
+import AudioList from '@/components/AudioList';
 
+import styles from '@/styles/Home.module.css';
+
+import Image from 'next/image';
 import ArTapeLogo from '../../public/ArTAPE.svg';
 import CassetteLogo from '../../public/Artape-Cassete-Logo.gif';
+import dragIcon from '../../public/Drag-Icon.svg';
+
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { Akord } from '@akord/akord-js';
 
+/* Types */
 type VaultValues = {
   email: string;
   password: string;
@@ -28,10 +33,25 @@ const loader = (
   />
 );
 
-const create = () => {
+const filePreviewContainerStyle: CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  justifyContent: 'space-between',
+  gap: '10px',
+  width: '100%',
+};
+
+const Create = () => {
+  const [items, setItems] = useState([0, 1, 2, 3]);
   const [loading, setLoading] = useState(false);
   const [showUploadForm, setShowUploadForm] = useState(false);
+  const [audioFiles, setAudioFiles] = useState<File[]>([]);
 
+  const [numAudioFiles, setNumAudioFiles] = useState(0);
+  const [numImageFiles, setNumImageFiles] = useState(0);
+  const [files, setFiles] = useState<File[] | null>(null);
+
+  /* Form Submit */
   const {
     register,
     handleSubmit,
@@ -58,17 +78,87 @@ const create = () => {
           `Uploaded file: ${file.name}, Stack ID: ${stackId}`
         );
       }
-      console.log('uploaded all files');
+      console.log('uploaded files');
     }
     setLoading(false);
   };
 
-  const [files, setFiles] = useState<File[] | null>(null);
   const onChangeFiles = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
-      setFiles(newFiles);
+      let audioCount = 0;
+      let imageCount = 0;
+      const newAudioFiles: File[] = [];
+      const newImageFiles: File[] = [];
+
+      newFiles.forEach((file) => {
+        if (file.type.startsWith('audio')) {
+          audioCount++;
+          newAudioFiles.push(file);
+        } else if (file.type.startsWith('image')) {
+          imageCount++;
+          newImageFiles.push(file);
+        }
+      });
+
+      setAudioFiles((prevAudioFiles) => [
+        ...prevAudioFiles,
+        ...newAudioFiles,
+      ]);
+      setFiles((prevFiles) => {
+        if (prevFiles) {
+          return [...prevFiles, ...newImageFiles];
+        } else {
+          return newImageFiles;
+        }
+      });
+
+      setNumAudioFiles(audioCount);
+      setNumImageFiles(imageCount);
     }
+  };
+
+  /* Rendering files is purely for preview to let user know of what files they have uploaded and how many */
+  const renderFileList = (files: File[] | null) => {
+    if (!files) {
+      return null;
+    }
+
+    const imageFiles: File[] = [];
+
+    files.forEach((file) => {
+      const fileType = file.type.split('/')[0];
+      if (fileType === 'image') {
+        imageFiles.push(file);
+      }
+    });
+
+    return (
+      <>
+        {imageFiles.length > 0 && (
+          <>
+            <h3>Images: {imageFiles.length}</h3>
+            <div style={filePreviewContainerStyle}>
+              {imageFiles.map((file, index) =>
+                renderFile(file, index)
+              )}
+            </div>
+          </>
+        )}
+        {audioFiles.length > 0 && (
+          <>
+            <h3>Audio: {audioFiles.length}</h3>
+            <div style={filePreviewContainerStyle}>
+              <AudioList
+                audioFiles={audioFiles}
+                setAudioFiles={setAudioFiles}
+                renderFile={renderFile}
+              />
+            </div>
+          </>
+        )}
+      </>
+    );
   };
 
   const renderFile = (file: File, index: number) => {
@@ -153,31 +243,7 @@ const create = () => {
             width: '100%',
           }}
         >
-          {files &&
-            files.map((file, index) => (
-              <div
-                key={index}
-                style={{
-                  flexBasis: 'calc(25% - 10px)',
-                  marginBottom: '10px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                <div
-                  style={{
-                    width: '100px',
-                    height: '100px',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                >
-                  {renderFile(file, index)}
-                </div>
-              </div>
-            ))}
+          {renderFileList(files)}
         </div>
 
         <button
@@ -249,4 +315,4 @@ const create = () => {
   );
 };
 
-export default create;
+export default Create;
