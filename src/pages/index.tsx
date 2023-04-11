@@ -6,6 +6,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { useRouter } from 'next/router';
 import { Akord } from '@akord/akord-js';
 
+import { useTape } from '@/components/TapeContext';
 import ArTapeLogo from '../../public/ArTAPE.svg';
 import CassetteLogo from '../../public/Artape-Cassete-Logo.gif';
 import Link from 'next/link';
@@ -16,6 +17,7 @@ type VaultValues = {
 };
 
 export default function Home() {
+  const { tape, setTape } = useTape();
   const [loading, setLoading] = useState(false);
   const [akord, setAkord] = useState<Akord | null>();
   const router = useRouter();
@@ -27,33 +29,34 @@ export default function Home() {
   } = useForm<VaultValues>();
   const onSubmit: SubmitHandler<VaultValues> = async (data) => {
     setLoading(true);
-    const { jwtToken, wallet } = await Akord.auth.signIn(
+    const { jwtToken, wallet, akord } = await Akord.auth.signIn(
       data.email,
       data.password
     );
-    const akordInstance = await Akord.init(wallet, jwtToken);
     console.log('successful sign-in');
-    setAkord(akordInstance);
-    // select first vault and console log the vault id
-    const vaults = await akordInstance.vault.list();
-    const vaultId = vaults[0].id;
-    const { items } = await akordInstance.stack.list(vaultId);
+    setAkord(akord);
 
+    // select first vault and console log the vault id
+    const vaults = await akord.vault.list();
+    const vaultId = vaults[0].id;
+    const { items } = await akord.stack.list(vaultId);
+    let tapeInfoJSON;
     const audioPromises = items.map(async (item) => {
       if (item.name === 'tapeInfo.json') {
         const tapeInfoId = await item.id;
         const { data: decryptedTapeInfo } =
-          await akordInstance.stack.getVersion(tapeInfoId);
+          await akord.stack.getVersion(tapeInfoId);
         const tapeInfoString = new TextDecoder().decode(
           decryptedTapeInfo
         );
-        const tapeInfoJSON = JSON.parse(tapeInfoString);
+        tapeInfoJSON = JSON.parse(tapeInfoString);
         console.log('collected audio metadata');
       }
       if (item.versions[0].type === 'audio/wav') {
         const audioId = item.id;
-        const { data: decryptedAudio } =
-          await akordInstance.stack.getVersion(audioId);
+        const { data: decryptedAudio } = await akord.stack.getVersion(
+          audioId
+        );
         const blobUrl = URL.createObjectURL(
           new Blob([decryptedAudio])
         );
@@ -66,8 +69,13 @@ export default function Home() {
       (url) => url !== null
     );
     console.log(audioUrls, 'collected songs');
+    const filteredAudioUrls = audioUrls.filter(
+      (url) => url !== null
+    ) as string[];
+    setTape({ audioUrls: filteredAudioUrls, tapeInfoJSON });
+
     router.push({
-      pathname: `/vault/${[vaultId]}`,
+      pathname: `/tape/${[vaultId]}`,
     });
     setLoading(false);
   };
