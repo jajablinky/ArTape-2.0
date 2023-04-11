@@ -1,6 +1,4 @@
-import { Reorder, useDragControls } from 'framer-motion';
 import React from 'react';
-import ReorderIcon from './dragIcon';
 
 interface DraggableItemProps {
   audioFile: {
@@ -31,57 +29,13 @@ const AudioItem: React.FC<DraggableItemProps> = ({
   audioFile,
   renderFile,
   index,
-  trackInfo,
-  setTrackInfo,
 }) => {
-  const dragControls = useDragControls();
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: string
-  ) => {
-    const newTrackInfo = {
-      ...trackInfo,
-      [audioFile.name]: {
-        ...trackInfo[audioFile.name],
-        [field]: e.target.value,
-      },
-    };
-    setTrackInfo(newTrackInfo);
-  };
-
   return (
-    <Reorder.Item
-      key={audioFile.name}
-      value={audioFile}
-      dragListener={false}
-      dragControls={dragControls}
-    >
-      <input
-        type="text"
-        placeholder="Track Name"
-        value={
-          trackInfo && trackInfo[audioFile.name]
-            ? trackInfo[audioFile.name].trackName || ''
-            : ''
-        }
-        onChange={(e) => handleInputChange(e, 'trackName')}
-      />
-      <input
-        type="text"
-        placeholder="Artist Name"
-        value={
-          trackInfo && trackInfo[audioFile.name]
-            ? trackInfo[audioFile.name].artistName || ''
-            : ''
-        }
-        onChange={(e) => handleInputChange(e, 'artistName')}
-      />
+    <div key={index}>
       <div style={{ display: 'flex', alignItems: 'center' }}>
         {renderFile(audioFile, index)}
-        <ReorderIcon dragControls={dragControls} />
       </div>
-    </Reorder.Item>
+    </div>
   );
 };
 
