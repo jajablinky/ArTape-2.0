@@ -6,13 +6,26 @@ import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
 import ArTapeLogo from '../../public/ArTAPE.svg';
 import CassetteLogo from '../../public/Artape-Cassete-Logo.gif';
-import dragIcon from '../../public/Drag-Icon.svg';
 
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { Akord } from '@akord/akord-js';
 
 /* Types */
+
+type FileData = {
+  file: File;
+  duration: number;
+  name: string;
+  artistName: string;
+  trackNumber: number;
+};
+
+type ResultData = {
+  type: 'audio' | 'image';
+  data: File | FileData;
+};
+
 type VaultValues = {
   email: string;
   password: string;
@@ -44,12 +57,16 @@ const filePreviewContainerStyle: CSSProperties = {
 const Create = () => {
   const [items, setItems] = useState([0, 1, 2, 3]);
   const [loading, setLoading] = useState(false);
-  const [showUploadForm, setShowUploadForm] = useState(false);
-  const [audioFiles, setAudioFiles] = useState<File[]>([]);
-
-  const [numAudioFiles, setNumAudioFiles] = useState(0);
-  const [numImageFiles, setNumImageFiles] = useState(0);
-  const [files, setFiles] = useState<File[] | null>(null);
+  const [audioFiles, setAudioFiles] = useState<
+    Array<{
+      audioFile: File;
+      duration: number;
+      name: string;
+      artistName: string;
+      trackNumber: number;
+    }>
+  >([]);
+  const [imageFiles, setImageFiles] = useState<File[] | null>(null);
 
   /* Form Submit */
   const {
@@ -57,10 +74,11 @@ const Create = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<VaultValues>();
+
   const onSubmit: SubmitHandler<VaultValues> = async (data) => {
     setLoading(true);
 
-    if (data.email && data.password && files) {
+    if ((data.email && data.password && imageFiles) || audioFiles) {
       const { jwtToken, wallet, akord } = await Akord.auth.signIn(
         data.email,
         data.password
@@ -68,103 +86,106 @@ const Create = () => {
       console.log('successful sign-in and verification');
       const { vaultId } = await akord.vault.create('my first vault');
       console.log(`successfully created vault: ${vaultId}`);
-      for (const file of files) {
+      const sortedAudioFiles = audioFiles.sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+      for (const { audioFile } of sortedAudioFiles) {
         const { stackId } = await akord.stack.create(
           vaultId,
-          file,
+          audioFile,
           'file'
         );
         console.log(
-          `Uploaded file: ${file.name}, Stack ID: ${stackId}`
+          `Uploaded file: ${audioFile.name}, Stack ID: ${stackId}`
         );
       }
-      console.log('uploaded files');
     }
+    console.log('uploaded files');
+
     setLoading(false);
   };
 
-  const onChangeFiles = (e: ChangeEvent<HTMLInputElement>) => {
+  const getAudioDuration = (file: File): Promise<number> => {
+    return new Promise((resolve, reject) => {
+      const audio = new Audio(URL.createObjectURL(file));
+      audio.addEventListener('loadedmetadata', () => {
+        resolve(audio.duration);
+      });
+      audio.addEventListener('error', () => {
+        reject(new Error('Error loading audio file metadata.'));
+      });
+    });
+  };
+
+  const onChangeFiles = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
-      let audioCount = 0;
-      let imageCount = 0;
-      const newAudioFiles: File[] = [];
-      const newImageFiles: File[] = [];
 
-      newFiles.forEach((file) => {
-        if (file.type.startsWith('audio')) {
-          audioCount++;
-          newAudioFiles.push(file);
-        } else if (file.type.startsWith('image')) {
-          imageCount++;
-          newImageFiles.push(file);
+      const filePromises = newFiles.map(
+        async (file): Promise<ResultData | undefined> => {
+          if (file.type.startsWith('audio')) {
+            const duration = await getAudioDuration(file);
+
+            const artistName = ''; // Add logic to extract artist name
+            const trackNumber = 0; // Add logic to extract track number
+
+            return {
+              type: 'audio',
+              data: {
+                file,
+                duration,
+                name: file.name,
+                artistName,
+                trackNumber,
+              },
+            };
+          } else if (file.type.startsWith('image')) {
+            return { type: 'image', data: file };
+          }
+        }
+      );
+
+      const results = (await Promise.all(filePromises)).filter(
+        (result): result is ResultData => result !== undefined
+      );
+
+      const newAudioFiles = results
+        .filter((result) => result.type === 'audio')
+        .map((result) => ({
+          audioFile: (result.data as FileData).file,
+          duration: (result.data as FileData).duration,
+          name: (result.data as FileData).name,
+          artistName: (result.data as FileData).artistName,
+          trackNumber: (result.data as FileData).trackNumber,
+        }));
+
+      const newImageFiles = results
+        .filter((result) => result.type === 'image')
+        .map((result) => result.data as File);
+
+      setAudioFiles((prevAudioFiles) => {
+        if (prevAudioFiles) {
+          return [...prevAudioFiles, ...newAudioFiles];
+        } else {
+          return newAudioFiles;
         }
       });
-
-      setAudioFiles((prevAudioFiles) => [
-        ...prevAudioFiles,
-        ...newAudioFiles,
-      ]);
-      setFiles((prevFiles) => {
-        if (prevFiles) {
-          return [...prevFiles, ...newImageFiles];
+      setImageFiles((prevImageFiles) => {
+        if (prevImageFiles) {
+          return [...prevImageFiles, ...newImageFiles];
         } else {
           return newImageFiles;
         }
       });
-
-      setNumAudioFiles(audioCount);
-      setNumImageFiles(imageCount);
     }
   };
 
-  /* Rendering files is purely for preview to let user know of what files they have uploaded and how many */
-  const renderFileList = (files: File[] | null) => {
-    if (!files) {
-      return null;
-    }
+  /* Rendering Preview and Edit files */
 
-    const imageFiles: File[] = [];
-
-    files.forEach((file) => {
-      const fileType = file.type.split('/')[0];
-      if (fileType === 'image') {
-        imageFiles.push(file);
-      }
-    });
-
-    return (
-      <>
-        {imageFiles.length > 0 && (
-          <>
-            <h3>Images: {imageFiles.length}</h3>
-            <div style={filePreviewContainerStyle}>
-              {imageFiles.map((file, index) =>
-                renderFile(file, index)
-              )}
-            </div>
-          </>
-        )}
-        {audioFiles.length > 0 && (
-          <>
-            <h3>Audio: {audioFiles.length}</h3>
-            <div style={filePreviewContainerStyle}>
-              <AudioList
-                audioFiles={audioFiles}
-                setAudioFiles={setAudioFiles}
-                renderFile={renderFile}
-              />
-            </div>
-          </>
-        )}
-      </>
-    );
-  };
-
+  // // Helper Function
   const renderFile = (file: File, index: number) => {
     const fileType = file.type.split('/')[0];
     const fileURL = URL.createObjectURL(file);
-
     if (fileType === 'image') {
       return (
         <Image
@@ -189,6 +210,42 @@ const Create = () => {
         </audio>
       );
     }
+  };
+
+  const renderFileList = (
+    imageFiles: File[] | null,
+    audioFiles: File[] | null
+  ) => {
+    if (!imageFiles && !audioFiles) {
+      return null;
+    }
+
+    return (
+      <>
+        {imageFiles && imageFiles.length > 0 && (
+          <>
+            <h3>Images: {imageFiles.length}</h3>
+            <div style={filePreviewContainerStyle}>
+              {imageFiles.map((imageFile, index) =>
+                renderFile(imageFile, index)
+              )}
+            </div>
+          </>
+        )}
+        {audioFiles && audioFiles.length > 0 && (
+          <>
+            <h3>Audio: {audioFiles.length}</h3>
+            <div style={filePreviewContainerStyle}>
+              <AudioList
+                audioFiles={audioFiles}
+                setAudioFiles={setAudioFiles}
+                renderFile={renderFile}
+              />
+            </div>
+          </>
+        )}
+      </>
+    );
   };
 
   const uploadForm = (
@@ -232,8 +289,8 @@ const Create = () => {
           {...register('file', { required: true })}
           onChange={onChangeFiles}
         />
-        {errors.file && <p>Upload Multiple Files</p>}
-
+        {errors.file && <p>Need to upload a file.</p>}
+        {/* * * - Rendering Files JSX - Images and Audio * */}
         <div
           style={{
             display: 'flex',
@@ -243,9 +300,14 @@ const Create = () => {
             width: '100%',
           }}
         >
-          {renderFileList(files)}
+          {renderFileList(
+            imageFiles,
+            audioFiles
+              ? audioFiles.map(({ audioFile }) => audioFile)
+              : null
+          )}
         </div>
-
+        {/* * * - Submit Form Button * */}
         <button
           type="submit"
           style={{
@@ -258,7 +320,9 @@ const Create = () => {
             loader
           ) : (
             <>
-              <span style={{ marginRight: '5px' }}>Upload</span>
+              <span style={{ marginRight: '5px' }}>
+                Submit & Generate
+              </span>
               <svg
                 width="12"
                 height="12"

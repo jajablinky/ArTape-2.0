@@ -1,11 +1,17 @@
-import React from 'react';
-import { Reorder, useDragControls } from 'framer-motion';
+import React, { useState } from 'react';
+import { Reorder } from 'framer-motion';
 import AudioItem from './AudioItem';
 
 interface AudioListProps {
-  audioFiles: File[];
-  setAudioFiles: React.Dispatch<React.SetStateAction<File[]>>;
-  renderFile: (file: File, index: number) => React.ReactNode;
+  audioFiles: {
+    audioFile: File;
+    duration: number;
+    name: string;
+    artistName: string;
+    trackNumber: number;
+  }[];
+  setAudioFiles: React.Dispatch<React.SetStateAction<any>>;
+  renderFile: (audioFile: File, index: number) => React.ReactNode;
 }
 
 const AudioList: React.FC<AudioListProps> = ({
@@ -13,6 +19,20 @@ const AudioList: React.FC<AudioListProps> = ({
   setAudioFiles,
   renderFile,
 }) => {
+  const initialTrackInfo = audioFiles.reduce<Record<string, any>>(
+    (acc, audioFile) => {
+      acc[audioFile.name] = {
+        name: '',
+        artistName: '',
+      };
+      return acc;
+    },
+    {}
+  );
+
+  const [trackInfo, setTrackInfo] =
+    useState<Record<string, any>>(initialTrackInfo);
+
   return (
     <Reorder.Group
       axis="y"
@@ -20,12 +40,14 @@ const AudioList: React.FC<AudioListProps> = ({
       onReorder={setAudioFiles}
       as="ol"
     >
-      {audioFiles.map((file, index) => (
+      {audioFiles.map((audioFile, index) => (
         <AudioItem
-          key={file.name}
-          file={file}
+          key={audioFile.name}
+          audioFile={audioFile}
           renderFile={renderFile}
           index={index}
+          trackInfo={trackInfo}
+          setTrackInfo={setTrackInfo}
         />
       ))}
     </Reorder.Group>
