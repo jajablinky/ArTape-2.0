@@ -27,9 +27,12 @@ type ResultData = {
 };
 
 type VaultValues = {
+  profilePic: string;
+  tapeName: string;
+  file: string;
+  memento: string;
   email: string;
   password: string;
-  file: string;
 };
 
 type User = {
@@ -85,10 +88,7 @@ const Create = () => {
       console.log('successful sign-in and verification');
       const { vaultId } = await akord.vault.create('my first vault');
       console.log(`successfully created vault: ${vaultId}`);
-      const sortedAudioFiles = audioFiles.sort((a, b) =>
-        a.name.localeCompare(b.name)
-      );
-      for (const { audioFile } of sortedAudioFiles) {
+      for (const { audioFile } of audioFiles) {
         const { stackId } = await akord.stack.create(
           vaultId,
           audioFile,
@@ -261,6 +261,47 @@ const Create = () => {
         }}
         onSubmit={handleSubmit(onSubmit)}
       >
+        <div></div>
+        <label htmlFor="profilePic">
+          Add an Artist Profile
+          <input
+            {...register('profilePic', { required: true })}
+            type="file"
+          />
+        </label>
+        <input
+          {...register('tapeName', { required: true })}
+          type="text"
+          placeholder="Add Your Tape Name"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            borderBottom: '1px solid white',
+            textAlign: 'right',
+          }}
+        />
+        <div className={styles.switch}>
+          <input name="switch" id="one" type="radio" />
+          <label htmlFor="one">Pineapple</label>
+          <input name="switch" id="two" type="radio" />
+          <label htmlFor="two">Loud</label>
+          <input name="switch" id="three" type="radio" />
+          <label htmlFor="three">Minimal</label>
+          <input name="switch" id="four" type="radio" />
+          <label htmlFor="four">Tape</label>
+        </div>
+
+        <label htmlFor="file">
+          Upload audio+ and images+
+          <input
+            type="file"
+            multiple
+            {...register('file', { required: true })}
+            onChange={onChangeFiles}
+          />
+        </label>
+
+        {errors.file && <p>Need to upload a file.</p>}
         <input
           {...register('email', { required: true })}
           type="email"
@@ -284,14 +325,9 @@ const Create = () => {
             textAlign: 'right',
           }}
         />
+
         {errors.password && 'password is required'}
-        <input
-          type="file"
-          multiple
-          {...register('file', { required: true })}
-          onChange={onChangeFiles}
-        />
-        {errors.file && <p>Need to upload a file.</p>}
+
         {/* * * - Rendering Files JSX - Images and Audio * */}
         <div
           style={{

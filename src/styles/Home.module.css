@@ -123,3 +123,7 @@
   position: relative;
   font-size: 32px;
 }
+
+.switch {
+  display: flex;
+}
