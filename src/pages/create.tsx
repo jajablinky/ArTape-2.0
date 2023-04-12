@@ -1,11 +1,13 @@
 import { useState, ChangeEvent, CSSProperties } from 'react';
 import AudioList from '@/components/AudioList';
+import { HexColorPicker } from 'react-colorful';
 
 import styles from '@/styles/Home.module.css';
 
 import Image from 'next/image';
 import ArTapeLogo from '../../public/ArTAPE.svg';
 import CassetteLogo from '../../public/Artape-Cassete-Logo.gif';
+import avatarAnon from '../../public/Profile_avatar_placeholder_large.png';
 
 import { SubmitHandler, useForm } from 'react-hook-form';
 
@@ -68,6 +70,7 @@ const Create = () => {
       trackNumber: number;
     }>
   >([]);
+  const [color, setColor] = useState('#aabbcc');
   const [imageFiles, setImageFiles] = useState<File[] | null>(null);
 
   /* - Form Submit: Uploading when User Is Ready With All Files - */
@@ -256,19 +259,33 @@ const Create = () => {
         style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '24px',
+          gap: '40px',
           width: '300px',
         }}
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div></div>
-        <label htmlFor="profilePic">
-          Add an Artist Profile
+        <div
+          className="profile-picture-container"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '16px',
+          }}
+        >
+          <label htmlFor="profilePic">Add an Artist Profile</label>
+          <Image
+            src={avatarAnon}
+            width={100}
+            alt="avataranon"
+            style={{ borderRadius: '1000px' }}
+          />
+
           <input
             {...register('profilePic', { required: true })}
             type="file"
           />
-        </label>
+        </div>
         <input
           {...register('tapeName', { required: true })}
           type="text"
@@ -280,53 +297,105 @@ const Create = () => {
             textAlign: 'right',
           }}
         />
+        <div className="pick-profile-color-container">
+          <p>Pick Profile Color</p>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '32px',
+            }}
+          >
+            <HexColorPicker color={color} onChange={setColor} />
+            <div style={{ display: 'flex' }}>
+              <div
+                id="color-picked"
+                style={{
+                  width: '50px',
+                  height: '50px',
+                  background: `${color}`,
+                }}
+              ></div>
+            </div>
+            <p>You Picked: {color}</p>
+          </div>
+        </div>
         <div className={styles.switch}>
           <input name="switch" id="one" type="radio" />
-          <label htmlFor="one">Pineapple</label>
+          <label htmlFor="one" style={{ color: `${color}` }}>
+            Pineapple
+          </label>
           <input name="switch" id="two" type="radio" />
-          <label htmlFor="two">Loud</label>
+          <label htmlFor="two" style={{ color: `${color}` }}>
+            Loud
+          </label>
           <input name="switch" id="three" type="radio" />
-          <label htmlFor="three">Minimal</label>
+          <label htmlFor="three" style={{ color: `${color}` }}>
+            Minimal
+          </label>
           <input name="switch" id="four" type="radio" />
-          <label htmlFor="four">Tape</label>
+          <label htmlFor="four" style={{ color: `${color}` }}>
+            Tape
+          </label>
         </div>
-
-        <label htmlFor="file">
-          Upload audio+ and images+
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+          }}
+        >
+          <label htmlFor="file">Upload Audio and Images</label>
           <input
             type="file"
             multiple
             {...register('file', { required: true })}
             onChange={onChangeFiles}
           />
-        </label>
-
+        </div>
         {errors.file && <p>Need to upload a file.</p>}
-        <input
-          {...register('email', { required: true })}
-          type="email"
-          placeholder="Email"
+        <div
           style={{
-            background: 'transparent',
-            border: 'none',
-            borderBottom: '1px solid white',
-            textAlign: 'right',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px',
           }}
-        />
-        {errors.email && 'email is required'}
-        <input
-          {...register('password', { required: true })}
-          type="password"
-          placeholder="Password"
-          style={{
-            background: 'transparent',
-            border: 'none',
-            borderBottom: '1px solid white',
-            textAlign: 'right',
-          }}
-        />
-
-        {errors.password && 'password is required'}
+        >
+          <p>Enter in Username Info</p>
+          <div
+            className="email-password"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '28px',
+            }}
+          >
+            <input
+              {...register('email', { required: true })}
+              type="email"
+              placeholder="Email"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                borderBottom: '1px solid white',
+                textAlign: 'right',
+              }}
+            />
+            {errors.email && 'email is required'}
+            <input
+              {...register('password', { required: true })}
+              type="password"
+              placeholder="Password"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                borderBottom: '1px solid white',
+                textAlign: 'right',
+              }}
+            />
+            {errors.password && 'password is required'}
+          </div>
+        </div>
 
         {/* * * - Rendering Files JSX - Images and Audio * */}
         <div
@@ -358,9 +427,7 @@ const Create = () => {
             loader
           ) : (
             <>
-              <span style={{ marginRight: '5px' }}>
-                Submit & Generate
-              </span>
+              <span style={{ marginRight: '5px' }}>Generate</span>
               <svg
                 width="12"
                 height="12"
