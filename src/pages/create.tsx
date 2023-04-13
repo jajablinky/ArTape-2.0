@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, CSSProperties } from 'react';
+import { useState, ChangeEvent, CSSProperties } from 'react';
 import AudioList from '@/components/AudioList';
 
 import styles from '@/styles/Home.module.css';
@@ -55,7 +55,6 @@ const filePreviewContainerStyle: CSSProperties = {
 };
 
 const Create = () => {
-  const [items, setItems] = useState([0, 1, 2, 3]);
   const [loading, setLoading] = useState(false);
   const [audioFiles, setAudioFiles] = useState<
     Array<{
@@ -68,7 +67,7 @@ const Create = () => {
   >([]);
   const [imageFiles, setImageFiles] = useState<File[] | null>(null);
 
-  /* Form Submit */
+  /* - Form Submit: Uploading when User Is Ready With All Files - */
   const {
     register,
     handleSubmit,
@@ -79,7 +78,7 @@ const Create = () => {
     setLoading(true);
 
     if ((data.email && data.password && imageFiles) || audioFiles) {
-      const { jwtToken, wallet, akord } = await Akord.auth.signIn(
+      const { akord } = await Akord.auth.signIn(
         data.email,
         data.password
       );
@@ -184,6 +183,9 @@ const Create = () => {
 
   // // Helper Function
   const renderFile = (file: File, index: number) => {
+    if (!file) {
+      return null;
+    }
     const fileType = file.type.split('/')[0];
     const fileURL = URL.createObjectURL(file);
     if (fileType === 'image') {
