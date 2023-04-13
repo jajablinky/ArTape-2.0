@@ -5,13 +5,18 @@ import { HexColorPicker } from 'react-colorful';
 import styles from '@/styles/Home.module.css';
 
 import Image from 'next/image';
-import ArTapeLogo from '../../public/ArTAPE.svg';
+
 import CassetteLogo from '../../public/Artape-Cassete-Logo.gif';
 import avatarAnon from '../../public/Profile_avatar_placeholder_large.png';
 
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { Akord } from '@akord/akord-js';
+import CassetteMemento from '@/components/Images/Mementos/CassetteMemento';
+import ArTapeLogo from '@/components/Images/Logo/ArTAPELogo';
+import PineappleMemento from '@/components/Images/Mementos/PineappleMemento';
+import LoudMemento from '@/components/Images/Mementos/LoudMemento';
+import MinimalMemento from '@/components/Images/Mementos/MinimalMemento';
 
 /* Types */
 
@@ -297,29 +302,39 @@ const Create = () => {
             textAlign: 'right',
           }}
         />
-        <div className="pick-profile-color-container">
+        <div
+          className="pick-profile-color-container"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            textAlign: 'center',
+            gap: '12px',
+          }}
+        >
           <p>Pick Profile Color</p>
           <div
             style={{
               display: 'flex',
-              alignItems: 'center',
-              gap: '32px',
+              justifyContent: 'center',
             }}
           >
             <HexColorPicker color={color} onChange={setColor} />
-            <div style={{ display: 'flex' }}>
-              <div
-                id="color-picked"
-                style={{
-                  width: '50px',
-                  height: '50px',
-                  background: `${color}`,
-                }}
-              ></div>
-            </div>
-            <p>You Picked: {color}</p>
           </div>
         </div>
+        <div
+          style={{
+            display: 'flex',
+            gap: '20px',
+            justifyContent: 'center',
+          }}
+        >
+          {/* Cassette Memento*/}
+          <PineappleMemento color={color} />
+          <LoudMemento color={color} />
+          <MinimalMemento color={color} />
+          <CassetteMemento color={color} />
+        </div>
+
         <div className={styles.switch}>
           <input name="switch" id="one" type="radio" />
           <label htmlFor="one" style={{ color: `${color}` }}>
@@ -467,7 +482,7 @@ const Create = () => {
             }}
           >
             <Image src={CassetteLogo} width={25} alt="artape-logo" />
-            <Image src={ArTapeLogo} width={300} alt="artape-logo" />
+            <ArTapeLogo color={color} />
           </div>
           <div
             style={{
