@@ -1,4 +1,9 @@
-import { useState, ChangeEvent, CSSProperties } from 'react';
+import {
+  useState,
+  ChangeEvent,
+  CSSProperties,
+  useEffect,
+} from 'react';
 import AudioList from '@/components/AudioList';
 import { HexColorPicker } from 'react-colorful';
 
@@ -11,35 +16,82 @@ import avatarAnon from '../../public/Profile_avatar_placeholder_large.png';
 
 import { SubmitHandler, useForm } from 'react-hook-form';
 
-import { Akord } from '@akord/akord-js';
 import CassetteMemento from '@/components/Images/Mementos/CassetteMemento';
 import ArTapeLogo from '@/components/Images/Logo/ArTAPELogo';
 import PineappleMemento from '@/components/Images/Mementos/PineappleMemento';
 import LoudMemento from '@/components/Images/Mementos/LoudMemento';
 import MinimalMemento from '@/components/Images/Mementos/MinimalMemento';
 
+const createMetadataJSON = (
+  data: VaultValues,
+  audioFiles: AudioData,
+  imageFiles: ImageData
+) => {
+  const metadata = {
+    profilePic: data.profilePic,
+    tapeArtistName: data.tapeArtistName,
+    tapeDescription: data.tapeDescription,
+    color: data.color,
+    memento: data.memento,
+    audioFiles: audioFiles.map((file, index) => ({
+      trackNumber: index + 1,
+      name: file.name,
+      artistName: file.artistName,
+      albumPicture: file.albumPicture,
+      type: file.type,
+      size: file.size,
+      duration: file.duration,
+    })),
+    imageFiles: imageFiles.map((file, index) => ({
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      moduleId: index + 1,
+    })),
+  };
+  return JSON.stringify(metadata);
+};
+
 /* Types */
 
-type FileData = {
+type AudioData = {
   file: File;
   duration: number;
   name: string;
   artistName: string;
   trackNumber: number;
+  albumPicture: string;
 };
 
+type ImageData = {
+  file: File;
+  name: string;
+  alt: string;
+  moduleId: string | null;
+};
+
+interface ImageFileState {
+  imageFile: File;
+  alt: string;
+  name: string;
+  moduleId: string | null;
+}
 type ResultData = {
   type: 'audio' | 'image';
-  data: File | FileData;
+  data: File | AudioData | ImageData;
 };
 
 type VaultValues = {
   profilePic: string;
-  tapeName: string;
+  tapeArtistName: string;
   file: string;
   memento: string;
   email: string;
   password: string;
+  tapeDescription: string;
+  type: string;
+  color: string;
+  moduleId: number;
 };
 
 type User = {
@@ -66,17 +118,17 @@ const filePreviewContainerStyle: CSSProperties = {
 
 const Create = () => {
   const [loading, setLoading] = useState(false);
-  const [audioFiles, setAudioFiles] = useState<
-    Array<{
-      audioFile: File;
-      duration: number;
-      name: string;
-      artistName: string;
-      trackNumber: number;
-    }>
-  >([]);
+  const [audioFiles, setAudioFiles] = useState<Array<{
+    audioFile: File;
+    duration: number;
+    name: string;
+    artistName: string;
+    trackNumber: number;
+  }> | null>(null);
   const [color, setColor] = useState('#aabbcc');
-  const [imageFiles, setImageFiles] = useState<File[] | null>(null);
+  const [imageFiles, setImageFiles] = useState<
+    ImageFileState[] | null
+  >(null);
 
   /* - Form Submit: Uploading when User Is Ready With All Files - */
   const {
@@ -87,27 +139,37 @@ const Create = () => {
 
   const onSubmit: SubmitHandler<VaultValues> = async (data) => {
     setLoading(true);
-
-    if ((data.email && data.password && imageFiles) || audioFiles) {
-      const { akord } = await Akord.auth.signIn(
-        data.email,
-        data.password
-      );
-      console.log('successful sign-in and verification');
-      const { vaultId } = await akord.vault.create('my first vault');
-      console.log(`successfully created vault: ${vaultId}`);
-      for (const { audioFile } of audioFiles) {
-        const { stackId } = await akord.stack.create(
-          vaultId,
-          audioFile,
-          'file'
-        );
-        console.log(
-          `Uploaded file: ${audioFile.name}, Stack ID: ${stackId}`
-        );
-      }
-    }
-    console.log('uploaded files');
+    const metadataJSON = createMetadataJSON(
+      data,
+      audioFiles,
+      imageFiles
+    );
+    const tapeInfo = new File([metadataJSON], 'tapeInfo.json', {
+      type: 'application/json',
+    });
+    console.log('tapeInfo JSON content:', JSON.stringify(tapeInfo));
+    // if ((data.email && data.password && imageFiles) || audioFiles) {
+    //   const { akord } = await Akord.auth.signIn(
+    //     data.email,
+    //     data.password
+    //   );
+    //   console.log('successful sign-in and verification');
+    //   const { vaultId } = await akord.vault.create(
+    //     data.tapeArtistName
+    //   );
+    //   console.log(`successfully created vault: ${vaultId}`);
+    //   for (const { audioFile } of audioFiles) {
+    //     const { stackId } = await akord.stack.create(
+    //       vaultId,
+    //       audioFile,
+    //       audioFile.name
+    //     );
+    //     console.log(
+    //       `Uploaded file: ${audioFile.name}, Stack ID: ${stackId}`
+    //     );
+    //   }
+    // }
+    // console.log('uploaded files');
 
     setLoading(false);
   };
@@ -123,6 +185,13 @@ const Create = () => {
       });
     });
   };
+  useEffect(() => {
+    console.log('audioFiles updated:', audioFiles);
+  }, [audioFiles]);
+
+  useEffect(() => {
+    console.log('imageFiles updated:', imageFiles);
+  }, [imageFiles]);
 
   const onChangeFiles = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -135,7 +204,7 @@ const Create = () => {
 
             const artistName = ''; // Add logic to extract artist name
             const trackNumber = 0; // Add logic to extract track number
-
+            const albumPicture = '';
             return {
               type: 'audio',
               data: {
@@ -144,10 +213,20 @@ const Create = () => {
                 name: file.name,
                 artistName,
                 trackNumber,
+                albumPicture,
               },
             };
           } else if (file.type.startsWith('image')) {
-            return { type: 'image', data: file };
+            const moduleId = null;
+            return {
+              type: 'image',
+              data: {
+                file,
+                name: file.name,
+                alt: file.name,
+                moduleId,
+              },
+            };
           }
         }
       );
@@ -159,17 +238,22 @@ const Create = () => {
       const newAudioFiles = results
         .filter((result) => result.type === 'audio')
         .map((result) => ({
-          audioFile: (result.data as FileData).file,
-          duration: (result.data as FileData).duration,
-          name: (result.data as FileData).name,
-          artistName: (result.data as FileData).artistName,
-          trackNumber: (result.data as FileData).trackNumber,
+          audioFile: (result.data as AudioData).file,
+          albumPicture: (result.data as AudioData).albumPicture,
+          duration: (result.data as AudioData).duration,
+          name: (result.data as AudioData).name,
+          artistName: (result.data as AudioData).artistName,
+          trackNumber: (result.data as AudioData).trackNumber,
         }));
 
       const newImageFiles = results
         .filter((result) => result.type === 'image')
-        .map((result) => result.data as File);
-
+        .map((result) => ({
+          imageFile: (result.data as ImageData).file,
+          alt: (result.data as ImageData).alt,
+          name: (result.data as ImageData).name,
+          moduleId: (result.data as ImageData).moduleId,
+        }));
       setAudioFiles((prevAudioFiles) => {
         if (prevAudioFiles) {
           return [...prevAudioFiles, ...newAudioFiles];
@@ -223,7 +307,7 @@ const Create = () => {
   };
 
   const renderFileList = (
-    imageFiles: File[] | null,
+    imageFiles: ImageFileState[] | null,
     audioFiles: File[] | null
   ) => {
     if (!imageFiles && !audioFiles) {
@@ -236,8 +320,8 @@ const Create = () => {
           <>
             <h3>Images: {imageFiles.length}</h3>
             <div style={filePreviewContainerStyle}>
-              {imageFiles.map((imageFile, index) =>
-                renderFile(imageFile, index)
+              {imageFiles.map((imageFileState, index) =>
+                renderFile(imageFileState.imageFile, index)
               )}
             </div>
           </>
@@ -282,7 +366,7 @@ const Create = () => {
           <Image
             src={avatarAnon}
             width={100}
-            alt="avataranon"
+            alt="avatar-anon"
             style={{ borderRadius: '1000px' }}
           />
 
@@ -292,9 +376,31 @@ const Create = () => {
           />
         </div>
         <input
-          {...register('tapeName', { required: true })}
+          {...register('tapeArtistName', { required: true })}
           type="text"
-          placeholder="Add Your Tape Name"
+          placeholder="Add Your Tape Artist Name"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            borderBottom: '1px solid white',
+            textAlign: 'right',
+          }}
+        />
+        <input
+          {...register('type', { required: true })}
+          type="text"
+          placeholder="Add A Type (Musician / Podcaster / etc..)"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            borderBottom: '1px solid white',
+            textAlign: 'right',
+          }}
+        />
+        <input
+          {...register('tapeDescription', { required: true })}
+          type="text"
+          placeholder="Add A Description"
           style={{
             background: 'transparent',
             border: 'none',
