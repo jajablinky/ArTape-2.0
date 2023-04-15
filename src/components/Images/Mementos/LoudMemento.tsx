@@ -12,7 +12,7 @@ const LoudMemento: React.FC<LoudMementoProps> = ({ color }) => (
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <g clip-path="url(#clip0_32_191)">
+    <g clipPath="url(#clip0_32_191)">
       <path
         d="M5.83508 30.6591C4.89723 31.2006 3.69803 30.8793 3.15658 29.9414C2.61512 29.0036 2.93644 27.8044 3.87427 27.263L8.96853 24.3218L10.9293 27.7179L5.83508 30.6591Z"
         fill={color}

@@ -24,8 +24,8 @@ import MinimalMemento from '@/components/Images/Mementos/MinimalMemento';
 
 const createMetadataJSON = (
   data: VaultValues,
-  audioFiles: AudioData,
-  imageFiles: ImageData
+  audioFiles: AudioData[],
+  imageFiles: ImageData[]
 ) => {
   const metadata = {
     profilePic: data.profilePic,
@@ -76,6 +76,15 @@ interface ImageFileState {
   name: string;
   moduleId: string | null;
 }
+
+export interface AudioFileState {
+  audioFile: File;
+  duration: number;
+  name: string;
+  artistName: string;
+  trackNumber: number;
+}
+
 type ResultData = {
   type: 'audio' | 'image';
   data: File | AudioData | ImageData;
@@ -118,13 +127,9 @@ const filePreviewContainerStyle: CSSProperties = {
 
 const Create = () => {
   const [loading, setLoading] = useState(false);
-  const [audioFiles, setAudioFiles] = useState<Array<{
-    audioFile: File;
-    duration: number;
-    name: string;
-    artistName: string;
-    trackNumber: number;
-  }> | null>(null);
+  const [audioFiles, setAudioFiles] = useState<
+    AudioFileState[] | null
+  >(null);
   const [color, setColor] = useState('#aabbcc');
   const [imageFiles, setImageFiles] = useState<
     ImageFileState[] | null
@@ -274,7 +279,10 @@ const Create = () => {
   /* Rendering Preview and Edit files */
 
   // // Helper Function
-  const renderFile = (file: File, index: number) => {
+  const renderFile = (
+    file: File,
+    index: number
+  ): JSX.Element | null | undefined => {
     if (!file) {
       return null;
     }
@@ -308,7 +316,7 @@ const Create = () => {
 
   const renderFileList = (
     imageFiles: ImageFileState[] | null,
-    audioFiles: File[] | null
+    audioFiles: AudioFileState[] | null
   ) => {
     if (!imageFiles && !audioFiles) {
       return null;
@@ -331,9 +339,11 @@ const Create = () => {
             <h3>Audio: {audioFiles.length}</h3>
             <div style={filePreviewContainerStyle}>
               <AudioList
-                audioFiles={audioFiles}
+                audioFiles={audioFiles || []}
                 setAudioFiles={setAudioFiles}
-                renderFile={renderFile}
+                renderFile={(file: AudioFileState, index: number) =>
+                  renderFile(file.audioFile, index)
+                }
               />
             </div>
           </>
@@ -528,12 +538,7 @@ const Create = () => {
             width: '100%',
           }}
         >
-          {renderFileList(
-            imageFiles,
-            audioFiles
-              ? audioFiles.map(({ audioFile }) => audioFile)
-              : null
-          )}
+          {renderFileList(imageFiles, audioFiles)}
         </div>
         {/* * * - Submit Form Button * */}
         <button

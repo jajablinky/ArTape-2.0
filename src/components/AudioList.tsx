@@ -1,22 +1,17 @@
-import React from 'react';
-import { Reorder } from 'framer-motion';
+import React, { Dispatch, SetStateAction } from 'react';
 import AudioItem from './AudioItem';
+import { AudioFileState } from '../pages/create';
 
-interface Audio {
-  audioFile: File;
-  duration: number;
-  name: string;
-  artistName: string;
-  trackNumber: number;
+interface AudioListProps {
+  audioFiles: AudioFileState[];
+  setAudioFiles: Dispatch<SetStateAction<AudioFileState[] | null>>;
+  renderFile: (
+    file: AudioFileState,
+    index: number
+  ) => JSX.Element | null | undefined;
 }
 
-interface AudioListPropsInterface {
-  audioFiles: Audio[];
-  setAudioFiles: React.Dispatch<React.SetStateAction<Audio[]>>;
-  renderFile: (audioFile: File, index: number) => React.ReactNode;
-}
-
-const AudioList: React.FC<AudioListPropsInterface> = ({
+const AudioList: React.FC<AudioListProps> = ({
   audioFiles,
   setAudioFiles,
   renderFile,
@@ -27,9 +22,7 @@ const AudioList: React.FC<AudioListPropsInterface> = ({
         <AudioItem
           key={index}
           audioFile={audioFile}
-          renderFile={(audioFile: File) =>
-            renderFile(audioFile, index)
-          }
+          renderFile={() => renderFile(audioFile, index)}
           index={index}
         />
       ))}

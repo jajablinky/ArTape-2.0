@@ -12,7 +12,7 @@ const PineappleMemento: React.FC<PineappleProps> = ({ color }) => (
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <g clip-path="url(#clip0_32_193)">
+    <g clipPath="url(#clip0_32_193)">
       <path
         d="M23.3826 24.2948L19.2968 17.0978L19.2503 17.1247L16.5688 12.5014C12.7656 15.1849 10.1248 19.4059 9.55076 24.2601L23.3826 24.2948Z"
         fill={color}
@@ -38,8 +38,8 @@ const PineappleMemento: React.FC<PineappleProps> = ({ color }) => (
         fill={color}
       />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M36.1276 9.8813L36.178 9.91183C36.1675 9.90434 36.1566 9.89738 36.1455 9.89094C36.1396 9.88757 36.1337 9.88436 36.1276 9.8813Z"
         fill={color}
       />
