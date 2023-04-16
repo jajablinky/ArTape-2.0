@@ -166,6 +166,7 @@ const getMementoSvgContent = (
 };
 
 const Create = () => {
+  const [profilePicUrl, setProfilePicUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [audioFiles, setAudioFiles] = useState<{
     moduleId: number;
@@ -200,6 +201,13 @@ const Create = () => {
         files: updatedFiles,
       };
     });
+  };
+
+  const handleProfilePic = (e: any) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfilePicUrl(URL.createObjectURL(file));
+    }
   };
 
   const updateAllImageFiles = () => {
@@ -563,15 +571,17 @@ const Create = () => {
         >
           <label htmlFor="profilePic">Add an Artist Profile</label>
           <Image
-            src={avatarAnon}
+            src={profilePicUrl || avatarAnon}
             width={100}
-            alt="avatar-anon"
-            style={{ borderRadius: '1000px' }}
+            height={100}
+            alt="profile-pic"
+            style={{ borderRadius: '1000px', objectFit: 'contain' }}
           />
 
           <input
             {...register('profilePic', { required: true })}
             type="file"
+            onChange={handleProfilePic}
           />
         </div>
         <input
