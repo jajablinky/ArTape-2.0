@@ -167,7 +167,7 @@ export default function Home() {
             }}
           >
             <Image src={CassetteLogo} width={25} alt="artape-logo" />
-            <Image src={ArTapeLogo} width={300} alt="artape-logo" />
+            <ArTapeLogo color={'#ffffff'} />
           </div>
           <div
             style={{

@@ -1,58 +1,29 @@
 {
     "tape": {
-      "id": "123456",
-      "title": "Watch Me Die",
-      "type": "Music",
-      "length": 6,
-      "tracks": [
+      "profilePic": "",
+      "tapeArtistName": "Foushee",
+      "tapeDescription": "",
+      "color": "hex code",
+      "memento": "Minimal",
+      "type": "Musician",
+      "images": [{
+        "src": "",
+        "alt": "",
+        "moduleId": "",
+        "originalFileName": ""
+      }],
+
+      "audioFiles": {
+        "moduleId": 2,
+        "songs": [
         {
-          "id": "6m6gUE-fEw03oiYeD80JjqsYCiI1---dEkI18-GLhnQ",
-          "title": "Blue Cowboy",
+          "albumPicture": "6m6gUE-fEw03oiYeD80JjqsYCiI1---dEkI18-GLhnQ",
+          "trackTitle": "Blue Cowboy",
           "artist": "So Loki",
           "duration": 200,
           "track_number": 1,
           "release_date": "2023-03-25"
-        },
-        {
-            "id": "234567",
-            "title": "Ugly Cute",
-            "artist": "So Loki",
-            "duration": 200,
-            "track_number": 2,
-            "release_date": "2023-03-25"
-          },
-          {
-            "id": "234567",
-            "title": "Watch Me Die",
-            "artist": "So Loki",
-            "duration": 200,
-            "track_number": 3,
-            "release_date": "2023-03-25"
-          },
-          {
-            "id": "234567",
-            "title": "Dearly Departed",
-            "artist": "So Loki",
-            "duration": 200,
-            "track_number": 4,
-            "release_date": "2023-03-25"
-          },
-          {
-            "id": "234567",
-            "title": "Money Spread",
-            "artist": "So Loki",
-            "duration": 200,
-            "track_number": 5,
-            "release_date": "2023-03-25"
-          },
-          {
-            "id": "234567",
-            "title": "Helmut Lang",
-            "artist": "So Loki",
-            "duration": 200,
-            "track_number": 6,
-            "release_date": "2023-03-25"
-          }
+        }
       ]
-    }
+    }}
   }

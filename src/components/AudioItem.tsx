@@ -1,28 +1,13 @@
 import React from 'react';
+import { AudioFileState } from '@/pages/create';
 
 interface DraggableItemProps {
-  audioFile: {
-    audioFile: File;
-    duration: number;
-    name: string;
-    artistName: string;
-    trackNumber: number;
-  };
+  audioFile: AudioFileState;
   renderFile: (
-    audioFile: {
-      audioFile: File;
-      duration: number;
-      name: string;
-      artistName: string;
-      trackNumber: number;
-    },
+    audioFile: AudioFileState,
     index: number
   ) => React.ReactNode;
   index: number;
-  trackInfo: Record<string, any>;
-  setTrackInfo: React.Dispatch<
-    React.SetStateAction<Record<string, any>>
-  >;
 }
 
 const AudioItem: React.FC<DraggableItemProps> = ({
