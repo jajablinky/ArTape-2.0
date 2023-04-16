@@ -205,9 +205,16 @@ const Create = () => {
   const updateAllImageFiles = () => {
     setImageFiles((prevImageFiles) => {
       if (!prevImageFiles) return null;
+
+      let moduleIdIncremented = false;
       return prevImageFiles.map((imageFile, index) => {
         let moduleId = index + 1;
-        moduleId = moduleId >= 2 ? moduleId + 1 : moduleId;
+
+        if (!moduleIdIncremented && moduleId >= 2) {
+          moduleId++;
+          moduleIdIncremented = true;
+        }
+
         return {
           ...imageFile,
           moduleId: moduleId,
