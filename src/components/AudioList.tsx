@@ -4,7 +4,12 @@ import { AudioFileState } from '../pages/create';
 
 interface AudioListProps {
   audioFiles: AudioFileState[];
-  setAudioFiles: Dispatch<SetStateAction<AudioFileState[] | null>>;
+  setAudioFiles: Dispatch<
+    SetStateAction<{
+      moduleId: number;
+      files: AudioFileState[];
+    } | null>
+  >;
   renderFile: (
     file: AudioFileState,
     index: number
