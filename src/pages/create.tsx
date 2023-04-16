@@ -23,25 +23,32 @@ import ArTapeLogo from '@/components/Images/Logo/ArTAPELogo';
 import PineappleMemento from '@/components/Images/Mementos/PineappleMemento';
 import LoudMemento from '@/components/Images/Mementos/LoudMemento';
 import MinimalMemento from '@/components/Images/Mementos/MinimalMemento';
+import { getPineappleSvgContent } from '@/components/Images/Mementos/PineappleMemento';
+import { getLoudSvgContent } from '@/components/Images/Mementos/LoudMemento';
+import { getMinimalSvgContent } from '@/components/Images/Mementos/MinimalMemento';
+import { getCassetteSvgContent } from '@/components/Images/Mementos/CassetteMemento';
 
 const createMetadataJSON = (
   data: VaultValues,
   audioFiles: { moduleId: number; files: AudioFileState[] } | null,
-  imageFiles: ImageFileState[] | null
+  imageFiles: ImageFileState[] | null,
+  profilePicName: string,
+  memento: string,
+  color: string
 ) => {
   const metadata = {
-    profilePic: data.profilePic,
+    profilePic: profilePicName,
     tapeArtistName: data.tapeArtistName,
     tapeDescription: data.tapeDescription,
     type: data.type,
-    color: data.color,
-    memento: data.memento,
+    color: color,
+    memento: memento,
     audioFiles: audioFiles
       ? audioFiles.files.map((file) => ({
           trackNumber: file.trackNumber,
-          albumPicture: file.albumPicture,
+          albumPicture: imageFiles?.[0].name ?? '',
           name: file.name,
-          artistName: file.artistName,
+          artistName: data.tapeArtistName,
           duration: file.duration,
         }))
       : [],
@@ -95,7 +102,7 @@ type ResultData = {
 };
 
 type VaultValues = {
-  profilePic: string;
+  profilePic: File[]; // Update this line
   tapeArtistName: string;
   file: string;
   memento: string;
@@ -129,6 +136,35 @@ const filePreviewContainerStyle: CSSProperties = {
   width: '100%',
 };
 
+const getMementoSvgContent = (
+  memento: string,
+  color: string
+): Blob | null => {
+  let svgContent: string | null = null;
+  switch (memento) {
+    case 'Pineapple':
+      svgContent = getPineappleSvgContent(color);
+      break;
+    case 'Loud':
+      svgContent = getLoudSvgContent(color);
+      break;
+    case 'Minimal':
+      svgContent = getMinimalSvgContent(color);
+      break;
+    case 'Tape':
+      svgContent = getCassetteSvgContent(color);
+      break;
+    default:
+      return null;
+  }
+
+  if (svgContent) {
+    return new Blob([svgContent], { type: 'text/html' });
+  } else {
+    return null;
+  }
+};
+
 const Create = () => {
   const [loading, setLoading] = useState(false);
   const [audioFiles, setAudioFiles] = useState<{
@@ -143,14 +179,17 @@ const Create = () => {
     ImageFileState[] | null
   >(null);
 
-  const updateAllAudioFiles = (imageFiles, data) => {
+  const updateAllAudioFiles = (
+    imageFiles: ImageFileState[] | null,
+    data: VaultValues
+  ) => {
     setAudioFiles((prevAudioFiles) => {
       if (!prevAudioFiles) return null;
 
       const updatedFiles = prevAudioFiles.files.map(
         (audioFile, index) => ({
           ...audioFile,
-          albumPicture: imageFiles[0].name,
+          albumPicture: imageFiles?.[0].name ?? '',
           artistName: data.tapeArtistName,
           trackNumber: index + 1,
         })
@@ -167,10 +206,11 @@ const Create = () => {
     setImageFiles((prevImageFiles) => {
       if (!prevImageFiles) return null;
       return prevImageFiles.map((imageFile, index) => {
-        const moduleId = index + 1;
+        let moduleId = index + 1;
+        moduleId = moduleId >= 2 ? moduleId + 1 : moduleId;
         return {
           ...imageFile,
-          moduleId: moduleId === 2 ? moduleId + 1 : moduleId,
+          moduleId: moduleId,
         };
       });
     });
@@ -191,19 +231,25 @@ const Create = () => {
     let tapeInfo: File | null = null;
 
     if (audioFiles && imageFiles) {
+      const profilePic = data.profilePic;
+      let profilePicName = profilePic[0].name;
+
       const metadataJSON = createMetadataJSON(
         data,
         audioFiles,
-        imageFiles
+        imageFiles,
+        profilePicName,
+        data.memento,
+        color
       );
 
       tapeInfo = new File([metadataJSON], 'tapeInfo.json', {
         type: 'application/json',
       });
-      console.log('tapeInfo JSON content:', JSON.stringify(tapeInfo));
     } else {
       console.error('Audio or image files are missing');
     }
+
     if ((data.email && data.password && imageFiles) || audioFiles) {
       const { akord } = await Akord.auth.signIn(
         data.email,
@@ -214,6 +260,45 @@ const Create = () => {
         data.tapeArtistName
       );
       console.log(`successfully created vault: ${vaultId}`);
+
+      const profilePic = data.profilePic[0];
+      let profilePicName = data.profilePic[0].name;
+
+      // Upload Profile Pic
+      if (profilePic) {
+        const { stackId } = await akord.stack.create(
+          vaultId,
+          profilePic,
+          profilePic.name
+        );
+        console.log(
+          `Uploaded file: ${profilePic.name}, Stack ID: ${stackId}`
+        );
+        profilePicName = profilePic.name;
+      }
+
+      if (data.memento) {
+        const mementoSvgContent = getMementoSvgContent(
+          data.memento,
+          color
+        );
+        if (mementoSvgContent) {
+          const mementoSvgFile = new File(
+            [mementoSvgContent],
+            `${data.memento}.svg`,
+            { type: 'text/html' }
+          );
+          const { stackId: mementoStackId } =
+            await akord.stack.create(
+              vaultId,
+              mementoSvgFile,
+              mementoSvgFile.name
+            );
+          console.log(
+            `Uploaded memento: ${mementoSvgFile.name}, Stack ID: ${mementoStackId}`
+          );
+        }
+      }
 
       // Upload audio files
       if (audioFiles) {
@@ -244,15 +329,16 @@ const Create = () => {
       }
 
       // Upload tapeInfo.json
-      const { stackId } = await akord.stack.create(
-        vaultId,
-        tapeInfo,
-        tapeInfo.name
-      );
-      console.log(
-        `Uploaded file: ${tapeInfo.name}, Stack ID: ${stackId}`
-      );
-
+      if (tapeInfo) {
+        const { stackId } = await akord.stack.create(
+          vaultId,
+          tapeInfo,
+          tapeInfo.name
+        );
+        console.log(
+          `Uploaded file: ${tapeInfo.name}, Stack ID: ${stackId}`
+        );
+      }
       console.log('uploaded files');
     }
 
@@ -270,13 +356,13 @@ const Create = () => {
       });
     });
   };
-  useEffect(() => {
-    console.log('audioFiles updated:', audioFiles);
-  }, [audioFiles]);
+  // useEffect(() => {
+  //   console.log('audioFiles updated:', audioFiles);
+  // }, [audioFiles]);
 
-  useEffect(() => {
-    console.log('imageFiles updated:', imageFiles);
-  }, [imageFiles]);
+  // useEffect(() => {
+  //   console.log('imageFiles updated:', imageFiles);
+  // }, [imageFiles]);
 
   const onChangeFiles = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -322,23 +408,30 @@ const Create = () => {
 
       const newAudioFiles = results
         .filter((result) => result.type === 'audio')
-        .map((result) => ({
-          audioFile: (result.data as AudioData).file,
-          albumPicture: (result.data as AudioData).albumPicture,
-          duration: (result.data as AudioData).duration,
-          name: (result.data as AudioData).name,
-          artistName: (result.data as AudioData).artistName,
-          trackNumber: (result.data as AudioData).trackNumber,
-        }));
+        .map((result, index) => {
+          const trackNumber =
+            (audioFiles?.files.length || 0) + index + 1;
+          return {
+            audioFile: (result.data as AudioData).file,
+            albumPicture: (result.data as AudioData).albumPicture,
+            duration: (result.data as AudioData).duration,
+            name: (result.data as AudioData).name,
+            artistName: (result.data as AudioData).artistName,
+            trackNumber: trackNumber,
+          };
+        });
 
       const newImageFiles = results
         .filter((result) => result.type === 'image')
-        .map((result) => ({
-          imageFile: (result.data as ImageData).file,
-          alt: (result.data as ImageData).alt,
-          name: (result.data as ImageData).name,
-          moduleId: (result.data as ImageData).moduleId,
-        }));
+        .map((result, index) => {
+          const moduleId = index + 1;
+          return {
+            imageFile: (result.data as ImageData).file,
+            alt: (result.data as ImageData).alt,
+            name: (result.data as ImageData).name,
+            moduleId: moduleId === 2 ? moduleId + 1 : moduleId,
+          };
+        });
       setAudioFiles((prevAudioFiles) => {
         if (
           !prevAudioFiles ||
@@ -541,19 +634,43 @@ const Create = () => {
         </div>
 
         <div className={styles.switch}>
-          <input name="switch" id="one" type="radio" />
+          <input
+            {...register('memento')}
+            name="memento"
+            id="one"
+            type="radio"
+            value="Pineapple"
+          />
           <label htmlFor="one" style={{ color: `${color}` }}>
             Pineapple
           </label>
-          <input name="switch" id="two" type="radio" />
+          <input
+            {...register('memento')}
+            value="Loud"
+            name="memento"
+            id="two"
+            type="radio"
+          />
           <label htmlFor="two" style={{ color: `${color}` }}>
             Loud
           </label>
-          <input name="switch" id="three" type="radio" />
+          <input
+            {...register('memento')}
+            name="memento"
+            value="Minimal"
+            id="three"
+            type="radio"
+          />
           <label htmlFor="three" style={{ color: `${color}` }}>
             Minimal
           </label>
-          <input name="switch" id="four" type="radio" />
+          <input
+            {...register('memento')}
+            value="Tape"
+            name="memento"
+            id="four"
+            type="radio"
+          />
           <label htmlFor="four" style={{ color: `${color}` }}>
             Tape
           </label>
