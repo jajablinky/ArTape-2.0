@@ -152,7 +152,8 @@ export default function Home() {
   const [tapeInfoOptions, setTapeInfoOptions] = useState<TapeInfo[]>(
     []
   );
-  const [isAuthenticated, authenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] =
+    useState<boolean>(false);
   const [selectedTapeInfo, setSelectedTapeInfo] =
     useState<TapeInfo | null>(null);
   const [showVaultIdForm, setShowVaultIdForm] = useState(false);
@@ -174,7 +175,6 @@ export default function Home() {
       data.password
     );
     console.log('successful sign-in');
-    authenticated(true);
     setAkord(akord);
 
     // select a vault and console log the vault id
@@ -195,6 +195,7 @@ export default function Home() {
     }
     setTapeInfoOptions(tapeInfos);
     console.log(tapeInfos);
+    setIsAuthenticated(true);
 
     setLoading(false);
   };
@@ -204,41 +205,70 @@ export default function Home() {
   > = async () => {
     if (!selectedTapeInfo) return;
     const { vaultId } = selectedTapeInfo;
-    // const vaultId = vaults[0].id;
     if (akord) {
       const { items } = await akord.stack.list(vaultId);
       let tapeInfoJSON;
-      const audioPromises = items.map(async (item) => {
+      const audioPromises = [];
+      const imagePromises = [];
+
+      items.forEach((item) => {
         if (item.name === 'tapeInfo.json') {
-          const tapeInfoId = await item.id;
-          const { data: decryptedTapeInfo } =
-            await akord.stack.getVersion(tapeInfoId);
-          const tapeInfoString = new TextDecoder().decode(
-            decryptedTapeInfo
-          );
-          tapeInfoJSON = JSON.parse(tapeInfoString);
-          console.log('collected audio metadata');
-        }
-        if (item.versions[0].type === 'audio/wav') {
+          const tapeInfoId = item.id;
+          const tapeInfoPromise = akord.stack
+            .getVersion(tapeInfoId)
+            .then(({ data: decryptedTapeInfo }) => {
+              const tapeInfoString = new TextDecoder().decode(
+                decryptedTapeInfo
+              );
+              tapeInfoJSON = JSON.parse(tapeInfoString);
+              console.log('collected audio metadata');
+            });
+          audioPromises.push(tapeInfoPromise);
+        } else if (item.versions[0].type.startsWith('audio')) {
           const audioId = item.id;
-          const { data: decryptedAudio } =
-            await akord.stack.getVersion(audioId);
-          const blobUrl = URL.createObjectURL(
-            new Blob([decryptedAudio])
-          );
-          return blobUrl;
+          const audioPromise = akord.stack
+            .getVersion(audioId)
+            .then(({ data: decryptedAudio }) => {
+              const blobUrl = URL.createObjectURL(
+                new Blob([decryptedAudio])
+              );
+              return blobUrl;
+            });
+          audioPromises.push(audioPromise);
+        } else if (item.versions[0].type.startsWith('image')) {
+          const imageId = item.id;
+          const imagePromise = akord.stack
+            .getVersion(imageId)
+            .then(({ data: decryptedImage }) => {
+              const blobUrl = URL.createObjectURL(
+                new Blob([decryptedImage])
+              );
+              return blobUrl;
+            });
+          imagePromises.push(imagePromise);
         }
-        return null;
       });
 
-      const audioUrls = (await Promise.all(audioPromises)).filter(
-        (url) => url !== null
-      );
+      const [audioUrls, imageUrls] = await Promise.all([
+        Promise.all(audioPromises),
+        Promise.all(imagePromises),
+      ]);
+
       console.log(audioUrls, 'collected songs');
+      console.log(imageUrls, 'collected images');
+
       const filteredAudioUrls = audioUrls.filter(
-        (url) => url !== null
+        (url) => url !== undefined
       ) as string[];
-      setTape({ audioUrls: filteredAudioUrls, tapeInfoJSON });
+      const filteredImageUrls = imageUrls.filter(
+        (url) => url !== undefined
+      ) as string[];
+
+      setTape({
+        audioUrls: filteredAudioUrls,
+        imageUrls: filteredImageUrls,
+        tapeInfoJSON,
+      });
 
       console.log(tapeInfoOptions);
 
@@ -286,22 +316,20 @@ export default function Home() {
               gap: '14px',
             }}
           >
-            {showVaultIdForm ? (
-              !authenticated ? (
-                <EmailPasswordForm
-                  onSubmit={handleSubmit(onSubmit)}
-                  loading={loading}
-                  errors={errors}
-                  register={register}
-                />
-              ) : (
-                <VaultSelectionForm
-                  tapeInfoOptions={tapeInfoOptions}
-                  setSelectedTapeInfo={setSelectedTapeInfo}
-                  handleSubmit={handleSubmit}
-                  onSubmit={handleVaultSelection}
-                />
-              )
+            {showVaultIdForm && isAuthenticated ? (
+              <VaultSelectionForm
+                tapeInfoOptions={tapeInfoOptions}
+                setSelectedTapeInfo={setSelectedTapeInfo}
+                handleSubmit={handleSubmit}
+                onSubmit={handleVaultSelection}
+              />
+            ) : showVaultIdForm ? (
+              <EmailPasswordForm
+                onSubmit={handleSubmit(onSubmit)}
+                loading={loading}
+                errors={errors}
+                register={register}
+              />
             ) : (
               <>
                 <button
