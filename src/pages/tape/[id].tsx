@@ -1,6 +1,4 @@
-import React from 'react';
 import { useRouter } from 'next/router';
-import AudioPlayer from '@/components/AudioPlayer';
 import { useTape } from '@/components/TapeContext';
 
 const Tape = () => {
@@ -13,17 +11,36 @@ const Tape = () => {
     return <div>No tape data available</div>;
   }
 
-  const { audioUrls, tapeInfoJSON } = tape;
+  const { audioUrls, tapeInfoJSON, imageUrls } = tape;
   return (
     <>
       <div>
-        <h1>Audio URLs:</h1>
-        <ul>
-          {audioUrls.map((url, index) => (
-            <li key={index}>{url}</li>
-          ))}
-        </ul>
-        <p>tapeInfoJSON: {JSON.stringify(tapeInfoJSON, null, 2)}</p>
+        {audioUrls ? (
+          <>
+            <h1>Audio URLs:</h1>
+            <ul>
+              {audioUrls.map((url, index) => (
+                <li key={index}>{url}</li>
+              ))}
+            </ul>{' '}
+          </>
+        ) : null}
+        {imageUrls ? (
+          <>
+            <h1>Image URLs:</h1>
+            <ul>
+              {imageUrls.map((url, index) => (
+                <li key={index}>{url}</li>
+              ))}
+            </ul>{' '}
+          </>
+        ) : null}
+        {tapeInfoJSON ? (
+          <>
+            <h1>Tape Info Metadata:</h1>
+            <p>{JSON.stringify(tapeInfoJSON, null, 2)}</p>
+          </>
+        ) : null}
       </div>
     </>
   );
