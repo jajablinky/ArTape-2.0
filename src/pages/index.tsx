@@ -115,7 +115,7 @@ function VaultSelectionForm({
         gap: '24px',
         width: '300px',
       }}
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={onSubmit}
     >
       {tapeInfoOptions.map((tapeInfo) => (
         <label key={tapeInfo.vaultId}>
@@ -200,10 +200,12 @@ export default function Home() {
     setLoading(false);
   };
 
-  const handleVaultSelection: SubmitHandler<
-    VaultValues
-  > = async () => {
+  const handleVaultSelection: SubmitHandler<VaultValues> = async (
+    e
+  ) => {
     if (!selectedTapeInfo) return;
+    e.preventDefault(); // Add this line to prevent form submission
+    setLoading(true); // Set loading to true here
     const { vaultId } = selectedTapeInfo;
     if (akord) {
       const { items } = await akord.stack.list(vaultId);
@@ -276,6 +278,7 @@ export default function Home() {
         pathname: `/tape/${[vaultId]}`,
       });
     }
+    setLoading(false);
   };
 
   return (
@@ -322,6 +325,7 @@ export default function Home() {
                 setSelectedTapeInfo={setSelectedTapeInfo}
                 handleSubmit={handleSubmit}
                 onSubmit={handleVaultSelection}
+                loading={loading}
               />
             ) : showVaultIdForm ? (
               <EmailPasswordForm
