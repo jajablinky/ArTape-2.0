@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
-import { Akord } from '@akord/akord-js';
 
 interface Track {
   track_number: number;

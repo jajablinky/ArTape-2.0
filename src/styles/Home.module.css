@@ -102,6 +102,43 @@
   opacity: 0.3;
 }
 
+.profileModuleRectangle {
+  grid-column: span 2; /* Add this line to span two columns */
+  position: relative;
+  object-fit: cover;
+  background-color: var(--artape-primary-color);
+  width: 100%;
+  height: 350px;
+  border-radius: 10px;
+  text-align: center;
+  color: var(--artape-black);
+  border: 1px solid var(--artape-primary-color);
+  transition: all 100ms ease-in-out;
+  overflow: hidden;
+}
+
+.profileModuleRectangle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--artape-primary-color);
+  opacity: 0;
+  border-radius: 10px;
+  transition: opacity 100ms ease-in-out;
+  pointer-events: none;
+}
+
+.profileModuleRectangle:hover {
+  border: 0px solid transparent;
+}
+
+.profileModuleRectangle:hover::before {
+  opacity: 0.3;
+}
+
 .backdrop {
   position: absolute;
   top: 0;

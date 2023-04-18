@@ -1,13 +1,7 @@
-import { useState } from 'react';
 import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
-import Modal from '@/components/Modal';
 
 export default function VaultId() {
-  const [modalOpen, setModalOpen] = useState(false);
-  const close = () => setModalOpen(false);
-  const open = () => setModalOpen(true);
-
   return (
     <>
       <main className={styles.main}>
@@ -16,9 +10,16 @@ export default function VaultId() {
         </div>
 
         <div className={styles.gridProfile}>
+          <div className={styles.profileModule}>
+            <Image
+              src={'/artwork1.webp'}
+              alt={'artwork-cry-eyes'}
+              width={350}
+              height={350}
+            />
+          </div>
           <div
-            className={styles.profileModule}
-            onClick={() => (modalOpen ? close() : open())}
+            className={styles.profileModuleRectangle}
             style={{
               cursor: 'pointer',
               backgroundColor: 'var(--artape-primary-color)',
@@ -30,14 +31,6 @@ export default function VaultId() {
             <Image
               src={'/artwork1.webp'}
               alt={'artwork-cry-eyes'}
-              width={400}
-              height={400}
-            />
-          </div>
-          <div className={styles.profileModule}>
-            <Image
-              src={'/artwork1.webp'}
-              alt={'artwork-cry-eyes'}
               width={350}
               height={350}
             />
@@ -58,23 +51,7 @@ export default function VaultId() {
               height={350}
             />
           </div>
-          <div className={styles.profileModule}>
-            <Image
-              src={'/artwork1.webp'}
-              alt={'artwork-cry-eyes'}
-              width={350}
-              height={350}
-            />
-          </div>
-          <div className={styles.profileModule}>
-            <Image
-              src={'/artwork1.webp'}
-              alt={'artwork-cry-eyes'}
-              width={350}
-              height={350}
-            />
-          </div>
-          <div className={styles.profileModule}>
+          <div className={styles.profileModuleRectangle}>
             <Image
               src={'/artwork1.webp'}
               alt={'artwork-cry-eyes'}
@@ -91,9 +68,6 @@ export default function VaultId() {
             />
           </div>
         </div>
-        {modalOpen && (
-          <Modal modalOpen={modalOpen} handleClose={close} />
-        )}
       </main>
     </>
   );
