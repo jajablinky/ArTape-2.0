@@ -6,9 +6,9 @@ import {
 } from 'react';
 
 interface Tape {
-  audioUrls: string[];
+  audioFiles: { name: string; url: string | null }[]; // Update this line
+  imageFiles: { name: string; url: string | null }[]; // Update this line
   tapeInfoJSON: any;
-  imageUrls: string[];
 }
 
 interface TapeContextType {

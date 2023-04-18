@@ -208,9 +208,11 @@ export default function Home() {
     if (akord) {
       const { items } = await akord.stack.list(vaultId);
       let tapeInfoJSON;
-      const audioPromises: Promise<string | null>[] = [];
-      const imagePromises: Promise<string | null>[] = [];
+      const audioPromises: Promise<string | null | void>[] = [];
+      const imagePromises: Promise<string | null | void>[] = [];
 
+      const audioFiles: { name: string; url: string | null }[] = [];
+      const imageFiles: { name: string; url: string | null }[] = [];
       items.forEach((item) => {
         if (item.name === 'tapeInfo.json') {
           const tapeInfoId = item.id;
@@ -227,24 +229,26 @@ export default function Home() {
           audioPromises.push(tapeInfoPromise);
         } else if (item.versions[0].type.startsWith('audio')) {
           const audioId = item.id;
+          audioFiles.push(item.name);
           const audioPromise = akord.stack
             .getVersion(audioId)
             .then(({ data: decryptedAudio }) => {
               const blobUrl = URL.createObjectURL(
                 new Blob([decryptedAudio])
               );
-              return blobUrl;
+              audioFiles.push({ name: item.name, url: blobUrl });
             });
           audioPromises.push(audioPromise);
         } else if (item.versions[0].type.startsWith('image')) {
           const imageId = item.id;
+          imageFiles.push(item.name);
           const imagePromise = akord.stack
             .getVersion(imageId)
             .then(({ data: decryptedImage }) => {
               const blobUrl = URL.createObjectURL(
                 new Blob([decryptedImage])
               );
-              return blobUrl;
+              imageFiles.push({ name: item.name, url: blobUrl });
             });
           imagePromises.push(imagePromise);
         }
@@ -258,16 +262,9 @@ export default function Home() {
       console.log(audioUrls, 'collected songs');
       console.log(imageUrls, 'collected images');
 
-      const filteredAudioUrls = audioUrls.filter(
-        (url) => url !== undefined
-      ) as string[];
-      const filteredImageUrls = imageUrls.filter(
-        (url) => url !== undefined
-      ) as string[];
-
       setTape({
-        audioUrls: filteredAudioUrls,
-        imageUrls: filteredImageUrls,
+        audioFiles,
+        imageFiles,
         tapeInfoJSON,
       });
 
