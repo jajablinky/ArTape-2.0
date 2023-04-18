@@ -8,6 +8,7 @@ import {
 interface Tape {
   audioUrls: string[];
   tapeInfoJSON: any;
+  imageUrls: string[];
 }
 
 interface TapeContextType {

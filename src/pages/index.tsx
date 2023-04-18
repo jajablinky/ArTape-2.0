@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 import Head from 'next/head';
 import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
@@ -7,6 +7,7 @@ import {
   SubmitHandler,
   FieldErrors,
   UseFormRegister,
+  UseFormHandleSubmit,
 } from 'react-hook-form';
 import { useRouter } from 'next/router';
 import { Akord } from '@akord/akord-js';
@@ -27,17 +28,15 @@ type TapeInfo = {
   vaultId: string;
 };
 
-type VaultSelectionFormProps = {
+interface VaultSelectionFormProps {
   tapeInfoOptions: TapeInfo[];
   setSelectedTapeInfo: (tapeInfo: TapeInfo) => void;
-  handleSubmit: (
-    onSubmit: SubmitHandler<VaultValues>
-  ) => (
-    e?: React.BaseSyntheticEvent<object, any, any> | undefined
-  ) => Promise<void>;
-  onSubmit: SubmitHandler<VaultValues>;
-  loading?: boolean;
-};
+  handleSubmit: UseFormHandleSubmit<VaultValues>;
+  onSubmit: (
+    event: React.FormEvent<HTMLFormElement>
+  ) => Promise<void>; // Update this line
+  loading: boolean;
+}
 
 type EmailPasswordFormProps = {
   onSubmit: (event: React.FormEvent) => void;
@@ -103,7 +102,6 @@ function EmailPasswordForm({
 function VaultSelectionForm({
   tapeInfoOptions,
   setSelectedTapeInfo,
-  handleSubmit,
   onSubmit,
   loading,
 }: VaultSelectionFormProps) {
@@ -200,23 +198,23 @@ export default function Home() {
     setLoading(false);
   };
 
-  const handleVaultSelection: SubmitHandler<VaultValues> = async (
-    e
+  const handleVaultSelection = async (
+    event: FormEvent<HTMLFormElement>
   ) => {
     if (!selectedTapeInfo) return;
-    e.preventDefault(); // Add this line to prevent form submission
+    event.preventDefault(); // Add this line to prevent form submission
     setLoading(true); // Set loading to true here
     const { vaultId } = selectedTapeInfo;
     if (akord) {
       const { items } = await akord.stack.list(vaultId);
       let tapeInfoJSON;
-      const audioPromises = [];
-      const imagePromises = [];
+      const audioPromises: Promise<string | null>[] = [];
+      const imagePromises: Promise<string | null>[] = [];
 
       items.forEach((item) => {
         if (item.name === 'tapeInfo.json') {
           const tapeInfoId = item.id;
-          const tapeInfoPromise = akord.stack
+          const tapeInfoPromise: Promise<string | null> = akord.stack
             .getVersion(tapeInfoId)
             .then(({ data: decryptedTapeInfo }) => {
               const tapeInfoString = new TextDecoder().decode(
@@ -224,6 +222,7 @@ export default function Home() {
               );
               tapeInfoJSON = JSON.parse(tapeInfoString);
               console.log('collected audio metadata');
+              return null;
             });
           audioPromises.push(tapeInfoPromise);
         } else if (item.versions[0].type.startsWith('audio')) {
