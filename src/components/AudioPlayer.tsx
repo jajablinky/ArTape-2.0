@@ -13,7 +13,6 @@ interface Track {
 }
 
 interface Tape {
-  id: string;
   title: string;
   type: string;
   duration: string;
@@ -33,7 +32,7 @@ function formatToMinutes(duration: number) {
 function totalTapeLength(tape: Tape): string {
   let totalDuration = 0;
 
-  for (const track of tape.tracks) {
+  for (const track of tape.audioFiles) {
     totalDuration += track.duration;
   }
 
@@ -46,16 +45,27 @@ function totalTapeLength(tape: Tape): string {
   return totalDurationFormatted;
 }
 
-const AudioPlayer = ({ akord }) => {
+const AudioPlayer = ({ tapeInfoJSON, audioFiles }) => {
   const [tape, setTape] = useState<Tape>({
-    id: '',
-    title: '',
-    length: 0,
-    type: '',
-    duration: '',
-    tracks: [],
+    title: tapeInfoJSON.tapeArtistName,
+    length: tapeInfoJSON.audioFiles.length,
+    type: tapeInfoJSON.type,
+    duration: totalTapeLength(tapeInfoJSON),
+    tracks: audioFiles.map((audioFile) => {
+      const audioInfo = tapeInfoJSON.audioFiles.find(
+        (item) => item.name === audioFile.name
+      );
+      return {
+        track_number: audioInfo.trackNumber,
+        title: audioInfo.name,
+        duration: audioInfo.duration,
+        id: audioInfo.trackNumber.toString(),
+        artist: audioInfo.artistName,
+        src: audioFile.url,
+      };
+    }),
   });
-  const [audioFetched, setAudioFetched] = useState<boolean>(false);
+  const [audioFetched, setAudioFetched] = useState<boolean>(true);
 
   const [currentSongIndex, setCurrentSongIndex] =
     useState<number>(-1);
@@ -64,79 +74,6 @@ const AudioPlayer = ({ akord }) => {
   const [currentSong, setCurrentSong] = useState<Track | null>(null);
 
   const audioPlayer = useRef<HTMLAudioElement | null>(null);
-  const handleVolumeChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ): void => {
-    const newVolume = parseFloat(e.target.value);
-    setVolume(newVolume);
-
-    if (audioPlayer.current) {
-      audioPlayer.current.volume = newVolume;
-    }
-  };
-
-  // fetching audio
-  useEffect(() => {
-    const fetchAuthData = async () => {
-      try {
-        console.log('fetching');
-        // Getting List of Vaults
-        const vaults = await akord.vault.list();
-        const vaultId = await vaults[0].id;
-
-        // Getting list of items within Vault
-        const { items } = await akord.stack.list(vaultId);
-        const audioUrls = [];
-        for (let i = 0; i < items.length; i++) {
-          // Cycle through items to get IDs and organize
-          if (items[i].name === 'tapeInfo.json') {
-            const tapeInfoId = await items[i].id;
-            const { data: decryptedTapeInfo } =
-              await akord.stack.getVersion(tapeInfoId);
-
-            // Decode Uint8Array into a string
-            const tapeInfoString = new TextDecoder().decode(
-              decryptedTapeInfo
-            );
-
-            // Parse the string into a JavaScript object
-            const tapeInfoJSON = JSON.parse(tapeInfoString);
-
-            // Update the tape state
-            setTape({
-              id: tapeInfoJSON.tape.id,
-              title: tapeInfoJSON.tape.title,
-              type: tapeInfoJSON.tape.type,
-              duration: totalTapeLength(tapeInfoJSON.tape),
-              tracks: tapeInfoJSON.tape.tracks,
-            });
-          }
-          if (items[i].versions[0].type === 'audio/wav') {
-            const audioId = await items[i].id;
-            const { data: decryptedAudio } =
-              await akord.stack.getVersion(audioId);
-            const blobUrl = URL.createObjectURL(
-              new Blob([decryptedAudio])
-            );
-            audioUrls[i] = blobUrl;
-          }
-        }
-
-        setTape((prevTape) => ({
-          ...prevTape,
-          tracks: prevTape.tracks.map((track, index) => ({
-            ...track,
-            src: audioUrls[index + 1],
-          })),
-        }));
-        setAudioFetched(true);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchAuthData();
-  }, [akord]);
 
   useEffect(() => {
     if (!audioPlayer.current) {
@@ -162,6 +99,19 @@ const AudioPlayer = ({ akord }) => {
       }
     };
   }, [currentSongIndex, isPlaying]);
+
+  /* Audio Player Logic */
+
+  const handleVolumeChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): void => {
+    const newVolume = parseFloat(e.target.value);
+    setVolume(newVolume);
+
+    if (audioPlayer.current) {
+      audioPlayer.current.volume = newVolume;
+    }
+  };
 
   const handleStop = (): void => {
     if (audioPlayer.current) {
@@ -217,6 +167,7 @@ const AudioPlayer = ({ akord }) => {
     }
   };
 
+  /* Audio Player Logic */
   return (
     <>
       <motion.div
