@@ -3,6 +3,8 @@
   --artape-white: rgba(255, 255, 255, 0.87);
   --artape-primary-color: #d6e1db;
   --artape-black: #242424;
+  padding-top: 128px;
+  padding-bottom: 128px;
 }
 
 .profileName {

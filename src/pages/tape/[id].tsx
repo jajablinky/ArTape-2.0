@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import { useTape } from '@/components/TapeContext';
 import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
+import { useEffect } from 'react';
 
 const Tape = () => {
   const router = useRouter();
@@ -13,19 +14,22 @@ const Tape = () => {
     return <div>No tape data available</div>;
   }
 
-  const { audioUrls, tapeInfoJSON, imageUrls } = tape;
+  useEffect(() => {
+    console.log(imageFiles);
+  }, []);
+  const { audioFiles, tapeInfoJSON, imageFiles } = tape;
   return (
     <>
       <main className={styles.main}>
         <div>
           <h1>So Loki</h1>
         </div>
-
         <div className={styles.gridProfile}>
-          <div className={styles.profileModule}>
+          <div>
             <Image
-              src={imageUrls[0]}
-              alt={'artwork-cry-eyes'}
+              className={imageFiles[0].name}
+              src={imageFiles[0].url}
+              alt={imageFiles[0].name}
               width={350}
               height={350}
             />
@@ -39,35 +43,58 @@ const Tape = () => {
           >
             Music Player
           </div>
-          {imageUrls
-            ? imageUrls.map((url, index) => (
-                <div className={styles.profileModule}>
-                  <Image
-                    src={url}
-                    alt={'artwork-cry-eyes'}
-                    width={350}
-                    height={350}
-                  />
-                </div>
-              ))
+          {imageFiles
+            ? imageFiles
+                .filter((image) => parseInt(image.moduleId) >= 3)
+
+                .sort(
+                  (a, b) =>
+                    parseInt(a.moduleId) - parseInt(b.moduleId)
+                )
+                .map((image, index) =>
+                  parseInt(image.moduleId) === 3 ? (
+                    <div
+                      key={index}
+                      className={styles.profileModuleRectangle}
+                    >
+                      <Image
+                        className={image.name}
+                        src={image.url}
+                        alt={image.name}
+                        width={350}
+                        height={350}
+                      />
+                    </div>
+                  ) : (
+                    <div key={index} className={styles.profileModule}>
+                      <Image
+                        className={image.name}
+                        src={image.url}
+                        alt={image.name}
+                        width={350}
+                        height={350}
+                      />
+                    </div>
+                  )
+                )
             : null}
         </div>
-        <div>
-          {audioUrls ? (
+        {/* <div>
+          {audioFiles ? (
             <>
               <h1>Audio URLs:</h1>
               <ul>
-                {audioUrls.map((url, index) => (
+                {audioFiles.map((url, index) => (
                   <li key={index}>{url}</li>
                 ))}
               </ul>{' '}
             </>
           ) : null}
-          {imageUrls ? (
+          {imageFiles ? (
             <>
               <h1>Image URLs:</h1>
               <ul>
-                {imageUrls.map((url, index) => (
+                {imageFiles.map((url, index) => (
                   <li key={index}>{url}</li>
                 ))}
               </ul>{' '}
@@ -79,7 +106,7 @@ const Tape = () => {
               <p>{JSON.stringify(tapeInfoJSON, null, 2)}</p>
             </>
           ) : null}
-        </div>
+        </div> */}
       </main>
     </>
   );

@@ -208,11 +208,16 @@ export default function Home() {
     if (akord) {
       const { items } = await akord.stack.list(vaultId);
       let tapeInfoJSON;
+      const imageFileNameToModuleId = new Map<string, string>();
       const audioPromises: Promise<string | null | void>[] = [];
       const imagePromises: Promise<string | null | void>[] = [];
 
       const audioFiles: { name: string; url: string | null }[] = [];
-      const imageFiles: { name: string; url: string | null }[] = [];
+      const imageFiles: {
+        name: string;
+        url: string | null;
+        moduleId: string;
+      }[] = [];
       items.forEach((item) => {
         if (item.name === 'tapeInfo.json') {
           const tapeInfoId = item.id;
@@ -223,9 +228,16 @@ export default function Home() {
                 decryptedTapeInfo
               );
               tapeInfoJSON = JSON.parse(tapeInfoString);
+              tapeInfoJSON.imageFiles.forEach((image: any) => {
+                imageFileNameToModuleId.set(
+                  image.name,
+                  image.moduleId
+                );
+              });
               console.log('collected audio metadata');
               return null;
             });
+
           audioPromises.push(tapeInfoPromise);
         } else if (item.versions[0].type.startsWith('audio')) {
           const audioId = item.id;
@@ -241,14 +253,19 @@ export default function Home() {
           audioPromises.push(audioPromise);
         } else if (item.versions[0].type.startsWith('image')) {
           const imageId = item.id;
-          imageFiles.push(item.name);
           const imagePromise = akord.stack
             .getVersion(imageId)
             .then(({ data: decryptedImage }) => {
               const blobUrl = URL.createObjectURL(
                 new Blob([decryptedImage])
               );
-              imageFiles.push({ name: item.name, url: blobUrl });
+              const moduleId =
+                imageFileNameToModuleId.get(item.name) || '';
+              imageFiles.push({
+                name: item.name,
+                url: blobUrl,
+                moduleId,
+              });
             });
           imagePromises.push(imagePromise);
         }
@@ -259,16 +276,14 @@ export default function Home() {
         Promise.all(imagePromises),
       ]);
 
-      console.log(audioUrls, 'collected songs');
-      console.log(imageUrls, 'collected images');
+      console.log('collected songs');
+      console.log('collected images');
 
       setTape({
         audioFiles,
         imageFiles,
         tapeInfoJSON,
       });
-
-      console.log(tapeInfoOptions);
 
       router.push({
         pathname: `/tape/${[vaultId]}`,
