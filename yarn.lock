@@ -1668,6 +1668,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@shopify/draggable@npm:^1.0.0-beta.8":
+  version: 1.0.0-beta.12
+  resolution: "@shopify/draggable@npm:1.0.0-beta.12"
+  checksum: 4641ab8a3ad7402342d4e6ee02c3c5a8c4fdaf89a029efb21518d47e522d51809b7f226e4e18bb657e0be55476bdc1cc96048b0cc79e427aeb1e87dc01b6c958
+  languageName: node
+  linkType: hard
+
 "@svgr/babel-plugin-add-jsx-attribute@npm:^7.0.0":
   version: 7.0.0
   resolution: "@svgr/babel-plugin-add-jsx-attribute@npm:7.0.0"
@@ -1928,6 +1935,7 @@ __metadata:
   dependencies:
     "@akord/akord-js": ^3.11.0
     "@next/font": 13.1.6
+    "@shopify/draggable": ^1.0.0-beta.8
     "@svgr/webpack": ^7.0.0
     "@types/node": ^18.15.8
     "@types/react": latest

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 import Head from 'next/head';
 import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
@@ -7,6 +7,7 @@ import {
   SubmitHandler,
   FieldErrors,
   UseFormRegister,
+  UseFormHandleSubmit,
 } from 'react-hook-form';
 import { useRouter } from 'next/router';
 import { Akord } from '@akord/akord-js';
@@ -27,17 +28,15 @@ type TapeInfo = {
   vaultId: string;
 };
 
-type VaultSelectionFormProps = {
+interface VaultSelectionFormProps {
   tapeInfoOptions: TapeInfo[];
   setSelectedTapeInfo: (tapeInfo: TapeInfo) => void;
-  handleSubmit: (
-    onSubmit: SubmitHandler<VaultValues>
-  ) => (
-    e?: React.BaseSyntheticEvent<object, any, any> | undefined
-  ) => Promise<void>;
-  onSubmit: SubmitHandler<VaultValues>;
-  loading?: boolean;
-};
+  handleSubmit: UseFormHandleSubmit<VaultValues>;
+  onSubmit: (
+    event: React.FormEvent<HTMLFormElement>
+  ) => Promise<void>; // Update this line
+  loading: boolean;
+}
 
 type EmailPasswordFormProps = {
   onSubmit: (event: React.FormEvent) => void;
@@ -103,7 +102,6 @@ function EmailPasswordForm({
 function VaultSelectionForm({
   tapeInfoOptions,
   setSelectedTapeInfo,
-  handleSubmit,
   onSubmit,
   loading,
 }: VaultSelectionFormProps) {
@@ -200,31 +198,48 @@ export default function Home() {
     setLoading(false);
   };
 
-  const handleVaultSelection: SubmitHandler<VaultValues> = async (
-    e
+  const handleVaultSelection = async (
+    event: FormEvent<HTMLFormElement>
   ) => {
     if (!selectedTapeInfo) return;
-    e.preventDefault(); // Add this line to prevent form submission
+    event.preventDefault(); // Add this line to prevent form submission
     setLoading(true); // Set loading to true here
     const { vaultId } = selectedTapeInfo;
     if (akord) {
       const { items } = await akord.stack.list(vaultId);
       let tapeInfoJSON;
-      const audioPromises = [];
-      const imagePromises = [];
+      const imageFileNameToModuleId = new Map<string, string>();
+      const audioPromises: Promise<string | null | void>[] = [];
+      const imagePromises: Promise<string | null | void>[] = [];
 
+      const audioFiles: { name: string; url: string | null }[] = [];
+      const imageFiles: {
+        name: string;
+        url: string | null;
+        moduleId: string;
+      }[] = [];
       items.forEach((item) => {
         if (item.name === 'tapeInfo.json') {
           const tapeInfoId = item.id;
-          const tapeInfoPromise = akord.stack
+          const tapeInfoPromise: Promise<string | null> = akord.stack
             .getVersion(tapeInfoId)
             .then(({ data: decryptedTapeInfo }) => {
               const tapeInfoString = new TextDecoder().decode(
                 decryptedTapeInfo
               );
               tapeInfoJSON = JSON.parse(tapeInfoString);
+              if (tapeInfoJSON && tapeInfoJSON.imageFiles) {
+                tapeInfoJSON.imageFiles.forEach((image: any) => {
+                  imageFileNameToModuleId.set(
+                    image.name,
+                    image.moduleId
+                  );
+                });
+              }
               console.log('collected audio metadata');
+              return null;
             });
+
           audioPromises.push(tapeInfoPromise);
         } else if (item.versions[0].type.startsWith('audio')) {
           const audioId = item.id;
@@ -234,7 +249,7 @@ export default function Home() {
               const blobUrl = URL.createObjectURL(
                 new Blob([decryptedAudio])
               );
-              return blobUrl;
+              audioFiles.push({ name: item.name, url: blobUrl });
             });
           audioPromises.push(audioPromise);
         } else if (item.versions[0].type.startsWith('image')) {
@@ -245,7 +260,13 @@ export default function Home() {
               const blobUrl = URL.createObjectURL(
                 new Blob([decryptedImage])
               );
-              return blobUrl;
+              const moduleId =
+                imageFileNameToModuleId.get(item.name) || '';
+              imageFiles.push({
+                name: item.name,
+                url: blobUrl,
+                moduleId,
+              });
             });
           imagePromises.push(imagePromise);
         }
@@ -256,23 +277,14 @@ export default function Home() {
         Promise.all(imagePromises),
       ]);
 
-      console.log(audioUrls, 'collected songs');
-      console.log(imageUrls, 'collected images');
-
-      const filteredAudioUrls = audioUrls.filter(
-        (url) => url !== undefined
-      ) as string[];
-      const filteredImageUrls = imageUrls.filter(
-        (url) => url !== undefined
-      ) as string[];
+      console.log('collected songs');
+      console.log('collected images');
 
       setTape({
-        audioUrls: filteredAudioUrls,
-        imageUrls: filteredImageUrls,
+        audioFiles,
+        imageFiles,
         tapeInfoJSON,
       });
-
-      console.log(tapeInfoOptions);
 
       router.push({
         pathname: `/tape/${[vaultId]}`,

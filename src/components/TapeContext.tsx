@@ -6,7 +6,12 @@ import {
 } from 'react';
 
 interface Tape {
-  audioUrls: string[];
+  audioFiles: { name: string; url: string | null }[];
+  imageFiles: {
+    name: string;
+    url: string | null;
+    moduleId: string;
+  }[];
   tapeInfoJSON: any;
 }
 
