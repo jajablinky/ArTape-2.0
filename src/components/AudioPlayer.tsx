@@ -31,7 +31,7 @@ interface TapeInfo {
   }[];
 }
 
-interface AudioFile {
+export interface AudioFile {
   name: string;
   url: string;
 }

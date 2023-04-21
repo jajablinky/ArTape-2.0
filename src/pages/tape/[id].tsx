@@ -3,7 +3,7 @@ import { useTape } from '@/components/TapeContext';
 import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
 import { useEffect } from 'react';
-import AudioPlayer from '@/components/AudioPlayer';
+import AudioPlayer, { AudioFile } from '@/components/AudioPlayer';
 
 const Tape = () => {
   const router = useRouter();
@@ -44,10 +44,14 @@ const Tape = () => {
               backgroundColor: 'var(--artape-primary-color)',
             }}
           >
-            {/* <AudioPlayer
-              audioFiles={audioFiles}
+            <AudioPlayer
+              audioFiles={
+                audioFiles.filter(
+                  (audioFile) => audioFile.url !== null
+                ) as AudioFile[]
+              }
               tapeInfoJSON={tapeInfoJSON}
-            /> */}
+            />
           </div>
           {imageFiles &&
             imageFiles
