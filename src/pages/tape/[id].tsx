@@ -27,13 +27,15 @@ const Tape = () => {
         </div>
         <div className={styles.gridProfile}>
           <div>
-            <Image
-              className={imageFiles[0].name}
-              src={imageFiles[0].url}
-              alt={imageFiles[0].name}
-              width={350}
-              height={350}
-            />
+            {imageFiles[0].url && (
+              <Image
+                className={imageFiles[0].name}
+                src={imageFiles[0].url}
+                alt={imageFiles[0].name}
+                width={350}
+                height={350}
+              />
+            )}
           </div>
           <div
             className={styles.profileModuleRectangle}
@@ -47,16 +49,15 @@ const Tape = () => {
               tapeInfoJSON={tapeInfoJSON}
             /> */}
           </div>
-          {imageFiles
-            ? imageFiles
-                .filter((image) => parseInt(image.moduleId) >= 3)
-
-                .sort(
-                  (a, b) =>
-                    parseInt(a.moduleId) - parseInt(b.moduleId)
-                )
-                .map((image, index) =>
-                  parseInt(image.moduleId) === 3 ? (
+          {imageFiles &&
+            imageFiles
+              .filter((image) => parseInt(image.moduleId) >= 3)
+              .sort(
+                (a, b) => parseInt(a.moduleId) - parseInt(b.moduleId)
+              )
+              .map((image, index) => {
+                if (image.url) {
+                  return parseInt(image.moduleId) === 3 ? (
                     <div
                       key={index}
                       className={styles.profileModuleRectangle}
@@ -79,9 +80,10 @@ const Tape = () => {
                         height={350}
                       />
                     </div>
-                  )
-                )
-            : null}
+                  );
+                }
+                return null;
+              })}
         </div>
         {/* <div>
           {audioFiles ? (
