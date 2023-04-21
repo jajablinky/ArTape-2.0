@@ -228,12 +228,14 @@ export default function Home() {
                 decryptedTapeInfo
               );
               tapeInfoJSON = JSON.parse(tapeInfoString);
-              tapeInfoJSON.imageFiles.forEach((image: any) => {
-                imageFileNameToModuleId.set(
-                  image.name,
-                  image.moduleId
-                );
-              });
+              if (tapeInfoJSON && tapeInfoJSON.imageFiles) {
+                tapeInfoJSON.imageFiles.forEach((image: any) => {
+                  imageFileNameToModuleId.set(
+                    image.name,
+                    image.moduleId
+                  );
+                });
+              }
               console.log('collected audio metadata');
               return null;
             });
