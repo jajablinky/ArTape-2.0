@@ -14,10 +14,31 @@ interface Track {
 
 interface Tape {
   title: string;
+  length: number;
   type: string;
   duration: string;
-  length: number;
-  tracks: Track[];
+  tracks: Track[]; // Add the tracks property here
+}
+
+interface TapeInfo {
+  tapeArtistName: string;
+  type: string;
+  audioFiles: {
+    trackNumber: number;
+    name: string;
+    duration: number;
+    artistName: string;
+  }[];
+}
+
+interface AudioFile {
+  name: string;
+  url: string;
+}
+
+interface AudioPlayerProps {
+  tapeInfoJSON: TapeInfo;
+  audioFiles: AudioFile[];
 }
 
 function formatToMinutes(duration: number) {
@@ -29,10 +50,10 @@ function formatToMinutes(duration: number) {
   return durationFormatted;
 }
 
-function totalTapeLength(tape: Tape): string {
+function totalTapeLength(tapeInfo: TapeInfo): string {
   let totalDuration = 0;
 
-  for (const track of tape.audioFiles) {
+  for (const track of tapeInfo.audioFiles) {
     totalDuration += track.duration;
   }
 
@@ -45,7 +66,10 @@ function totalTapeLength(tape: Tape): string {
   return totalDurationFormatted;
 }
 
-const AudioPlayer = ({ tapeInfoJSON, audioFiles }) => {
+const AudioPlayer: React.FC<AudioPlayerProps> = ({
+  tapeInfoJSON,
+  audioFiles,
+}) => {
   const [tape, setTape] = useState<Tape>({
     title: tapeInfoJSON.tapeArtistName,
     length: tapeInfoJSON.audioFiles.length,
@@ -54,7 +78,7 @@ const AudioPlayer = ({ tapeInfoJSON, audioFiles }) => {
     tracks: audioFiles.map((audioFile) => {
       const audioInfo = tapeInfoJSON.audioFiles.find(
         (item) => item.name === audioFile.name
-      );
+      ) || { trackNumber: 0, name: '', duration: 0, artistName: '' };
       return {
         track_number: audioInfo.trackNumber,
         title: audioInfo.name,
