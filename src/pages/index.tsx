@@ -241,7 +241,6 @@ export default function Home() {
           audioPromises.push(tapeInfoPromise);
         } else if (item.versions[0].type.startsWith('audio')) {
           const audioId = item.id;
-          audioFiles.push(item.name);
           const audioPromise = akord.stack
             .getVersion(audioId)
             .then(({ data: decryptedAudio }) => {
