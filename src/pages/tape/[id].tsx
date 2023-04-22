@@ -15,9 +15,6 @@ const Tape = () => {
     return <div>No tape data available</div>;
   }
 
-  useEffect(() => {
-    console.log(audioFiles);
-  }, []);
   const { audioFiles, tapeInfoJSON, imageFiles } = tape;
   return (
     <>
@@ -30,8 +27,9 @@ const Tape = () => {
         }
       >
         <div>
-          <h1>{tapeInfoJSON.tapeArtistName}</h1>
-          <p>{tapeInfoJSON.description}</p>
+          <h1>{tapeInfoJSON.tapeArtistName}'s tape</h1>
+          <p>{tapeInfoJSON.type}</p>
+          <p>{tapeInfoJSON.tapeDescription}</p>
         </div>
         <div className={styles.gridProfile}>
           <div className={styles.profileModule}>
@@ -70,7 +68,7 @@ const Tape = () => {
               )
               .map((image, index) => {
                 if (image.url) {
-                  return parseInt(image.moduleId) === 3 ? (
+                  return parseInt(image.moduleId) === 6 ? (
                     <div
                       key={index}
                       className={styles.profileModuleRectangle}

@@ -22,6 +22,7 @@
 .musicPlayerHeader {
   color: var(--artape-black);
   border: 1px solid var(--artape-white);
+  background-color: var(--artape-primary-color);
   padding: 0.6em 1.2em;
   object-fit: fill;
 }
@@ -38,7 +39,6 @@
 .musicPlayerLeftSide {
   display: flex;
   flex-direction: row;
-  margin-right: 20em;
   text-align: left;
 }
 

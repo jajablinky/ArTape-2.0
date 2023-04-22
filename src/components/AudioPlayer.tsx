@@ -243,9 +243,15 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 onClick={() => handleTrackSelect(index)}
               >
                 <div className={styles.musicPlayerLeftSide}>
-                  <div className={styles.songArt}></div>
+                  <div
+                    className={styles.songArt}
+                    style={{
+                      backgroundImage: `url(${imageFiles[0].url})`,
+                    }}
+                  ></div>
                   <div className={styles.musicInfo}>
                     <div className={styles.artistTitleTrack}>
+                      <p>{track.artist}</p>
                       <h1>{track.title}</h1>
                     </div>
                     <div className={styles.durationBuyMp3}>
