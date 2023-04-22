@@ -21,12 +21,20 @@ const Tape = () => {
   const { audioFiles, tapeInfoJSON, imageFiles } = tape;
   return (
     <>
-      <main className={styles.main}>
+      <main
+        className={styles.main}
+        style={
+          {
+            '--artape-primary-color': tapeInfoJSON.color,
+          } as React.CSSProperties
+        }
+      >
         <div>
-          <h1>So Loki</h1>
+          <h1>{tapeInfoJSON.tapeArtistName}</h1>
+          <p>{tapeInfoJSON.description}</p>
         </div>
         <div className={styles.gridProfile}>
-          <div>
+          <div className={styles.profileModule}>
             {imageFiles[0].url && (
               <Image
                 className={imageFiles[0].name}
@@ -51,6 +59,7 @@ const Tape = () => {
                 ) as AudioFile[]
               }
               tapeInfoJSON={tapeInfoJSON}
+              imageFiles={imageFiles}
             />
           </div>
           {imageFiles &&
