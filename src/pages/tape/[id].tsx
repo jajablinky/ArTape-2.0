@@ -26,10 +26,35 @@ const Tape = () => {
           } as React.CSSProperties
         }
       >
-        <div>
-          <h1>{tapeInfoJSON.tapeArtistName}'s tape</h1>
-          <p>{tapeInfoJSON.type}</p>
-          <p>{tapeInfoJSON.tapeDescription}</p>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            marginBottom: '20px',
+          }}
+        >
+          <div
+            className={styles.profilePicture}
+            style={{ borderRadius: '12px' }}
+          ></div>
+          <div>
+            <h1>
+              <b>{tapeInfoJSON.tapeArtistName}</b>
+              <span style={{ fontWeight: 'normal' }}>'s tape</span>
+            </h1>
+            <p style={{ fontSize: '28px', fontWeight: 'lighter' }}>
+              {tapeInfoJSON.type}
+            </p>
+            <p
+              style={{
+                fontSize: '20px',
+                fontWeight: 'lighter',
+                color: '#656565',
+              }}
+            >
+              {tapeInfoJSON.tapeDescription}
+            </p>
+          </div>
         </div>
         <div className={styles.gridProfile}>
           <div className={styles.profileModule}>
@@ -46,7 +71,6 @@ const Tape = () => {
           <div
             className={styles.profileModuleRectangle}
             style={{
-              cursor: 'pointer',
               backgroundColor: 'var(--artape-primary-color)',
             }}
           >

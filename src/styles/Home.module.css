@@ -14,25 +14,23 @@
   margin-bottom: 0px;
 }
 
-.musicPlayerContainer {
-  border: 1px solid var(--artape-white);
-  border-radius: 8px;
-}
-
 .musicPlayerHeader {
   color: var(--artape-black);
-  border: 1px solid var(--artape-white);
   background-color: var(--artape-primary-color);
+  border-bottom: 1px solid var(--artape-black);
   padding: 0.6em 1.2em;
-  object-fit: fill;
+  object-fit: contain;
 }
 
 .musicPlayerTrack {
   display: flex;
   flex-direction: row;
   border-radius: 0;
-  border-bottom: 1px solid var(--artape-white);
+  border-bottom: 1px solid var(--artape-black);
+  background-color: var(--artape-primary-color);
   justify-content: space-between;
+  align-items: center;
+  padding: 20px;
   width: 100%;
 }
 
@@ -46,12 +44,14 @@
   margin-bottom: 20px;
 }
 
-.musicPlayerRightSide {
-  margin: auto;
-  text-align: right;
+.songArt {
+  width: 75px;
+  height: 75px;
+  background-color: var(--artape-primary-color);
+  margin-right: 20px;
 }
 
-.songArt {
+.profilePicture {
   width: 100px;
   height: 100px;
   background-color: var(--artape-primary-color);
@@ -66,39 +66,16 @@
 
 .profileModule {
   position: relative;
-  object-fit: cover;
+  object-fit: contain;
   background-color: var(--artape-primary-color);
   width: 350px;
   height: 350px;
-  border-radius: 10px;
+  border-radius: 37px;
   text-align: center;
   color: var(--artape-black);
   border: 1px solid var(--artape-primary-color);
   transition: all 100ms ease-in-out;
   overflow: hidden;
-}
-
-/* Add the ::before element for the opacity layer */
-.profileModule::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--artape-primary-color);
-  opacity: 0;
-  border-radius: 10px;
-  transition: opacity 100ms ease-in-out;
-  pointer-events: none;
-}
-
-.profileModule:hover {
-  border: 0px solid transparent;
-}
-
-.profileModule:hover::before {
-  opacity: 0.3;
 }
 
 .profileModuleRectangle {
@@ -107,7 +84,7 @@
   object-fit: cover;
   width: 100%;
   height: 350px;
-  border-radius: 10px;
+  border-radius: 37px;
   text-align: center;
   color: var(--artape-black);
   border: 1px solid var(--artape-primary-color);

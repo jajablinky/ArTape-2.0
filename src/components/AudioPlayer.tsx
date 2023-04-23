@@ -220,7 +220,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
           ) : (
             ''
           )}
-          <button onClick={() => handleNextSong()}>Next Song</button>
+          <button
+            onClick={() => handleNextSong()}
+            style={{ color: 'var(--artape-primary-color)' }}
+          >
+            Next Song
+          </button>
           {isPlaying ? (
             <button onClick={() => handleStop()}>Stop</button>
           ) : null}
@@ -252,7 +257,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
                   <div className={styles.musicInfo}>
                     <div className={styles.artistTitleTrack}>
                       <p>{track.artist}</p>
-                      <h1>{track.title}</h1>
+                      <h2>{track.title}</h2>
                     </div>
                     <div className={styles.durationBuyMp3}>
                       <p>
@@ -264,23 +269,21 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
                   </div>
                 </div>
                 <div className={styles.musicPlayerRightSide}>
-                  <div className={styles.playButton}>
-                    {isPlaying && currentSongIndex === index ? (
-                      <Image
-                        src={'/stopButton.svg'}
-                        alt={'Stop Button'}
-                        width={25.5}
-                        height={25.5}
-                      />
-                    ) : (
-                      <Image
-                        src={'/startButton.svg'}
-                        alt={'Play Button'}
-                        width={25.5}
-                        height={25.5}
-                      />
-                    )}
-                  </div>
+                  {isPlaying && currentSongIndex === index ? (
+                    <Image
+                      src={'/stopButton.svg'}
+                      alt={'Stop Button'}
+                      width={20}
+                      height={20}
+                    />
+                  ) : (
+                    <Image
+                      src={'/startButton.svg'}
+                      alt={'Play Button'}
+                      width={20}
+                      height={20}
+                    />
+                  )}
                 </div>
               </button>
               {audioFetched && (
