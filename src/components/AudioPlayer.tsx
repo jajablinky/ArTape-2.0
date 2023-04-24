@@ -206,6 +206,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
           style={{
             backgroundImage: `url(${imageFiles[0].url})`,
             position: 'sticky',
+            top: '0',
           }}
         >
           <audio onEnded={handleEnded} ref={audioPlayer} />
