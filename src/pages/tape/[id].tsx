@@ -35,12 +35,15 @@ const Tape = () => {
         >
           <div
             className={styles.profilePicture}
-            style={{ borderRadius: '12px' }}
+            style={{
+              borderRadius: '12px',
+              backgroundImage: `url(${imageFiles[1].url})`,
+            }}
           ></div>
           <div>
             <h1>
               <b>{tapeInfoJSON.tapeArtistName}</b>
-              <span style={{ fontWeight: 'normal' }}>'s tape</span>
+              <span style={{ fontWeight: 'normal' }}>'s Tape</span>
             </h1>
             <p style={{ fontSize: '28px', fontWeight: 'lighter' }}>
               {tapeInfoJSON.type}
@@ -63,8 +66,9 @@ const Tape = () => {
                 className={imageFiles[0].name}
                 src={imageFiles[0].url}
                 alt={imageFiles[0].name}
-                width={350}
                 height={350}
+                width={350}
+                style={{ objectFit: 'cover' }}
               />
             )}
           </div>
@@ -72,6 +76,7 @@ const Tape = () => {
             className={styles.profileModuleRectangle}
             style={{
               backgroundColor: 'var(--artape-primary-color)',
+              overflow: 'auto',
             }}
           >
             <AudioPlayer
@@ -101,8 +106,9 @@ const Tape = () => {
                         className={image.name}
                         src={image.url}
                         alt={image.name}
-                        width={350}
                         height={350}
+                        width={350}
+                        style={{ objectFit: 'cover' }}
                       />
                     </div>
                   ) : (
@@ -111,8 +117,9 @@ const Tape = () => {
                         className={image.name}
                         src={image.url}
                         alt={image.name}
-                        width={350}
                         height={350}
+                        width={350}
+                        style={{ objectFit: 'cover' }}
                       />
                     </div>
                   );

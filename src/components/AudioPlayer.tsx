@@ -203,7 +203,10 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       >
         <div
           className={styles.musicPlayerHeader}
-          style={{ backgroundImage: `url(${imageFiles[0].url})` }}
+          style={{
+            backgroundImage: `url(${imageFiles[0].url})`,
+            position: 'sticky',
+          }}
         >
           <audio onEnded={handleEnded} ref={audioPlayer} />
           <p className={styles.amounttotalDuration}>
@@ -239,6 +242,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
             className={styles.volumeSlider}
           />
         </div>
+
         {audioFetched ? (
           tape.tracks.map((track: Track, index: number) => (
             <div key={index} className={styles.trackContainer}>
@@ -251,7 +255,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
                   <div
                     className={styles.songArt}
                     style={{
-                      backgroundImage: `url(${imageFiles[0].url})`,
+                      backgroundImage: `url(${imageFiles[2].url})`,
+                      objectFit: 'cover',
                     }}
                   ></div>
                   <div className={styles.musicInfo}>

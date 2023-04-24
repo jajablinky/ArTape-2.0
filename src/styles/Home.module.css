@@ -66,6 +66,7 @@
 
 .profileModule {
   position: relative;
+  object-position: center;
   object-fit: contain;
   background-color: var(--artape-primary-color);
   width: 350px;
