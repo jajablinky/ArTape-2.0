@@ -202,8 +202,8 @@ export default function Home() {
     event: FormEvent<HTMLFormElement>
   ) => {
     if (!selectedTapeInfo) return;
-    event.preventDefault(); // Add this line to prevent form submission
-    setLoading(true); // Set loading to true here
+    event.preventDefault(); // Add this line to prevent form
+    setLoading(true);
     const { vaultId } = selectedTapeInfo;
     if (akord) {
       const { items } = await akord.stack.list(vaultId);
@@ -218,10 +218,13 @@ export default function Home() {
         url: string | null;
         moduleId: string;
       }[] = [];
+
+      let tapeInfoPromise: Promise<void | null> = Promise.resolve();
+
       items.forEach((item) => {
         if (item.name === 'tapeInfo.json') {
           const tapeInfoId = item.id;
-          const tapeInfoPromise: Promise<string | null> = akord.stack
+          tapeInfoPromise = akord.stack
             .getVersion(tapeInfoId)
             .then(({ data: decryptedTapeInfo }) => {
               const tapeInfoString = new TextDecoder().decode(
@@ -239,9 +242,13 @@ export default function Home() {
               console.log('collected audio metadata');
               return null;
             });
+        }
+      });
 
-          audioPromises.push(tapeInfoPromise);
-        } else if (item.versions[0].type.startsWith('audio')) {
+      await tapeInfoPromise;
+
+      items.forEach((item) => {
+        if (item.versions[0].type.startsWith('audio')) {
           const audioId = item.id;
           const audioPromise = akord.stack
             .getVersion(audioId)
@@ -272,19 +279,16 @@ export default function Home() {
         }
       });
 
-      const [audioUrls, imageUrls] = await Promise.all([
-        Promise.all(audioPromises),
-        Promise.all(imagePromises),
-      ]);
-
+      await Promise.all(audioPromises);
+      await Promise.all(imagePromises);
       console.log('collected songs');
       console.log('collected images');
-
       setTape({
         audioFiles,
         imageFiles,
         tapeInfoJSON,
       });
+      console.log(audioFiles, imageFiles, tapeInfoJSON);
 
       router.push({
         pathname: `/tape/${[vaultId]}`,

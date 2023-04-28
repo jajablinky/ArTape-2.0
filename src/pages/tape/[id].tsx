@@ -37,7 +37,7 @@ const Tape = () => {
             className={styles.profilePicture}
             style={{
               borderRadius: '12px',
-              backgroundImage: `url(${imageFiles[1].url})`,
+              backgroundImage: `url(${imageFiles[0].url})`,
             }}
           ></div>
           <div>
@@ -58,6 +58,12 @@ const Tape = () => {
               {tapeInfoJSON.tapeDescription}
             </p>
           </div>
+          <button onClick={() => console.log(imageFiles)}>
+            Images
+          </button>
+          <button onClick={() => console.log(tapeInfoJSON)}>
+            Tape Info
+          </button>
         </div>
         <div className={styles.gridProfile}>
           <div className={styles.profileModule}>
@@ -99,7 +105,7 @@ const Tape = () => {
                 if (image.url) {
                   return parseInt(image.moduleId) === 6 ? (
                     <div
-                      key={index}
+                      key={image.name}
                       className={styles.profileModuleRectangle}
                     >
                       <Image
@@ -112,7 +118,10 @@ const Tape = () => {
                       />
                     </div>
                   ) : (
-                    <div key={index} className={styles.profileModule}>
+                    <div
+                      key={image.name}
+                      className={styles.profileModule}
+                    >
                       <Image
                         className={image.name}
                         src={image.url}
