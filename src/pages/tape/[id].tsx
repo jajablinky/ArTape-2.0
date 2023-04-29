@@ -8,6 +8,7 @@ import PineappleMemento from '@/components/Images/Mementos/PineappleMemento';
 import LoudMemento from '@/components/Images/Mementos/LoudMemento';
 import MinimalMemento from '@/components/Images/Mementos/MinimalMemento';
 import CassetteMemento from '@/components/Images/Mementos/CassetteMemento';
+import EditButton from '@/components/Images/UI/EditButton';
 
 const Tape = () => {
   const router = useRouter();
@@ -43,50 +44,66 @@ const Tape = () => {
         }
       >
         <div
+          className={styles.artistHeader}
           style={{
             display: 'flex',
+            justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: '20px',
           }}
         >
           <div
-            className={styles.profilePicture}
+            className={styles.artistHeaderLeft}
             style={{
-              borderRadius: '12px',
-              backgroundImage: `url(${imageFiles[0].url})`,
+              display: 'flex',
+              alignItems: 'center',
+              marginBottom: '20px',
             }}
-          ></div>
-          <div>
+          >
             <div
+              className={styles.profilePicture}
               style={{
-                display: 'flex',
-                flexDirection: 'row',
-                gap: '12px',
+                borderRadius: '12px',
+                backgroundImage: `url(${imageFiles[0].url})`,
               }}
-            >
-              <h1>
-                <b>{tapeInfoJSON.tapeArtistName}</b>
-                <span style={{ fontWeight: 'normal' }}>'s Tape</span>
-              </h1>
-              <div className={styles.memento}>
-                {mementoGenerator()}
+            ></div>
+            <div>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  gap: '12px',
+                }}
+              >
+                <h1>
+                  <b>{tapeInfoJSON.tapeArtistName}</b>
+                  <span style={{ fontWeight: 'normal' }}>
+                    's Tape
+                  </span>
+                </h1>
+                <div className={styles.memento}>
+                  {mementoGenerator()}
+                </div>
               </div>
-            </div>
 
-            <p style={{ fontSize: '28px', fontWeight: 'lighter' }}>
-              {tapeInfoJSON.type}
-            </p>
-            <p
-              style={{
-                fontSize: '20px',
-                fontWeight: 'lighter',
-                color: '#656565',
-              }}
-            >
-              {tapeInfoJSON.tapeDescription}
-            </p>
+              <p style={{ fontSize: '28px', fontWeight: 'lighter' }}>
+                {tapeInfoJSON.type}
+              </p>
+              <p
+                style={{
+                  fontSize: '20px',
+                  fontWeight: 'lighter',
+                  color: '#656565',
+                }}
+              >
+                {tapeInfoJSON.tapeDescription}
+              </p>
+            </div>
+          </div>
+          <div className={styles.artistHeaderRight}>
+            <EditButton color={tapeInfoJSON.color} />
           </div>
         </div>
+
         <div className={styles.gridProfile}>
           <div className={styles.profileModule}>
             {imageFiles[0].url && (
