@@ -60,6 +60,7 @@ button:focus-visible {
 
 input {
   font-size: 12px;
+  color: var(--artape-white);
   width: 100%;
   overflow: hidden;
   font-family: 'Space Grotesk', sans-serif, Inter, system-ui, Avenir,

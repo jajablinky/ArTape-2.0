@@ -207,7 +207,7 @@ export default function Home() {
     const { vaultId } = selectedTapeInfo;
     if (akord) {
       const { items } = await akord.stack.list(vaultId);
-      let tapeInfoJSON;
+      let tapeInfoJSON: any;
       const imageFileNameToModuleId = new Map<string, string>();
       const audioPromises: Promise<string | null | void>[] = [];
       const imagePromises: Promise<string | null | void>[] = [];
@@ -218,6 +218,20 @@ export default function Home() {
         url: string | null;
         moduleId: string;
       }[] = [];
+
+      let profilePicture: { name: string; url: string } = {
+        name: '',
+        url: '',
+      };
+      let albumPicture: { name: string; url: string } = {
+        name: '',
+        url: '',
+      };
+
+      profilePicture.name =
+        (tapeInfoJSON && tapeInfoJSON.profilePicture) || '';
+      albumPicture.name =
+        (tapeInfoJSON && tapeInfoJSON.albumPicture) || '';
 
       let tapeInfoPromise: Promise<void | null> = Promise.resolve();
 
@@ -274,6 +288,16 @@ export default function Home() {
                 url: blobUrl,
                 moduleId,
               });
+              if (item.name === tapeInfoJSON.profilePic) {
+                profilePicture.name = item.name;
+                profilePicture.url = blobUrl;
+              }
+              if (
+                item.name === tapeInfoJSON.audioFiles[0].albumPicture
+              ) {
+                albumPicture.name = item.name;
+                albumPicture.url = blobUrl;
+              }
             });
           imagePromises.push(imagePromise);
         }
@@ -287,8 +311,9 @@ export default function Home() {
         audioFiles,
         imageFiles,
         tapeInfoJSON,
+        albumPicture,
+        profilePicture,
       });
-      console.log(audioFiles, imageFiles, tapeInfoJSON);
 
       router.push({
         pathname: `/tape/${[vaultId]}`,

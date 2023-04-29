@@ -37,16 +37,15 @@ export interface AudioFile {
   url: string;
 }
 
-export interface ImageFile {
+export interface AlbumPictureFile {
   name: string;
   url: string | null;
-  moduleId: string;
 }
 
 interface AudioPlayerProps {
   tapeInfoJSON: TapeInfo;
   audioFiles: AudioFile[];
-  imageFiles: ImageFile[];
+  albumPicture: AlbumPictureFile;
 }
 
 function formatToMinutes(duration: number): string {
@@ -71,7 +70,7 @@ function totalTapeLength(tapeInfo: TapeInfo): string {
 const AudioPlayer: React.FC<AudioPlayerProps> = ({
   tapeInfoJSON,
   audioFiles,
-  imageFiles,
+  albumPicture,
 }) => {
   const [tape, setTape] = useState<Tape>({
     title: tapeInfoJSON.tapeArtistName,
@@ -204,7 +203,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
         <div
           className={styles.musicPlayerHeader}
           style={{
-            backgroundImage: `url(${imageFiles[0].url})`,
+            backgroundImage: `url(${albumPicture.url})`,
             position: 'sticky',
             top: '0',
           }}
@@ -256,7 +255,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
                   <div
                     className={styles.songArt}
                     style={{
-                      backgroundImage: `url(${imageFiles[2].url})`,
+                      backgroundImage: `url(${albumPicture.url})`,
                       objectFit: 'cover',
                     }}
                   ></div>
