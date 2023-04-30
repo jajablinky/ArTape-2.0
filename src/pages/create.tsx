@@ -53,15 +53,26 @@ const createMetadataJSON = (
         }))
       : [],
     imageFiles: imageFiles
-      ? imageFiles.map((file) => ({
-          name: file.name,
-          alt: file.alt,
-          moduleId: file.moduleId,
-        }))
+      ? imageFiles
+          .filter((file) => {
+            const isProfilePic = file.name === profilePicName;
+            const isAlbumPicture = audioFiles
+              ? audioFiles.files.some(
+                  (audioFile) => audioFile.albumPicture === file.name
+                )
+              : false;
+            return !isProfilePic && !isAlbumPicture;
+          })
+          .map((file) => ({
+            name: file.name,
+            alt: file.alt,
+            moduleId: file.moduleId,
+          }))
       : [],
   };
   return JSON.stringify(metadata);
 };
+
 /* Types */
 
 type AudioData = {
@@ -112,11 +123,6 @@ type VaultValues = {
   type: string;
   color: string;
   moduleId: number;
-};
-
-type User = {
-  jwtToken?: any;
-  wallet?: any;
 };
 
 const loader = (
@@ -184,23 +190,19 @@ const Create = () => {
     imageFiles: ImageFileState[] | null,
     data: VaultValues
   ) => {
-    setAudioFiles((prevAudioFiles) => {
-      if (!prevAudioFiles) return null;
+    if (!audioFiles) return null;
 
-      const updatedFiles = prevAudioFiles.files.map(
-        (audioFile, index) => ({
-          ...audioFile,
-          albumPicture: imageFiles?.[0].name ?? '',
-          artistName: data.tapeArtistName,
-          trackNumber: index + 1,
-        })
-      );
+    const updatedFiles = audioFiles.files.map((audioFile, index) => ({
+      ...audioFile,
+      albumPicture: imageFiles?.[0].name ?? '',
+      artistName: data.tapeArtistName,
+      trackNumber: index + 1,
+    }));
 
-      return {
-        moduleId: prevAudioFiles.moduleId,
-        files: updatedFiles,
-      };
-    });
+    return {
+      moduleId: audioFiles.moduleId,
+      files: updatedFiles,
+    };
   };
 
   const handleProfilePic = (e: any) => {
@@ -208,27 +210,6 @@ const Create = () => {
     if (file) {
       setProfilePicUrl(URL.createObjectURL(file));
     }
-  };
-
-  const updateAllImageFiles = () => {
-    setImageFiles((prevImageFiles) => {
-      if (!prevImageFiles) return null;
-
-      let moduleIdIncremented = false;
-      return prevImageFiles.map((imageFile, index) => {
-        let moduleId = index + 1;
-
-        if (!moduleIdIncremented && moduleId >= 2) {
-          moduleId++;
-          moduleIdIncremented = true;
-        }
-
-        return {
-          ...imageFile,
-          moduleId: moduleId,
-        };
-      });
-    });
   };
 
   /* - Form Submit: Uploading when User Is Ready With All Files - */
@@ -240,8 +221,7 @@ const Create = () => {
 
   const onSubmit: SubmitHandler<VaultValues> = async (data) => {
     setLoading(true);
-    updateAllAudioFiles(imageFiles, data);
-    updateAllImageFiles();
+    let updatedAudioFiles = updateAllAudioFiles(imageFiles, data);
 
     let tapeInfo: File | null = null;
 
@@ -251,12 +231,14 @@ const Create = () => {
 
       const metadataJSON = createMetadataJSON(
         data,
-        audioFiles,
+        updatedAudioFiles,
         imageFiles,
         profilePicName,
         data.memento,
         color
       );
+
+      console.log(metadataJSON);
 
       tapeInfo = new File([metadataJSON], 'tapeInfo.json', {
         type: 'application/json',
@@ -354,11 +336,13 @@ const Create = () => {
           `Uploaded file: ${tapeInfo.name}, Stack ID: ${stackId}`
         );
       }
-      console.log('uploaded files');
+      console.log('SUCCESS UPLOADED :)');
     }
 
     setLoading(false);
   };
+
+  /**** Helper Functions ****/
 
   const getAudioDuration = (file: File): Promise<number> => {
     return new Promise((resolve, reject) => {
@@ -371,13 +355,6 @@ const Create = () => {
       });
     });
   };
-  // useEffect(() => {
-  //   console.log('audioFiles updated:', audioFiles);
-  // }, [audioFiles]);
-
-  // useEffect(() => {
-  //   console.log('imageFiles updated:', imageFiles);
-  // }, [imageFiles]);
 
   const onChangeFiles = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -436,17 +413,36 @@ const Create = () => {
           };
         });
 
+      const lastModuleId = imageFiles?.length
+        ? imageFiles[imageFiles.length - 1].moduleId
+        : 0;
+
       const newImageFiles = results
         .filter((result) => result.type === 'image')
         .map((result, index) => {
-          const moduleId = index + 1;
+          let moduleId = lastModuleId + index + 1;
+          moduleId =
+            moduleId > 2
+              ? moduleId
+              : moduleId === 2
+              ? moduleId - 1
+              : moduleId;
           return {
             imageFile: (result.data as ImageData).file,
             alt: (result.data as ImageData).alt,
             name: (result.data as ImageData).name,
-            moduleId: moduleId === 2 ? moduleId + 1 : moduleId,
+            moduleId: moduleId,
           };
         });
+
+      setImageFiles((prevImageFiles) => {
+        if (prevImageFiles) {
+          return [...prevImageFiles, ...newImageFiles];
+        } else {
+          return newImageFiles;
+        }
+      });
+
       setAudioFiles((prevAudioFiles) => {
         if (
           !prevAudioFiles ||
@@ -459,13 +455,6 @@ const Create = () => {
             moduleId: prevAudioFiles.moduleId,
             files: [...prevAudioFiles.files, ...newAudioFiles],
           };
-        }
-      });
-      setImageFiles((prevImageFiles) => {
-        if (prevImageFiles) {
-          return [...prevImageFiles, ...newImageFiles];
-        } else {
-          return newImageFiles;
         }
       });
     }

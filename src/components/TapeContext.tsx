@@ -10,8 +10,10 @@ interface Tape {
   imageFiles: {
     name: string;
     url: string | null;
-    moduleId: string;
+    moduleId: number;
   }[];
+  albumPicture: { name: string; url: string };
+  profilePicture: { name: string; url: string };
   tapeInfoJSON: any;
 }
 

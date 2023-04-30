@@ -1,21 +1,30 @@
 import { useRouter } from 'next/router';
+
 import { useTape } from '@/components/TapeContext';
 import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import AudioPlayer, { AudioFile } from '@/components/AudioPlayer';
 import PineappleMemento from '@/components/Images/Mementos/PineappleMemento';
 import LoudMemento from '@/components/Images/Mementos/LoudMemento';
 import MinimalMemento from '@/components/Images/Mementos/MinimalMemento';
 import CassetteMemento from '@/components/Images/Mementos/CassetteMemento';
+import EditButton from '@/components/Images/UI/EditButton';
 
 const Tape = () => {
+  const [sortedImageFiles, setSortedImagesFiles] = useState<
+    {
+      name: string;
+      url: string | null;
+      moduleId: string;
+    }[]
+  >([]);
+
   const router = useRouter();
   const { id } = router.query;
   const { tape } = useTape();
 
   if (!tape) {
-    // Handle the case when there is no tape data available
     return <div>No tape data available</div>;
   }
   const mementoGenerator = () => {
@@ -31,7 +40,54 @@ const Tape = () => {
       return null;
     }
   };
-  const { audioFiles, tapeInfoJSON, imageFiles } = tape;
+  const {
+    audioFiles,
+    tapeInfoJSON,
+    imageFiles,
+    albumPicture,
+    profilePicture,
+  } = tape;
+
+  useEffect(() => {
+    if (imageFiles && imageFiles.length > 0) {
+      const filteredImageFiles = imageFiles.filter((image) => {
+        return (
+          image.moduleId !== 1 &&
+          image.moduleId !== null &&
+          typeof image.moduleId !== 'string'
+        );
+      });
+      const sortedImages = [...filteredImageFiles].sort(
+        (a, b) => a.moduleId - b.moduleId
+      );
+      setSortedImagesFiles(sortedImages);
+    }
+  }, [imageFiles]);
+
+  const renderFirstImage = (targetModuleId: number) => {
+    const targetImage = imageFiles.find(
+      (image) => image.moduleId === targetModuleId
+    );
+
+    if (targetImage) {
+      return (
+        <Image
+          className={targetImage.name}
+          src={targetImage.url}
+          alt={targetImage.name}
+          height={350}
+          width={350}
+          style={{ objectFit: 'cover' }}
+        />
+      );
+    } else {
+      // Handle the case when the image with the target moduleId is not found
+      return (
+        <div>No image found for the moduleId: {targetModuleId}</div>
+      );
+    }
+  };
+
   return (
     <>
       <main
@@ -43,62 +99,79 @@ const Tape = () => {
         }
       >
         <div
+          className={styles.artistHeader}
           style={{
             display: 'flex',
+            justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: '20px',
           }}
         >
           <div
-            className={styles.profilePicture}
+            className={styles.artistHeaderLeft}
             style={{
-              borderRadius: '12px',
-              backgroundImage: `url(${imageFiles[0].url})`,
+              display: 'flex',
+              alignItems: 'center',
+              marginBottom: '20px',
             }}
-          ></div>
-          <div>
+          >
             <div
+              className={styles.profilePicture}
               style={{
-                display: 'flex',
-                flexDirection: 'row',
-                gap: '12px',
+                borderRadius: '12px',
               }}
             >
-              <h1>
-                <b>{tapeInfoJSON.tapeArtistName}</b>
-                <span style={{ fontWeight: 'normal' }}>'s Tape</span>
-              </h1>
-              <div className={styles.memento}>
-                {mementoGenerator()}
-              </div>
+              <Image
+                width={100}
+                height={100}
+                alt={profilePicture.name}
+                src={profilePicture.url}
+                style={{
+                  borderRadius: '12px',
+                  objectFit: 'cover',
+                }}
+              />
             </div>
+            <div>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  gap: '12px',
+                }}
+              >
+                <h1>
+                  <b>{tapeInfoJSON.tapeArtistName}</b>
+                  <span style={{ fontWeight: 'normal' }}>
+                    's Tape
+                  </span>
+                </h1>
+                <div className={styles.memento}>
+                  {mementoGenerator()}
+                </div>
+              </div>
 
-            <p style={{ fontSize: '28px', fontWeight: 'lighter' }}>
-              {tapeInfoJSON.type}
-            </p>
-            <p
-              style={{
-                fontSize: '20px',
-                fontWeight: 'lighter',
-                color: '#656565',
-              }}
-            >
-              {tapeInfoJSON.tapeDescription}
-            </p>
+              <p style={{ fontSize: '28px', fontWeight: 'lighter' }}>
+                {tapeInfoJSON.type}
+              </p>
+              <p
+                style={{
+                  fontSize: '20px',
+                  fontWeight: 'lighter',
+                  color: '#656565',
+                }}
+              >
+                {tapeInfoJSON.tapeDescription}
+              </p>
+            </div>
+          </div>
+          <div className={styles.artistHeaderRight}>
+            <EditButton color={tapeInfoJSON.color} />
           </div>
         </div>
+
         <div className={styles.gridProfile}>
           <div className={styles.profileModule}>
-            {imageFiles[0].url && (
-              <Image
-                className={imageFiles[0].name}
-                src={imageFiles[0].url}
-                alt={imageFiles[0].name}
-                height={350}
-                width={350}
-                style={{ objectFit: 'cover' }}
-              />
-            )}
+            {renderFirstImage(1)}
           </div>
           <div
             className={styles.profileModuleRectangle}
@@ -114,78 +187,44 @@ const Tape = () => {
                 ) as AudioFile[]
               }
               tapeInfoJSON={tapeInfoJSON}
-              imageFiles={imageFiles}
+              albumPicture={albumPicture}
             />
           </div>
-          {imageFiles &&
-            imageFiles
-              .filter((image) => parseInt(image.moduleId) >= 3)
-              .sort(
-                (a, b) => parseInt(a.moduleId) - parseInt(b.moduleId)
-              )
-              .map((image, index) => {
-                if (image.url) {
-                  return parseInt(image.moduleId) === 6 ? (
-                    <div
-                      key={image.name}
-                      className={styles.profileModuleRectangle}
-                    >
-                      <Image
-                        className={image.name}
-                        src={image.url}
-                        alt={image.name}
-                        height={350}
-                        width={350}
-                        style={{ objectFit: 'cover' }}
-                      />
-                    </div>
-                  ) : (
-                    <div
-                      key={image.name}
-                      className={styles.profileModule}
-                    >
-                      <Image
-                        className={image.name}
-                        src={image.url}
-                        alt={image.name}
-                        height={350}
-                        width={350}
-                        style={{ objectFit: 'cover' }}
-                      />
-                    </div>
-                  );
-                }
-                return null;
-              })}
+          {sortedImageFiles &&
+            sortedImageFiles.map((image) => {
+              if (image.url) {
+                return parseInt(image.moduleId) === 6 ? (
+                  <div
+                    className={styles.profileModuleRectangle}
+                    key={image.name}
+                  >
+                    <Image
+                      className={image.name}
+                      src={image.url}
+                      alt={image.name}
+                      height={350}
+                      width={350}
+                      style={{ objectFit: 'cover' }}
+                    />
+                  </div>
+                ) : (
+                  <div
+                    className={styles.profileModule}
+                    key={image.name}
+                  >
+                    <Image
+                      className={image.name}
+                      src={image.url}
+                      alt={image.name}
+                      height={350}
+                      width={350}
+                      style={{ objectFit: 'cover' }}
+                    />
+                  </div>
+                );
+              }
+            })}
         </div>
-        {/* <div>
-          {audioFiles ? (
-            <>
-              <h1>Audio URLs:</h1>
-              <ul>
-                {audioFiles.map((url, index) => (
-                  <li key={index}>{url}</li>
-                ))}
-              </ul>{' '}
-            </>
-          ) : null}
-          {imageFiles ? (
-            <>
-              <h1>Image URLs:</h1>
-              <ul>
-                {imageFiles.map((url, index) => (
-                  <li key={index}>{url}</li>
-                ))}
-              </ul>{' '}
-            </>
-          ) : null}
-          {tapeInfoJSON ? (
-            <>
-              <h1>Tape Info Metadata:</h1>
-              <p>{JSON.stringify(tapeInfoJSON, null, 2)}</p>
-            </>
-          ) : null}
-        </div> */}
       </main>
     </>
   );
