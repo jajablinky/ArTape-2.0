@@ -1,5 +1,4 @@
 import { useRouter } from 'next/router';
-import { Reorder } from 'framer-motion';
 
 import { useTape } from '@/components/TapeContext';
 import styles from '@/styles/Home.module.css';
@@ -11,7 +10,6 @@ import LoudMemento from '@/components/Images/Mementos/LoudMemento';
 import MinimalMemento from '@/components/Images/Mementos/MinimalMemento';
 import CassetteMemento from '@/components/Images/Mementos/CassetteMemento';
 import EditButton from '@/components/Images/UI/EditButton';
-import { profile } from 'console';
 
 const Tape = () => {
   const [sortedImageFiles, setSortedImagesFiles] = useState<
