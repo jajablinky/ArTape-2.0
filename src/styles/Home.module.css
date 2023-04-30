@@ -100,4 +100,5 @@
 
 .switch {
   display: flex;
+  width: 250px;
 }

@@ -1,9 +1,4 @@
-import {
-  useState,
-  ChangeEvent,
-  CSSProperties,
-  useEffect,
-} from 'react';
+import { useState, ChangeEvent, CSSProperties } from 'react';
 import AudioList from '@/components/AudioList';
 import { HexColorPicker } from 'react-colorful';
 
@@ -27,6 +22,7 @@ import { getPineappleSvgContent } from '@/components/Images/Mementos/PineappleMe
 import { getLoudSvgContent } from '@/components/Images/Mementos/LoudMemento';
 import { getMinimalSvgContent } from '@/components/Images/Mementos/MinimalMemento';
 import { getCassetteSvgContent } from '@/components/Images/Mementos/CassetteMemento';
+import EditButton from '@/components/Images/UI/EditButton';
 
 const createMetadataJSON = (
   data: VaultValues,
@@ -460,83 +456,7 @@ const Create = () => {
     }
   };
 
-  /* Rendering Preview and Edit files */
-
-  // // Helper Function
-  const renderFile = (
-    file: File,
-    index: number
-  ): JSX.Element | null | undefined => {
-    if (!file) {
-      return null;
-    }
-    const fileType = file.type.split('/')[0];
-    const fileURL = URL.createObjectURL(file);
-    if (fileType === 'image') {
-      return (
-        <Image
-          src={fileURL}
-          key={index}
-          className="image"
-          alt={`uploaded-image-${index}`}
-          width={100}
-          height={100}
-          style={{ objectFit: 'contain' }}
-        />
-      );
-    } else if (fileType === 'audio') {
-      return (
-        <audio
-          key={index}
-          controls
-          style={{ maxWidth: '100%', maxHeight: '100%' }}
-        >
-          <source src={fileURL} type={file.type} />
-          Your Browser Does Not Support the Audio Element
-        </audio>
-      );
-    }
-  };
-
-  const renderFileList = (
-    imageFiles: ImageFileState[] | null,
-    audioFiles: { moduleId: number; files: AudioFileState[] } | null
-  ) => {
-    if (!imageFiles && !audioFiles) {
-      return null;
-    }
-
-    const audioFileArray = audioFiles ? audioFiles.files : null;
-
-    return (
-      <>
-        {imageFiles && imageFiles.length > 0 && (
-          <>
-            <h3>Images: {imageFiles.length}</h3>
-            <div style={filePreviewContainerStyle}>
-              {imageFiles.map((imageFileState, index) =>
-                renderFile(imageFileState.imageFile, index)
-              )}
-            </div>
-          </>
-        )}
-        {audioFileArray && audioFileArray.length > 0 && (
-          <>
-            <h3>Audio: {audioFileArray.length}</h3>
-            <div style={filePreviewContainerStyle}>
-              <AudioList
-                audioFiles={audioFileArray || []}
-                setAudioFiles={setAudioFiles}
-                renderFile={(file: AudioFileState, index: number) =>
-                  renderFile(file.audioFile, index)
-                }
-              />
-            </div>
-          </>
-        )}
-      </>
-    );
-  };
+  // // Upload Form
 
   const uploadForm = (
     <>
@@ -740,18 +660,6 @@ const Create = () => {
           </div>
         </div>
 
-        {/* * * - Rendering Files JSX - Images and Audio * */}
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'space-between',
-            marginTop: '10px',
-            width: '100%',
-          }}
-        >
-          {renderFileList(imageFiles, audioFiles)}
-        </div>
         {/* * * - Submit Form Button * */}
         <button
           type="submit"
@@ -787,35 +695,172 @@ const Create = () => {
 
   return (
     <>
-      <main className={styles.main}>
+      <main
+        className={styles.main}
+        style={
+          {
+            '--artape-primary-color': color,
+          } as React.CSSProperties
+        }
+      >
+        <p>Pick Profile Color</p>
         <div
           style={{
             display: 'flex',
-            flexDirection: 'column',
-            gap: '64px',
+          }}
+        >
+          <HexColorPicker color={color} onChange={setColor} />
+        </div>
+        <p>Pick Memento</p>
+        <div className={styles.switch}>
+          <input
+            {...register('memento')}
+            name="memento"
+            id="one"
+            type="radio"
+            value="Pineapple"
+          />
+          <label htmlFor="one" style={{ color: `${color}` }}>
+            Pineapple
+          </label>
+          <input
+            {...register('memento')}
+            value="Loud"
+            name="memento"
+            id="two"
+            type="radio"
+          />
+          <label htmlFor="two" style={{ color: `${color}` }}>
+            Loud
+          </label>
+          <input
+            {...register('memento')}
+            name="memento"
+            value="Minimal"
+            id="three"
+            type="radio"
+          />
+          <label htmlFor="three" style={{ color: `${color}` }}>
+            Minimal
+          </label>
+          <input
+            {...register('memento')}
+            value="Tape"
+            name="memento"
+            id="four"
+            type="radio"
+          />
+          <label htmlFor="four" style={{ color: `${color}` }}>
+            Tape
+          </label>
+        </div>
+        <div
+          className={styles.artistHeader}
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
             alignItems: 'center',
           }}
         >
           <div
+            className={styles.artistHeaderLeft}
             style={{
               display: 'flex',
-              flexDirection: 'column',
               alignItems: 'center',
-              gap: '24px',
+              marginBottom: '20px',
             }}
           >
-            <Image src={CassetteLogo} width={25} alt="artape-logo" />
-            <ArTapeLogo color={color} />
+            <div
+              className={styles.profilePicture}
+              style={{
+                borderRadius: '12px',
+              }}
+            ></div>
+            <div>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  gap: '12px',
+                }}
+              >
+                <b>
+                  <input
+                    {...register('tapeArtistName', {
+                      required: true,
+                    })}
+                    type="text"
+                    placeholder="Artist Name"
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      fontSize: '36px',
+                    }}
+                  />
+                </b>
+                <span
+                  style={{ fontWeight: 'normal', fontSize: '36px' }}
+                >
+                  's Tape
+                </span>
+                <div className={styles.memento}>
+                  <PineappleMemento color={color} />
+                </div>
+              </div>
+
+              <p style={{ fontWeight: 'lighter' }}>
+                <input
+                  {...register('type', { required: true })}
+                  type="text"
+                  placeholder="Type (Musician / Podcaster / etc..)"
+                  style={{
+                    fontSize: '28px',
+                    background: 'transparent',
+                    border: 'none',
+                  }}
+                />
+              </p>
+              <p
+                style={{
+                  fontWeight: 'lighter',
+                  color: '#656565',
+                }}
+              >
+                <input
+                  {...register('tapeDescription', { required: true })}
+                  type="text"
+                  placeholder="Add A Description"
+                  style={{
+                    fontSize: '20px',
+
+                    background: 'transparent',
+                    border: 'none',
+                  }}
+                />
+              </p>
+            </div>
           </div>
+          <div className={styles.artistHeaderRight}>
+            <EditButton color={color} />
+          </div>
+        </div>
+
+        <div className={styles.gridProfile}>
+          <div className={styles.profileModule}></div>
+
           <div
+            className={styles.profileModuleRectangle}
             style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '14px',
+              backgroundColor: 'var(--artape-primary-color)',
+              overflow: 'auto',
             }}
-          >
-            {uploadForm}
-          </div>
+          ></div>
+          <div className={styles.profileModule}></div>
+          <div className={styles.profileModule}></div>
+          <div className={styles.profileModule}></div>
+
+          <div className={styles.profileModuleRectangle}></div>
+          <div className={styles.profileModule}></div>
         </div>
       </main>
     </>
