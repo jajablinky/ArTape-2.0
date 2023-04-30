@@ -23,6 +23,7 @@ import { getLoudSvgContent } from '@/components/Images/Mementos/LoudMemento';
 import { getMinimalSvgContent } from '@/components/Images/Mementos/MinimalMemento';
 import { getCassetteSvgContent } from '@/components/Images/Mementos/CassetteMemento';
 import EditButton from '@/components/Images/UI/EditButton';
+import UploadButton from '@/components/Images/UI/UploadButton';
 
 const createMetadataJSON = (
   data: VaultValues,
@@ -168,6 +169,7 @@ const getMementoSvgContent = (
 };
 
 const Create = () => {
+  const [selectedMemento, setSelectedMemento] = useState('Pineapple');
   const [profilePicUrl, setProfilePicUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [audioFiles, setAudioFiles] = useState<{
@@ -181,6 +183,12 @@ const Create = () => {
   const [imageFiles, setImageFiles] = useState<
     ImageFileState[] | null
   >(null);
+
+  const handleMementoChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setSelectedMemento(event.target.value);
+  };
 
   const updateAllAudioFiles = (
     imageFiles: ImageFileState[] | null,
@@ -703,88 +711,99 @@ const Create = () => {
           } as React.CSSProperties
         }
       >
-        <p>Pick Profile Color</p>
-        <div
-          style={{
-            display: 'flex',
-          }}
-        >
-          <HexColorPicker color={color} onChange={setColor} />
-        </div>
-        <p>Pick Memento</p>
-        <div className={styles.switch}>
-          <input
-            {...register('memento')}
-            name="memento"
-            id="one"
-            type="radio"
-            value="Pineapple"
-          />
-          <label htmlFor="one" style={{ color: `${color}` }}>
-            Pineapple
-          </label>
-          <input
-            {...register('memento')}
-            value="Loud"
-            name="memento"
-            id="two"
-            type="radio"
-          />
-          <label htmlFor="two" style={{ color: `${color}` }}>
-            Loud
-          </label>
-          <input
-            {...register('memento')}
-            name="memento"
-            value="Minimal"
-            id="three"
-            type="radio"
-          />
-          <label htmlFor="three" style={{ color: `${color}` }}>
-            Minimal
-          </label>
-          <input
-            {...register('memento')}
-            value="Tape"
-            name="memento"
-            id="four"
-            type="radio"
-          />
-          <label htmlFor="four" style={{ color: `${color}` }}>
-            Tape
-          </label>
-        </div>
-        <div
-          className={styles.artistHeader}
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <div
-            className={styles.artistHeaderLeft}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              marginBottom: '20px',
-            }}
-          >
-            <div
-              className={styles.profilePicture}
-              style={{
-                borderRadius: '12px',
-              }}
-            ></div>
-            <div>
+        <div className={styles.aboveGrid}>
+          <h1 style={{ fontSize: '48px' }}>Create A Tape</h1>
+          <div style={{ display: 'flex', gap: '24px' }}>
+            <div className={styles.profileColorForm}>
+              <p style={{ fontSize: '18px' }}>Pick Profile Color</p>
               <div
                 style={{
                   display: 'flex',
-                  flexDirection: 'row',
-                  gap: '12px',
                 }}
               >
-                <b>
+                <HexColorPicker color={color} onChange={setColor} />
+              </div>
+            </div>
+            <div className={styles.mementoForm}>
+              <p style={{ fontSize: '18px' }}>Pick Memento</p>
+              <div className={styles.switch}>
+                <input
+                  {...register('memento')}
+                  name="memento"
+                  id="one"
+                  type="radio"
+                  value="Pineapple"
+                  onChange={handleMementoChange}
+                />
+                <label htmlFor="one" style={{ color: `${color}` }}>
+                  Pineapple
+                </label>
+                <input
+                  {...register('memento')}
+                  value="Loud"
+                  name="memento"
+                  id="two"
+                  type="radio"
+                  onChange={handleMementoChange}
+                />
+                <label htmlFor="two" style={{ color: `${color}` }}>
+                  Loud
+                </label>
+                <input
+                  {...register('memento')}
+                  name="memento"
+                  value="Minimal"
+                  id="three"
+                  type="radio"
+                  onChange={handleMementoChange}
+                />
+                <label htmlFor="three" style={{ color: `${color}` }}>
+                  Minimal
+                </label>
+                <input
+                  {...register('memento')}
+                  value="Tape"
+                  name="memento"
+                  id="four"
+                  type="radio"
+                  onChange={handleMementoChange}
+                />
+                <label htmlFor="four" style={{ color: `${color}` }}>
+                  Tape
+                </label>
+              </div>
+            </div>
+          </div>
+          <div
+            className={styles.artistHeader}
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <div
+              className={styles.artistHeaderLeft}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '20px',
+              }}
+            >
+              <div
+                className={styles.profilePicture}
+                style={{
+                  borderRadius: '12px',
+                }}
+              ></div>
+              <div>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '12px',
+                  }}
+                >
                   <input
                     {...register('tapeArtistName', {
                       required: true,
@@ -795,58 +814,82 @@ const Create = () => {
                       background: 'transparent',
                       border: 'none',
                       fontSize: '36px',
+                      width: '200px',
                     }}
                   />
-                </b>
-                <span
-                  style={{ fontWeight: 'normal', fontSize: '36px' }}
-                >
-                  's Tape
-                </span>
-                <div className={styles.memento}>
-                  <PineappleMemento color={color} />
+                  <span
+                    style={{ fontWeight: 'normal', fontSize: '36px' }}
+                  >
+                    's Tape
+                  </span>
+                  <div className={styles.memento}>
+                    {selectedMemento === 'Pineapple' && (
+                      <PineappleMemento color={color} />
+                    )}
+                    {selectedMemento === 'Loud' && (
+                      <LoudMemento color={color} />
+                    )}
+                    {selectedMemento === 'Minimal' && (
+                      <MinimalMemento color={color} />
+                    )}
+                    {selectedMemento === 'Tape' && (
+                      <CassetteMemento color={color} />
+                    )}{' '}
+                  </div>
                 </div>
+
+                <p style={{ fontWeight: 'lighter' }}>
+                  <input
+                    {...register('type', { required: true })}
+                    type="text"
+                    placeholder="Type (Musician / Podcaster / etc..)"
+                    style={{
+                      fontSize: '28px',
+                      background: 'transparent',
+                      border: 'none',
+                    }}
+                  />
+                </p>
+                <p
+                  style={{
+                    fontWeight: 'lighter',
+                    color: '#656565',
+                  }}
+                >
+                  <input
+                    {...register('tapeDescription', {
+                      required: true,
+                    })}
+                    type="text"
+                    placeholder="Add A Description"
+                    style={{
+                      fontSize: '20px',
+
+                      background: 'transparent',
+                      border: 'none',
+                    }}
+                  />
+                </p>
               </div>
-
-              <p style={{ fontWeight: 'lighter' }}>
-                <input
-                  {...register('type', { required: true })}
-                  type="text"
-                  placeholder="Type (Musician / Podcaster / etc..)"
-                  style={{
-                    fontSize: '28px',
-                    background: 'transparent',
-                    border: 'none',
-                  }}
-                />
-              </p>
-              <p
-                style={{
-                  fontWeight: 'lighter',
-                  color: '#656565',
-                }}
-              >
-                <input
-                  {...register('tapeDescription', { required: true })}
-                  type="text"
-                  placeholder="Add A Description"
-                  style={{
-                    fontSize: '20px',
-
-                    background: 'transparent',
-                    border: 'none',
-                  }}
-                />
-              </p>
             </div>
-          </div>
-          <div className={styles.artistHeaderRight}>
-            <EditButton color={color} />
+            <div className={styles.artistHeaderRight}>
+              <EditButton color={color} />
+            </div>
           </div>
         </div>
 
         <div className={styles.gridProfile}>
-          <div className={styles.profileModule}></div>
+          <div
+            className={styles.profileModule}
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              cursor: 'pointer',
+            }}
+          >
+            <UploadButton color={color} />
+          </div>
 
           <div
             className={styles.profileModuleRectangle}
@@ -855,12 +898,62 @@ const Create = () => {
               overflow: 'auto',
             }}
           ></div>
-          <div className={styles.profileModule}></div>
-          <div className={styles.profileModule}></div>
-          <div className={styles.profileModule}></div>
+          <div
+            className={styles.profileModule}
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              cursor: 'pointer',
+            }}
+          >
+            <UploadButton color={color} />
+          </div>
+          <div
+            className={styles.profileModule}
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              cursor: 'pointer',
+            }}
+          >
+            <UploadButton color={color} />
+          </div>
+          <div
+            className={styles.profileModule}
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              cursor: 'pointer',
+            }}
+          >
+            <UploadButton color={color} />
+          </div>
 
-          <div className={styles.profileModuleRectangle}></div>
-          <div className={styles.profileModule}></div>
+          <div
+            className={styles.profileModuleRectangle}
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              cursor: 'pointer',
+            }}
+          >
+            <UploadButton color={color} />
+          </div>
+          <div
+            className={styles.profileModule}
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              cursor: 'pointer',
+            }}
+          >
+            <UploadButton color={color} />
+          </div>
         </div>
       </main>
     </>
