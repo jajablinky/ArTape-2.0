@@ -1,4 +1,9 @@
-import { useState, ChangeEvent, CSSProperties } from 'react';
+import {
+  useState,
+  ChangeEvent,
+  CSSProperties,
+  useEffect,
+} from 'react';
 import AudioList from '@/components/AudioList';
 import { HexColorPicker } from 'react-colorful';
 
@@ -110,7 +115,7 @@ type ResultData = {
 };
 
 type VaultValues = {
-  profilePic: File[]; // Update this line
+  profilePic: File[];
   tapeArtistName: string;
   file: string;
   memento: string;
@@ -120,6 +125,13 @@ type VaultValues = {
   type: string;
   color: string;
   moduleId: number;
+  imageModule1: File[];
+  audioModule2: File[];
+  imageModule3: File[];
+  imageModule4: File[];
+  imageModule5: File[];
+  imageModule6: File[];
+  imageModule7: File[];
 };
 
 const loader = (
@@ -171,7 +183,7 @@ const getMementoSvgContent = (
 const Create = () => {
   const [selectedMemento, setSelectedMemento] = useState('Pineapple');
   const [profilePicUrl, setProfilePicUrl] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [audioFiles, setAudioFiles] = useState<{
     moduleId: number;
@@ -191,165 +203,258 @@ const Create = () => {
     setSelectedMemento(event.target.value);
   };
 
-  const updateAllAudioFiles = (
-    imageFiles: ImageFileState[] | null,
-    data: VaultValues
-  ) => {
-    if (!audioFiles) return null;
-
-    const updatedFiles = audioFiles.files.map((audioFile, index) => ({
-      ...audioFile,
-      albumPicture: imageFiles?.[0].name ?? '',
-      artistName: data.tapeArtistName,
-      trackNumber: index + 1,
-    }));
-
-    return {
-      moduleId: audioFiles.moduleId,
-      files: updatedFiles,
-    };
-  };
-
-  const handleProfilePic = (e: any) => {
-    const file = e.target.files[0];
-    if (file) {
-      setProfilePicUrl(URL.createObjectURL(file));
-    }
-  };
-  const handleImage = (e: any) => {
-    //find out imageFiles structure put that into this logic here
-    const file = e.target.files[0];
-    if (file) {
-      setImageUrl(URL.createObjectURL(file));
-    }
-  };
-
   /* - Form Submit: Uploading when User Is Ready With All Files - */
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<VaultValues>();
 
-  const onSubmit: SubmitHandler<VaultValues> = async (data) => {
+  const watchedProfilePic = watch('profilePic');
+  useEffect(() => {
+    if (watchedProfilePic?.length > 0) {
+      setProfilePicUrl(URL.createObjectURL(watchedProfilePic[0]));
+    } else {
+      setProfilePicUrl;
+    }
+  }, [watchedProfilePic]);
+
+  const numberOfModules = 7;
+  const modules = [];
+
+  for (let i = 1; i <= numberOfModules; i++) {
+    if (i === 2) continue;
+    const watchedImageModule = watch(
+      `imageModule${i}` as keyof VaultValues
+    ) as File[];
+    useEffect(() => {
+      if (watchedImageModule?.length > 0) {
+        setImageUrl((prevUrls) => {
+          const newUrls = [...prevUrls];
+          newUrls[i - 1] = URL.createObjectURL(
+            watchedImageModule[0] as File
+          );
+          return newUrls;
+        });
+      } else {
+        setImageUrl((prevUrls) => {
+          const newUrls = [...prevUrls];
+          newUrls[i - 1] = '';
+          return newUrls;
+        });
+      }
+    }, [watchedImageModule]);
+
+    modules.push(
+      <div
+        className={styles.profileModule}
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          cursor: 'pointer',
+        }}
+      >
+        {imageUrl[i] ? (
+          <label
+            htmlFor={`imageModule${i}`}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              cursor: 'pointer',
+            }}
+          >
+            <Image
+              src={imageUrl[i]}
+              alt={imageUrl[i]}
+              width={350}
+              height={350}
+              style={{
+                borderRadius: '12px',
+                objectFit: 'cover',
+                cursor: 'pointer',
+              }}
+            />
+          </label>
+        ) : (
+          <label
+            htmlFor={`imageModule${i}`}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              cursor: 'pointer',
+            }}
+          >
+            <UploadButton color={color} />
+          </label>
+        )}
+        <input
+          {...register(`imageModule${i}` as keyof VaultValues, {
+            required: true,
+          })}
+          id={`imageModule${i}`}
+          type="file"
+          name={`imageModule${i}`}
+          accept="image/*"
+          style={{ display: 'none', width: '100%' }}
+        />
+      </div>
+    );
+  }
+
+  const onSubmit: SubmitHandler<VaultValues> = async (data, e) => {
     setLoading(true);
-    let updatedAudioFiles = updateAllAudioFiles(imageFiles, data);
-    // put data.moduleImage-1->6 in imageFiles
+    console.log('submitting');
+    // const profilePicFile = data.profilePic;
+    const imageModule1 = {
+      name: data.imageModule1[0].name,
+      alt: data.imageModule1[0].name,
+      moduleId: 1,
+    };
+
+    // if (profilePicFile) {
+    //   console.log(profilePicFile);
+    // } else {
+    //   console.error('Profile picture file is missing');
+    // }
+    // setImageFiles([
+    //   {
+    //     imageFile: data.imageModule1,
+    //     alt: data.imageModule1.name,
+    //     moduleId: 1,
+    //     name: data.imageModule1.name,
+    //   },
+    // ]);
+
     let tapeInfo: File | null = null;
 
-    if (audioFiles && imageFiles) {
-      const profilePic = data.profilePic;
-      let profilePicName = profilePic[0].name;
+    // if (audioFiles && imageFiles) {
+    //   const profilePic = data.profilePic;
+    //   let profilePicName = profilePic[0].name;
 
-      const metadataJSON = createMetadataJSON(
-        data,
-        updatedAudioFiles,
-        imageFiles,
-        profilePicName,
-        data.memento,
-        color
-      );
+    //   const metadataJSON = createMetadataJSON(
+    //     data,
+    //     audioFiles,
+    //     imageFiles,
+    //     profilePicName,
+    //     data.memento,
+    //     color
+    //   );
 
-      console.log(metadataJSON);
+    //   console.log(metadataJSON);
 
-      tapeInfo = new File([metadataJSON], 'tapeInfo.json', {
-        type: 'application/json',
-      });
-    } else {
-      console.error('Audio or image files are missing');
-    }
+    //   tapeInfo = new File([metadataJSON], 'tapeInfo.json', {
+    //     type: 'application/json',
+    //   });
+    // } else {
+    //   console.error('Audio or image files are missing');
+    // }
 
-    if ((data.email && data.password && imageFiles) || audioFiles) {
-      const { akord } = await Akord.auth.signIn(
-        data.email,
-        data.password
-      );
-      console.log('successful sign-in and verification');
-      const { vaultId } = await akord.vault.create(
-        data.tapeArtistName
-      );
-      console.log(`successfully created vault: ${vaultId}`);
+    // if ((data.email && data.password && imageFiles) || audioFiles) {
+    //   const { akord } = await Akord.auth.signIn(
+    //     data.email,
+    //     data.password
+    //   );
+    //   console.log('successful sign-in and verification');
+    //   const { vaultId } = await akord.vault.create(
+    //     data.tapeArtistName
+    //   );
+    //   console.log(`successfully created vault: ${vaultId}`);
 
-      const profilePic = data.profilePic[0];
-      let profilePicName = data.profilePic[0].name;
+    //   const profilePic = data.profilePic[0];
+    //   let profilePicName = data.profilePic[0].name;
 
-      // Upload Profile Pic
-      if (profilePic) {
-        const { stackId } = await akord.stack.create(
-          vaultId,
-          profilePic,
-          profilePic.name
-        );
-        console.log(
-          `Uploaded file: ${profilePic.name}, Stack ID: ${stackId}`
-        );
-        profilePicName = profilePic.name;
-      }
+    //   // Upload Profile Pic
+    //   if (profilePic) {
+    //     const { stackId } = await akord.stack.create(
+    //       vaultId,
+    //       profilePic,
+    //       profilePic.name
+    //     );
+    //     console.log(
+    //       `Uploaded file: ${profilePic.name}, Stack ID: ${stackId}`
+    //     );
+    //     profilePicName = profilePic.name;
+    //   }
+    // }
 
-      if (data.memento) {
-        const mementoSvgContent = getMementoSvgContent(
-          data.memento,
-          color
-        );
-        if (mementoSvgContent) {
-          const mementoSvgFile = new File(
-            [mementoSvgContent],
-            `${data.memento}.svg`,
-            { type: 'text/html' }
-          );
-          const { stackId: mementoStackId } =
-            await akord.stack.create(
-              vaultId,
-              mementoSvgFile,
-              mementoSvgFile.name
-            );
-          console.log(
-            `Uploaded memento: ${mementoSvgFile.name}, Stack ID: ${mementoStackId}`
-          );
-        }
-      }
+    //   if (data.memento) {
+    //     const mementoSvgContent = getMementoSvgContent(
+    //       data.memento,
+    //       color
+    //     );
+    //     if (mementoSvgContent) {
+    //       const mementoSvgFile = new File(
+    //         [mementoSvgContent],
+    //         `${data.memento}.svg`,
+    //         { type: 'text/html' }
+    //       );
+    //       const { stackId: mementoStackId } =
+    //         await akord.stack.create(
+    //           vaultId,
+    //           mementoSvgFile,
+    //           mementoSvgFile.name
+    //         );
+    //       console.log(
+    //         `Uploaded memento: ${mementoSvgFile.name}, Stack ID: ${mementoStackId}`
+    //       );
+    //     }
+    //   }
 
-      // Upload audio files
-      if (audioFiles) {
-        for (const { audioFile } of audioFiles.files) {
-          const { stackId } = await akord.stack.create(
-            vaultId,
-            audioFile,
-            audioFile.name
-          );
-          console.log(
-            `Uploaded file: ${audioFile.name}, Stack ID: ${stackId}`
-          );
-        }
-      }
+    //   // Upload audio files
+    //   if (audioFiles) {
+    //     for (const { audioFile } of audioFiles.files) {
+    //       const { stackId } = await akord.stack.create(
+    //         vaultId,
+    //         audioFile,
+    //         audioFile.name
+    //       );
+    //       console.log(
+    //         `Uploaded file: ${audioFile.name}, Stack ID: ${stackId}`
+    //       );
+    //     }
+    //   }
 
-      // Upload image files
-      if (imageFiles) {
-        for (const imageFileState of imageFiles) {
-          const { stackId } = await akord.stack.create(
-            vaultId,
-            imageFileState.imageFile,
-            imageFileState.name
-          );
-          console.log(
-            `Uploaded file: ${imageFileState.name}, Stack ID: ${stackId}`
-          );
-        }
-      }
+    //   // Upload image files
+    //   if (imageFiles) {
+    //     for (const imageFileState of imageFiles) {
+    //       const { stackId } = await akord.stack.create(
+    //         vaultId,
+    //         imageFileState.imageFile,
+    //         imageFileState.name
+    //       );
+    //       console.log(
+    //         `Uploaded file: ${imageFileState.name}, Stack ID: ${stackId}`
+    //       );
+    //     }
+    //   }
 
-      // Upload tapeInfo.json
-      if (tapeInfo) {
-        const { stackId } = await akord.stack.create(
-          vaultId,
-          tapeInfo,
-          tapeInfo.name
-        );
-        console.log(
-          `Uploaded file: ${tapeInfo.name}, Stack ID: ${stackId}`
-        );
-      }
-      console.log('SUCCESS UPLOADED :)');
-    }
+    //   // Upload tapeInfo.json
+    //   if (tapeInfo) {
+    //     const { stackId } = await akord.stack.create(
+    //       vaultId,
+    //       tapeInfo,
+    //       tapeInfo.name
+    //     );
+    //     console.log(
+    //       `Uploaded file: ${tapeInfo.name}, Stack ID: ${stackId}`
+    //     );
+    //   }
+    //   console.log('SUCCESS UPLOADED :)');
+    // }
 
     setLoading(false);
   };
@@ -366,79 +471,6 @@ const Create = () => {
         reject(new Error('Error loading audio file metadata.'));
       });
     });
-  };
-
-  const onChangeImageFiles = async (
-    e: ChangeEvent<HTMLInputElement>
-  ) => {
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-
-      const lastModuleId: number = imageFiles?.length
-        ? Number(imageFiles[imageFiles.length - 1].moduleId)
-        : 0;
-
-      const newImageFiles = newFiles.map((file, index) => {
-        let moduleId = lastModuleId + index + 1;
-        moduleId =
-          moduleId > 2
-            ? moduleId
-            : moduleId === 2
-            ? moduleId - 1
-            : moduleId;
-        return {
-          imageFile: file,
-          alt: file.name,
-          name: file.name,
-          moduleId,
-        };
-      });
-
-      setImageFiles((prevImageFiles) => {
-        if (prevImageFiles) {
-          return [...prevImageFiles, ...newImageFiles];
-        } else {
-          return newImageFiles;
-        }
-      });
-    }
-  };
-
-  const onChangeAudioFiles = async (
-    e: ChangeEvent<HTMLInputElement>
-  ) => {
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-
-      const newAudioFiles = await Promise.all(
-        newFiles.map(async (file, index) => {
-          const duration = await getAudioDuration(file);
-          const artistName = ''; // Add logic to extract artist name
-          const trackNumber =
-            (audioFiles?.files.length || 0) + index + 1;
-          const albumPicture = ''; // Add logic to extract album picture
-          return {
-            audioFile: file,
-            albumPicture,
-            duration,
-            name: file.name,
-            artistName,
-            trackNumber,
-          };
-        })
-      );
-
-      setAudioFiles((prevAudioFiles) => {
-        if (prevAudioFiles) {
-          return {
-            moduleId: prevAudioFiles.moduleId,
-            files: [...prevAudioFiles.files, ...newAudioFiles],
-          };
-        } else {
-          return { moduleId: 2, files: newAudioFiles };
-        }
-      });
-    }
   };
 
   return (
@@ -680,7 +712,6 @@ const Create = () => {
                     type="file"
                     name="profilePic"
                     accept="image/*"
-                    onChange={handleProfilePic}
                     style={{ display: 'none', width: '100%' }}
                   />
                 </div>
@@ -782,7 +813,7 @@ const Create = () => {
             >
               {imageUrl ? (
                 <label
-                  htmlFor="imageModule-1"
+                  htmlFor="imageModule1"
                   style={{
                     position: 'absolute',
                     top: 0,
@@ -809,7 +840,7 @@ const Create = () => {
                 </label>
               ) : (
                 <label
-                  htmlFor="imageModule-1"
+                  htmlFor="imageModule1"
                   style={{
                     position: 'absolute',
                     top: 0,
@@ -826,12 +857,11 @@ const Create = () => {
                 </label>
               )}
               <input
-                {...register('imageModule-1', { required: true })}
-                id="imageModule-1"
+                {...register('imageModule1', { required: true })}
+                id="imageModule1"
                 type="file"
-                name="imageModule-1"
+                name="imageModule1"
                 accept="image/*"
-                onChange={handleImage}
                 style={{ display: 'none', width: '100%' }}
               />
               <UploadButton color={color} />
