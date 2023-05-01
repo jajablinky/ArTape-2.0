@@ -54,8 +54,8 @@
 .profilePicture {
   width: 100px;
   height: 100px;
-  background-color: var(--artape-primary-color);
   margin-right: 20px;
+  border: 1px solid var(--artape-primary-color);
 }
 
 .gridProfile {
@@ -129,7 +129,30 @@
   font-size: 32px;
 }
 
+.submitButton {
+  position: fixed;
+  background-color: var(--artape-primary-color);
+  bottom: 0px; /* Adjust this value to change the distance from the bottom of the screen */
+  left: 50%; /* Set the left position to the middle */
+  transform: translateX(
+    -50%
+  ); /* Shift the button half of its width to the left */
+  width: 100%;
+  z-index: 150; /* Ensures the button stays above other elements */
+  border-radius: 0;
+  height: 50px;
+  border-top: 1px solid var(--artape-white);
+}
+
 .switch {
   display: flex;
+  flex-direction: column;
+  text-align: left;
   width: 250px;
+  gap: 16px;
+}
+
+.radioButton {
+  cursor: pointer;
+  width: 150px;
 }

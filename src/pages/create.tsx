@@ -171,6 +171,7 @@ const getMementoSvgContent = (
 const Create = () => {
   const [selectedMemento, setSelectedMemento] = useState('Pineapple');
   const [profilePicUrl, setProfilePicUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [audioFiles, setAudioFiles] = useState<{
     moduleId: number;
@@ -215,6 +216,13 @@ const Create = () => {
       setProfilePicUrl(URL.createObjectURL(file));
     }
   };
+  const handleImage = (e: any) => {
+    //find out imageFiles structure put that into this logic here
+    const file = e.target.files[0];
+    if (file) {
+      setImageUrl(URL.createObjectURL(file));
+    }
+  };
 
   /* - Form Submit: Uploading when User Is Ready With All Files - */
   const {
@@ -226,7 +234,7 @@ const Create = () => {
   const onSubmit: SubmitHandler<VaultValues> = async (data) => {
     setLoading(true);
     let updatedAudioFiles = updateAllAudioFiles(imageFiles, data);
-
+    // put data.moduleImage-1->6 in imageFiles
     let tapeInfo: File | null = null;
 
     if (audioFiles && imageFiles) {
@@ -360,84 +368,31 @@ const Create = () => {
     });
   };
 
-  const onChangeFiles = async (e: ChangeEvent<HTMLInputElement>) => {
+  const onChangeImageFiles = async (
+    e: ChangeEvent<HTMLInputElement>
+  ) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
 
-      const filePromises = newFiles.map(
-        async (file): Promise<ResultData | undefined> => {
-          if (file.type.startsWith('audio')) {
-            const duration = await getAudioDuration(file);
-
-            const artistName = ''; // Add logic to extract artist name
-            const trackNumber = 0; // Add logic to extract track number
-            const albumPicture = '';
-            return {
-              type: 'audio',
-              data: {
-                file,
-                duration,
-                name: file.name,
-                artistName,
-                trackNumber,
-                albumPicture,
-              },
-            };
-          } else if (file.type.startsWith('image')) {
-            const moduleId = null;
-            return {
-              type: 'image',
-              data: {
-                file,
-                name: file.name,
-                alt: file.name,
-                moduleId,
-              },
-            };
-          }
-        }
-      );
-
-      const results = (await Promise.all(filePromises)).filter(
-        (result): result is ResultData => result !== undefined
-      );
-
-      const newAudioFiles = results
-        .filter((result) => result.type === 'audio')
-        .map((result, index) => {
-          const trackNumber =
-            (audioFiles?.files.length || 0) + index + 1;
-          return {
-            audioFile: (result.data as AudioData).file,
-            albumPicture: (result.data as AudioData).albumPicture,
-            duration: (result.data as AudioData).duration,
-            name: (result.data as AudioData).name,
-            artistName: (result.data as AudioData).artistName,
-            trackNumber: trackNumber,
-          };
-        });
-
-      const lastModuleId = imageFiles?.length
-        ? imageFiles[imageFiles.length - 1].moduleId
+      const lastModuleId: number = imageFiles?.length
+        ? Number(imageFiles[imageFiles.length - 1].moduleId)
         : 0;
 
-      const newImageFiles = results
-        .filter((result) => result.type === 'image')
-        .map((result, index) => {
-          let moduleId = lastModuleId + index + 1;
-          moduleId =
-            moduleId > 2
-              ? moduleId
-              : moduleId === 2
-              ? moduleId - 1
-              : moduleId;
-          return {
-            imageFile: (result.data as ImageData).file,
-            alt: (result.data as ImageData).alt,
-            name: (result.data as ImageData).name,
-            moduleId: moduleId,
-          };
-        });
+      const newImageFiles = newFiles.map((file, index) => {
+        let moduleId = lastModuleId + index + 1;
+        moduleId =
+          moduleId > 2
+            ? moduleId
+            : moduleId === 2
+            ? moduleId - 1
+            : moduleId;
+        return {
+          imageFile: file,
+          alt: file.name,
+          name: file.name,
+          moduleId,
+        };
+      });
 
       setImageFiles((prevImageFiles) => {
         if (prevImageFiles) {
@@ -446,260 +401,45 @@ const Create = () => {
           return newImageFiles;
         }
       });
+    }
+  };
+
+  const onChangeAudioFiles = async (
+    e: ChangeEvent<HTMLInputElement>
+  ) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+
+      const newAudioFiles = await Promise.all(
+        newFiles.map(async (file, index) => {
+          const duration = await getAudioDuration(file);
+          const artistName = ''; // Add logic to extract artist name
+          const trackNumber =
+            (audioFiles?.files.length || 0) + index + 1;
+          const albumPicture = ''; // Add logic to extract album picture
+          return {
+            audioFile: file,
+            albumPicture,
+            duration,
+            name: file.name,
+            artistName,
+            trackNumber,
+          };
+        })
+      );
 
       setAudioFiles((prevAudioFiles) => {
-        if (
-          !prevAudioFiles ||
-          prevAudioFiles.moduleId !== 2 ||
-          prevAudioFiles.files.length !== 0
-        ) {
-          return { moduleId: 2, files: newAudioFiles };
-        } else {
+        if (prevAudioFiles) {
           return {
             moduleId: prevAudioFiles.moduleId,
             files: [...prevAudioFiles.files, ...newAudioFiles],
           };
+        } else {
+          return { moduleId: 2, files: newAudioFiles };
         }
       });
     }
   };
-
-  // // Upload Form
-
-  const uploadForm = (
-    <>
-      <form
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '40px',
-          width: '300px',
-        }}
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <div
-          className="profile-picture-container"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '16px',
-          }}
-        >
-          <label htmlFor="profilePic">Add an Artist Profile</label>
-          <Image
-            src={profilePicUrl || avatarAnon}
-            width={100}
-            height={100}
-            alt="profile-pic"
-            style={{ borderRadius: '1000px', objectFit: 'contain' }}
-          />
-
-          <input
-            {...register('profilePic', { required: true })}
-            type="file"
-            onChange={handleProfilePic}
-          />
-        </div>
-        <input
-          {...register('tapeArtistName', { required: true })}
-          type="text"
-          placeholder="Add Your Tape Artist Name"
-          style={{
-            background: 'transparent',
-            border: 'none',
-            borderBottom: '1px solid white',
-            textAlign: 'right',
-          }}
-        />
-        <input
-          {...register('type', { required: true })}
-          type="text"
-          placeholder="Add A Type (Musician / Podcaster / etc..)"
-          style={{
-            background: 'transparent',
-            border: 'none',
-            borderBottom: '1px solid white',
-            textAlign: 'right',
-          }}
-        />
-        <input
-          {...register('tapeDescription', { required: true })}
-          type="text"
-          placeholder="Add A Description"
-          style={{
-            background: 'transparent',
-            border: 'none',
-            borderBottom: '1px solid white',
-            textAlign: 'right',
-          }}
-        />
-        <div
-          className="pick-profile-color-container"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            textAlign: 'center',
-            gap: '12px',
-          }}
-        >
-          <p>Pick Profile Color</p>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-            }}
-          >
-            <HexColorPicker color={color} onChange={setColor} />
-          </div>
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            gap: '20px',
-            justifyContent: 'center',
-          }}
-        >
-          {/* Cassette Memento*/}
-          <PineappleMemento color={color} />
-          <LoudMemento color={color} />
-          <MinimalMemento color={color} />
-          <CassetteMemento color={color} />
-        </div>
-
-        <div className={styles.switch}>
-          <input
-            {...register('memento')}
-            name="memento"
-            id="one"
-            type="radio"
-            value="Pineapple"
-          />
-          <label htmlFor="one" style={{ color: `${color}` }}>
-            Pineapple
-          </label>
-          <input
-            {...register('memento')}
-            value="Loud"
-            name="memento"
-            id="two"
-            type="radio"
-          />
-          <label htmlFor="two" style={{ color: `${color}` }}>
-            Loud
-          </label>
-          <input
-            {...register('memento')}
-            name="memento"
-            value="Minimal"
-            id="three"
-            type="radio"
-          />
-          <label htmlFor="three" style={{ color: `${color}` }}>
-            Minimal
-          </label>
-          <input
-            {...register('memento')}
-            value="Tape"
-            name="memento"
-            id="four"
-            type="radio"
-          />
-          <label htmlFor="four" style={{ color: `${color}` }}>
-            Tape
-          </label>
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '10px',
-          }}
-        >
-          <label htmlFor="file">Upload Audio and Images</label>
-          <input
-            type="file"
-            multiple
-            {...register('file', { required: true })}
-            onChange={onChangeFiles}
-          />
-        </div>
-        {errors.file && <p>Need to upload a file.</p>}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '20px',
-          }}
-        >
-          <p>Enter in Username Info</p>
-          <div
-            className="email-password"
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '28px',
-            }}
-          >
-            <input
-              {...register('email', { required: true })}
-              type="email"
-              placeholder="Email"
-              style={{
-                background: 'transparent',
-                border: 'none',
-                borderBottom: '1px solid white',
-                textAlign: 'right',
-              }}
-            />
-            {errors.email && 'email is required'}
-            <input
-              {...register('password', { required: true })}
-              type="password"
-              placeholder="Password"
-              style={{
-                background: 'transparent',
-                border: 'none',
-                borderBottom: '1px solid white',
-                textAlign: 'right',
-              }}
-            />
-            {errors.password && 'password is required'}
-          </div>
-        </div>
-
-        {/* * * - Submit Form Button * */}
-        <button
-          type="submit"
-          style={{
-            backgroundColor: 'white',
-            color: 'black',
-            fontSize: '12px',
-          }}
-        >
-          {loading ? (
-            loader
-          ) : (
-            <>
-              <span style={{ marginRight: '5px' }}>Generate</span>
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 21 22"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M11.4844 15.2662C11.4844 15.8117 11.0455 16.2505 10.5 16.2505C9.95449 16.2505 9.51562 15.8117 9.51562 15.2662V3.8609L5.61914 7.75701C5.23359 8.14252 4.61016 8.14252 4.22871 7.75701C3.84727 7.3715 3.84316 6.74812 4.22871 6.36671L9.80273 0.789132C10.1883 0.403623 10.8117 0.403623 11.1932 0.789132L16.7754 6.36671C17.1609 6.75222 17.1609 7.3756 16.7754 7.75701C16.3898 8.13841 15.7664 8.14252 15.385 7.75701L11.4885 3.8609V15.2662H11.4844ZM12.7969 14.9381V12.9696H18.375C19.8229 12.9696 21 14.1466 21 15.5943V18.8753C21 20.323 19.8229 21.5 18.375 21.5H2.625C1.17715 21.5 0 20.323 0 18.8753V15.5943C0 14.1466 1.17715 12.9696 2.625 12.9696H8.20312V14.9381H2.625C2.26406 14.9381 1.96875 15.2334 1.96875 15.5943V18.8753C1.96875 19.2362 2.26406 19.5314 2.625 19.5314H18.375C18.7359 19.5314 19.0312 19.2362 19.0312 18.8753V15.5943C19.0312 15.2334 18.7359 14.9381 18.375 14.9381H12.7969ZM15.75 17.2348C15.75 16.9737 15.8537 16.7234 16.0383 16.5388C16.2229 16.3542 16.4733 16.2505 16.7344 16.2505C16.9954 16.2505 17.2458 16.3542 17.4304 16.5388C17.615 16.7234 17.7188 16.9737 17.7188 17.2348C17.7188 17.4958 17.615 17.7462 17.4304 17.9308C17.2458 18.1154 16.9954 18.2191 16.7344 18.2191C16.4733 18.2191 16.2229 18.1154 16.0383 17.9308C15.8537 17.7462 15.75 17.4958 15.75 17.2348Z"
-                  fill="black"
-                />
-              </svg>
-            </>
-          )}
-        </button>
-      </form>
-    </>
-  );
 
   return (
     <>
@@ -711,250 +451,486 @@ const Create = () => {
           } as React.CSSProperties
         }
       >
-        <div className={styles.aboveGrid}>
-          <h1 style={{ fontSize: '48px' }}>Create A Tape</h1>
-          <div style={{ display: 'flex', gap: '24px' }}>
-            <div className={styles.profileColorForm}>
-              <p style={{ fontSize: '18px' }}>Pick Profile Color</p>
-              <div
-                style={{
-                  display: 'flex',
-                }}
-              >
-                <HexColorPicker color={color} onChange={setColor} />
-              </div>
-            </div>
-            <div className={styles.mementoForm}>
-              <p style={{ fontSize: '18px' }}>Pick Memento</p>
-              <div className={styles.switch}>
-                <input
-                  {...register('memento')}
-                  name="memento"
-                  id="one"
-                  type="radio"
-                  value="Pineapple"
-                  onChange={handleMementoChange}
-                />
-                <label htmlFor="one" style={{ color: `${color}` }}>
-                  Pineapple
-                </label>
-                <input
-                  {...register('memento')}
-                  value="Loud"
-                  name="memento"
-                  id="two"
-                  type="radio"
-                  onChange={handleMementoChange}
-                />
-                <label htmlFor="two" style={{ color: `${color}` }}>
-                  Loud
-                </label>
-                <input
-                  {...register('memento')}
-                  name="memento"
-                  value="Minimal"
-                  id="three"
-                  type="radio"
-                  onChange={handleMementoChange}
-                />
-                <label htmlFor="three" style={{ color: `${color}` }}>
-                  Minimal
-                </label>
-                <input
-                  {...register('memento')}
-                  value="Tape"
-                  name="memento"
-                  id="four"
-                  type="radio"
-                  onChange={handleMementoChange}
-                />
-                <label htmlFor="four" style={{ color: `${color}` }}>
-                  Tape
-                </label>
-              </div>
-            </div>
-          </div>
-          <div
-            className={styles.artistHeader}
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className={styles.aboveGrid}>
+            <h1 style={{ fontSize: '48px' }}>Create a Tape</h1>
             <div
-              className={styles.artistHeaderLeft}
+              className={styles.emailPasswordForm}
               style={{
                 display: 'flex',
-                alignItems: 'center',
-                marginBottom: '20px',
+                flexDirection: 'column',
+                gap: '60px',
+                width: '500px',
               }}
             >
               <div
-                className={styles.profilePicture}
                 style={{
-                  borderRadius: '12px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '24px',
                 }}
-              ></div>
-              <div>
+              >
+                <p style={{ fontSize: '18px' }}>
+                  Sign in with Existing Akord Account
+                </p>
+                <input
+                  {...register('email', { required: true })}
+                  type="email"
+                  placeholder="Email"
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    borderBottom: '1px solid white',
+                  }}
+                />
+                {errors.email && 'email is required'}
+                <input
+                  {...register('password', { required: true })}
+                  type="password"
+                  placeholder="Password"
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    borderBottom: '1px solid white',
+                  }}
+                />
+                {errors.password && 'password is required'}
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '24px' }}>
+              <div className={styles.profileColorForm}>
+                <p style={{ fontSize: '18px' }}>Pick Profile Color</p>
                 <div
                   style={{
                     display: 'flex',
-                    flexDirection: 'row',
-                    gap: '12px',
                   }}
                 >
-                  <input
-                    {...register('tapeArtistName', {
-                      required: true,
-                    })}
-                    type="text"
-                    placeholder="Artist Name"
+                  <HexColorPicker color={color} onChange={setColor} />
+                </div>
+              </div>
+              <div className={styles.mementoForm}>
+                <p style={{ fontSize: '18px' }}>Pick Memento</p>
+                <div className={styles.switch}>
+                  <div
                     style={{
-                      background: 'transparent',
-                      border: 'none',
-                      fontSize: '36px',
-                      width: '200px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
                     }}
-                  />
-                  <span
-                    style={{ fontWeight: 'normal', fontSize: '36px' }}
                   >
-                    's Tape
-                  </span>
-                  <div className={styles.memento}>
-                    {selectedMemento === 'Pineapple' && (
-                      <PineappleMemento color={color} />
-                    )}
-                    {selectedMemento === 'Loud' && (
-                      <LoudMemento color={color} />
-                    )}
-                    {selectedMemento === 'Minimal' && (
-                      <MinimalMemento color={color} />
-                    )}
-                    {selectedMemento === 'Tape' && (
-                      <CassetteMemento color={color} />
-                    )}{' '}
+                    <label
+                      htmlFor="one"
+                      style={{ color: `${color}` }}
+                    >
+                      Pineapple
+                    </label>
+                    <input
+                      {...register('memento')}
+                      className={styles.radioButton}
+                      name="memento"
+                      id="one"
+                      type="radio"
+                      value="Pineapple"
+                      onChange={handleMementoChange}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <label
+                      htmlFor="two"
+                      style={{ color: `${color}` }}
+                    >
+                      Loud
+                    </label>
+                    <input
+                      className={styles.radioButton}
+                      {...register('memento')}
+                      value="Loud"
+                      name="memento"
+                      id="two"
+                      type="radio"
+                      onChange={handleMementoChange}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <label
+                      htmlFor="three"
+                      style={{ color: `${color}` }}
+                    >
+                      Minimal
+                    </label>
+                    <input
+                      className={styles.radioButton}
+                      {...register('memento')}
+                      name="memento"
+                      value="Minimal"
+                      id="three"
+                      type="radio"
+                      onChange={handleMementoChange}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <label
+                      htmlFor="four"
+                      style={{ color: `${color}` }}
+                    >
+                      Tape
+                    </label>
+                    <input
+                      className={styles.radioButton}
+                      {...register('memento')}
+                      value="Tape"
+                      name="memento"
+                      id="four"
+                      type="radio"
+                      onChange={handleMementoChange}
+                    />
                   </div>
                 </div>
-
-                <p style={{ fontWeight: 'lighter' }}>
-                  <input
-                    {...register('type', { required: true })}
-                    type="text"
-                    placeholder="Type (Musician / Podcaster / etc..)"
-                    style={{
-                      fontSize: '28px',
-                      background: 'transparent',
-                      border: 'none',
-                    }}
-                  />
-                </p>
-                <p
-                  style={{
-                    fontWeight: 'lighter',
-                    color: '#656565',
-                  }}
-                >
-                  <input
-                    {...register('tapeDescription', {
-                      required: true,
-                    })}
-                    type="text"
-                    placeholder="Add A Description"
-                    style={{
-                      fontSize: '20px',
-
-                      background: 'transparent',
-                      border: 'none',
-                    }}
-                  />
-                </p>
               </div>
             </div>
-            <div className={styles.artistHeaderRight}>
-              <EditButton color={color} />
+            <div
+              className={styles.artistHeader}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <div
+                className={styles.artistHeaderLeft}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginBottom: '20px',
+                }}
+              >
+                <div
+                  className={styles.profilePicture}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    borderRadius: '12px',
+                    position: 'relative',
+                  }}
+                >
+                  {profilePicUrl ? (
+                    <label
+                      htmlFor="profilePic"
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <Image
+                        src={profilePicUrl}
+                        alt="Profile"
+                        width={100}
+                        height={100}
+                        style={{
+                          borderRadius: '12px',
+                          objectFit: 'cover',
+                          cursor: 'pointer',
+                        }}
+                      />
+                    </label>
+                  ) : (
+                    <label
+                      htmlFor="profilePic"
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <UploadButton color={color} />
+                    </label>
+                  )}
+                  <input
+                    {...register('profilePic', { required: true })}
+                    id="profilePic"
+                    type="file"
+                    name="profilePic"
+                    accept="image/*"
+                    onChange={handleProfilePic}
+                    style={{ display: 'none', width: '100%' }}
+                  />
+                </div>
+                <div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      gap: '12px',
+                    }}
+                  >
+                    <input
+                      {...register('tapeArtistName', {
+                        required: true,
+                      })}
+                      type="text"
+                      placeholder="Artist Name"
+                      style={{
+                        background: 'transparent',
+                        fontWeight: 'bold',
+                        border: 'none',
+                        fontSize: '36px',
+                        width: '250px',
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontWeight: 'normal',
+                        fontSize: '36px',
+                      }}
+                    >
+                      's Tape
+                    </span>
+                    <div className={styles.memento}>
+                      {selectedMemento === 'Pineapple' && (
+                        <PineappleMemento color={color} />
+                      )}
+                      {selectedMemento === 'Loud' && (
+                        <LoudMemento color={color} />
+                      )}
+                      {selectedMemento === 'Minimal' && (
+                        <MinimalMemento color={color} />
+                      )}
+                      {selectedMemento === 'Tape' && (
+                        <CassetteMemento color={color} />
+                      )}{' '}
+                    </div>
+                  </div>
+
+                  <p style={{ fontWeight: 'lighter' }}>
+                    <input
+                      {...register('type', { required: true })}
+                      type="text"
+                      placeholder="Type (Musician / Podcaster / etc..)"
+                      style={{
+                        fontSize: '28px',
+                        background: 'transparent',
+                        border: 'none',
+                      }}
+                    />
+                  </p>
+                  <p
+                    style={{
+                      fontWeight: 'lighter',
+                      color: '#656565',
+                    }}
+                  >
+                    <input
+                      {...register('tapeDescription', {
+                        required: true,
+                      })}
+                      type="text"
+                      placeholder="Add A Description"
+                      style={{
+                        fontSize: '20px',
+
+                        background: 'transparent',
+                        border: 'none',
+                      }}
+                    />
+                  </p>
+                </div>
+              </div>
+              <div className={styles.artistHeaderRight}>
+                <EditButton color={color} />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className={styles.gridProfile}>
-          <div
-            className={styles.profileModule}
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              cursor: 'pointer',
-            }}
-          >
-            <UploadButton color={color} />
-          </div>
+          <div className={styles.gridProfile}>
+            <div
+              className={styles.profileModule}
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                cursor: 'pointer',
+              }}
+            >
+              {imageUrl ? (
+                <label
+                  htmlFor="imageModule-1"
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <Image
+                    src={imageUrl}
+                    alt={imageUrl}
+                    width={350}
+                    height={350}
+                    style={{
+                      borderRadius: '12px',
+                      objectFit: 'cover',
+                      cursor: 'pointer',
+                    }}
+                  />
+                </label>
+              ) : (
+                <label
+                  htmlFor="imageModule-1"
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <UploadButton color={color} />
+                </label>
+              )}
+              <input
+                {...register('imageModule-1', { required: true })}
+                id="imageModule-1"
+                type="file"
+                name="imageModule-1"
+                accept="image/*"
+                onChange={handleImage}
+                style={{ display: 'none', width: '100%' }}
+              />
+              <UploadButton color={color} />
+            </div>
 
-          <div
-            className={styles.profileModuleRectangle}
-            style={{
-              backgroundColor: 'var(--artape-primary-color)',
-              overflow: 'auto',
-            }}
-          ></div>
-          <div
-            className={styles.profileModule}
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              cursor: 'pointer',
-            }}
-          >
-            <UploadButton color={color} />
-          </div>
-          <div
-            className={styles.profileModule}
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              cursor: 'pointer',
-            }}
-          >
-            <UploadButton color={color} />
-          </div>
-          <div
-            className={styles.profileModule}
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              cursor: 'pointer',
-            }}
-          >
-            <UploadButton color={color} />
-          </div>
+            <div
+              className={styles.profileModuleRectangle}
+              style={{
+                backgroundColor: 'var(--artape-primary-color)',
+                overflow: 'auto',
+              }}
+            ></div>
+            <div
+              className={styles.profileModule}
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                cursor: 'pointer',
+              }}
+            >
+              <UploadButton color={color} />
+            </div>
+            <div
+              className={styles.profileModule}
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                cursor: 'pointer',
+              }}
+            >
+              <UploadButton color={color} />
+            </div>
+            <div
+              className={styles.profileModule}
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                cursor: 'pointer',
+              }}
+            >
+              <UploadButton color={color} />
+            </div>
 
-          <div
-            className={styles.profileModuleRectangle}
+            <div
+              className={styles.profileModuleRectangle}
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                cursor: 'pointer',
+              }}
+            >
+              <UploadButton color={color} />
+            </div>
+            <div
+              className={styles.profileModule}
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                cursor: 'pointer',
+              }}
+            >
+              <UploadButton color={color} />
+            </div>
+          </div>
+          <button
+            type="submit"
+            className={styles.submitButton}
             style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              cursor: 'pointer',
+              fontSize: '16px',
             }}
           >
-            <UploadButton color={color} />
-          </div>
-          <div
-            className={styles.profileModule}
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              cursor: 'pointer',
-            }}
-          >
-            <UploadButton color={color} />
-          </div>
-        </div>
+            {loading ? (
+              loader
+            ) : (
+              <>
+                <span style={{ marginRight: '20px' }}>
+                  Submit & Generate Tape
+                </span>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 21 22"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M11.4844 15.2662C11.4844 15.8117 11.0455 16.2505 10.5 16.2505C9.95449 16.2505 9.51562 15.8117 9.51562 15.2662V3.8609L5.61914 7.75701C5.23359 8.14252 4.61016 8.14252 4.22871 7.75701C3.84727 7.3715 3.84316 6.74812 4.22871 6.36671L9.80273 0.789132C10.1883 0.403623 10.8117 0.403623 11.1932 0.789132L16.7754 6.36671C17.1609 6.75222 17.1609 7.3756 16.7754 7.75701C16.3898 8.13841 15.7664 8.14252 15.385 7.75701L11.4885 3.8609V15.2662H11.4844ZM12.7969 14.9381V12.9696H18.375C19.8229 12.9696 21 14.1466 21 15.5943V18.8753C21 20.323 19.8229 21.5 18.375 21.5H2.625C1.17715 21.5 0 20.323 0 18.8753V15.5943C0 14.1466 1.17715 12.9696 2.625 12.9696H8.20312V14.9381H2.625C2.26406 14.9381 1.96875 15.2334 1.96875 15.5943V18.8753C1.96875 19.2362 2.26406 19.5314 2.625 19.5314H18.375C18.7359 19.5314 19.0312 19.2362 19.0312 18.8753V15.5943C19.0312 15.2334 18.7359 14.9381 18.375 14.9381H12.7969ZM15.75 17.2348C15.75 16.9737 15.8537 16.7234 16.0383 16.5388C16.2229 16.3542 16.4733 16.2505 16.7344 16.2505C16.9954 16.2505 17.2458 16.3542 17.4304 16.5388C17.615 16.7234 17.7188 16.9737 17.7188 17.2348C17.7188 17.4958 17.615 17.7462 17.4304 17.9308C17.2458 18.1154 16.9954 18.2191 16.7344 18.2191C16.4733 18.2191 16.2229 18.1154 16.0383 17.9308C15.8537 17.7462 15.75 17.4958 15.75 17.2348Z"
+                    fill="black"
+                  />
+                </svg>
+              </>
+            )}
+          </button>
+        </form>
       </main>
     </>
   );
