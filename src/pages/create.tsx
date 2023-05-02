@@ -248,7 +248,19 @@ const Create = () => {
   }, [moduleFiles]);
 
   for (let i = 1; i <= numberOfModules; i++) {
-    if (i === 2) continue;
+    if (i === 2) {
+      modules.push(
+        <div
+          className={styles.profileModuleRectangle}
+          style={{
+            backgroundColor: 'var(--artape-primary-color)',
+            overflow: 'auto',
+          }}
+          key={`audioModule${i}`}
+        ></div>
+      );
+      continue;
+    }
     modules.push(
       <div
         className={
