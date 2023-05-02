@@ -3,6 +3,7 @@ import {
   ChangeEvent,
   CSSProperties,
   useEffect,
+  useMemo,
 } from 'react';
 import AudioList from '@/components/AudioList';
 import { HexColorPicker } from 'react-colorful';
@@ -16,7 +17,12 @@ import Image from 'next/image';
 import CassetteLogo from '../../public/Artape-Cassete-Logo.gif';
 import avatarAnon from '../../public/Profile_avatar_placeholder_large.png';
 
-import { SubmitHandler, useForm } from 'react-hook-form';
+import {
+  SubmitHandler,
+  useForm,
+  useWatch,
+  Control,
+} from 'react-hook-form';
 
 import CassetteMemento from '@/components/Images/Mementos/CassetteMemento';
 import ArTapeLogo from '@/components/Images/Logo/ArTAPELogo';
@@ -125,13 +131,7 @@ type VaultValues = {
   type: string;
   color: string;
   moduleId: number;
-  imageModule1: File[];
-  audioModule2: File[];
-  imageModule3: File[];
-  imageModule4: File[];
-  imageModule5: File[];
-  imageModule6: File[];
-  imageModule7: File[];
+  moduleFiles: File[];
 };
 
 const loader = (
@@ -142,14 +142,6 @@ const loader = (
     style={{ filter: 'invert(1)' }}
   />
 );
-
-const filePreviewContainerStyle: CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  justifyContent: 'space-between',
-  gap: '10px',
-  width: '100%',
-};
 
 const getMementoSvgContent = (
   memento: string,
@@ -181,9 +173,14 @@ const getMementoSvgContent = (
 };
 
 const Create = () => {
+  const [moduleFiles, setModuleFiles] = useState<
+    Record<number, File>
+  >({});
+  const [moduleUrls, setModuleUrls] = useState<{
+    [index: number]: string;
+  }>({});
   const [selectedMemento, setSelectedMemento] = useState('Pineapple');
   const [profilePicUrl, setProfilePicUrl] = useState('');
-  const [imageUrl, setImageUrl] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [audioFiles, setAudioFiles] = useState<{
     moduleId: number;
@@ -208,6 +205,7 @@ const Create = () => {
     register,
     handleSubmit,
     watch,
+    control,
     formState: { errors },
   } = useForm<VaultValues>();
 
@@ -220,60 +218,71 @@ const Create = () => {
     }
   }, [watchedProfilePic]);
 
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      setModuleFiles((prevModuleFiles) => ({
+        ...prevModuleFiles,
+        [index]: files[0],
+      }));
+    }
+  };
+
   const numberOfModules = 7;
   const modules = [];
 
+  useEffect(() => {
+    const keys = Object.keys(moduleFiles);
+    keys.forEach((key) => {
+      const file = moduleFiles[parseInt(key)];
+      if (file) {
+        setModuleUrls((prevModuleUrls) => ({
+          ...prevModuleUrls,
+          [key]: URL.createObjectURL(file),
+        }));
+      }
+    });
+  }, [moduleFiles]);
+
   for (let i = 1; i <= numberOfModules; i++) {
     if (i === 2) continue;
-    const watchedImageModule = watch(
-      `imageModule${i}` as keyof VaultValues
-    ) as File[];
-    useEffect(() => {
-      if (watchedImageModule?.length > 0) {
-        setImageUrl((prevUrls) => {
-          const newUrls = [...prevUrls];
-          newUrls[i - 1] = URL.createObjectURL(
-            watchedImageModule[0] as File
-          );
-          return newUrls;
-        });
-      } else {
-        setImageUrl((prevUrls) => {
-          const newUrls = [...prevUrls];
-          newUrls[i - 1] = '';
-          return newUrls;
-        });
-      }
-    }, [watchedImageModule]);
-
     modules.push(
       <div
-        className={styles.profileModule}
+        className={
+          i === 6
+            ? styles.profileModuleRectangle
+            : styles.profileModule
+        }
         style={{
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
           cursor: 'pointer',
+          position: 'relative',
         }}
+        key={`imageModule${i}`}
       >
-        {imageUrl[i] ? (
-          <label
-            htmlFor={`imageModule${i}`}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              cursor: 'pointer',
-            }}
-          >
+        <label
+          htmlFor={`imageModule${i}`}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            cursor: 'pointer',
+          }}
+        >
+          {moduleUrls[i] ? (
             <Image
-              src={imageUrl[i]}
-              alt={imageUrl[i]}
+              src={moduleUrls[i]}
+              alt={`Module ${i}`}
               width={350}
               height={350}
               style={{
@@ -282,35 +291,21 @@ const Create = () => {
                 cursor: 'pointer',
               }}
             />
-          </label>
-        ) : (
-          <label
-            htmlFor={`imageModule${i}`}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              cursor: 'pointer',
-            }}
-          >
+          ) : (
             <UploadButton color={color} />
-          </label>
-        )}
-        <input
-          {...register(`imageModule${i}` as keyof VaultValues, {
-            required: true,
-          })}
-          id={`imageModule${i}`}
-          type="file"
-          name={`imageModule${i}`}
-          accept="image/*"
-          style={{ display: 'none', width: '100%' }}
-        />
+          )}
+          <input
+            {...register(`imageModule${i}` as keyof VaultValues, {
+              required: true,
+            })}
+            id={`imageModule${i}`}
+            type="file"
+            name={`imageModule${i}`}
+            accept="image/*"
+            style={{ display: 'none', width: '100%' }}
+            onChange={(e) => handleFileChange(e, i)}
+          />
+        </label>
       </div>
     );
   }
@@ -319,12 +314,29 @@ const Create = () => {
     setLoading(true);
     console.log('submitting');
     // const profilePicFile = data.profilePic;
-    const imageModule1 = {
-      name: data.imageModule1[0].name,
-      alt: data.imageModule1[0].name,
-      moduleId: 1,
-    };
+    let imageModules: any = [];
+    const processFiles = async () => {
+      const filteredFiles = Object.values(moduleFiles).filter(
+        (_file, index) => index + 1 !== 2
+      );
 
+      const promises = filteredFiles.map(async (file) => {
+        if (file.type.startsWith('image')) {
+          const imageModule = {
+            name: file.name,
+            alt: file.name,
+            moduleId:
+              Object.keys(moduleFiles).findIndex(
+                (key) => moduleFiles[parseInt(key)] === file
+              ) + 1,
+          };
+          imageModules.push(imageModule);
+        }
+      });
+
+      await Promise.all(promises);
+      console.log(imageModules);
+    };
     // if (profilePicFile) {
     //   console.log(profilePicFile);
     // } else {
@@ -456,7 +468,9 @@ const Create = () => {
     //   console.log('SUCCESS UPLOADED :)');
     // }
 
-    setLoading(false);
+    processFiles().then(() => {
+      setLoading(false);
+    });
   };
 
   /**** Helper Functions ****/
@@ -801,136 +815,8 @@ const Create = () => {
             </div>
           </div>
 
-          <div className={styles.gridProfile}>
-            <div
-              className={styles.profileModule}
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                cursor: 'pointer',
-              }}
-            >
-              {imageUrl ? (
-                <label
-                  htmlFor="imageModule1"
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <Image
-                    src={imageUrl}
-                    alt={imageUrl}
-                    width={350}
-                    height={350}
-                    style={{
-                      borderRadius: '12px',
-                      objectFit: 'cover',
-                      cursor: 'pointer',
-                    }}
-                  />
-                </label>
-              ) : (
-                <label
-                  htmlFor="imageModule1"
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <UploadButton color={color} />
-                </label>
-              )}
-              <input
-                {...register('imageModule1', { required: true })}
-                id="imageModule1"
-                type="file"
-                name="imageModule1"
-                accept="image/*"
-                style={{ display: 'none', width: '100%' }}
-              />
-              <UploadButton color={color} />
-            </div>
+          <div className={styles.gridProfile}>{modules}</div>
 
-            <div
-              className={styles.profileModuleRectangle}
-              style={{
-                backgroundColor: 'var(--artape-primary-color)',
-                overflow: 'auto',
-              }}
-            ></div>
-            <div
-              className={styles.profileModule}
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                cursor: 'pointer',
-              }}
-            >
-              <UploadButton color={color} />
-            </div>
-            <div
-              className={styles.profileModule}
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                cursor: 'pointer',
-              }}
-            >
-              <UploadButton color={color} />
-            </div>
-            <div
-              className={styles.profileModule}
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                cursor: 'pointer',
-              }}
-            >
-              <UploadButton color={color} />
-            </div>
-
-            <div
-              className={styles.profileModuleRectangle}
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                cursor: 'pointer',
-              }}
-            >
-              <UploadButton color={color} />
-            </div>
-            <div
-              className={styles.profileModule}
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                cursor: 'pointer',
-              }}
-            >
-              <UploadButton color={color} />
-            </div>
-          </div>
           <button
             type="submit"
             className={styles.submitButton}
