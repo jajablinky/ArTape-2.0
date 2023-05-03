@@ -35,6 +35,7 @@ import { getMinimalSvgContent } from '@/components/Images/Mementos/MinimalMement
 import { getCassetteSvgContent } from '@/components/Images/Mementos/CassetteMemento';
 import EditButton from '@/components/Images/UI/EditButton';
 import UploadButton from '@/components/Images/UI/UploadButton';
+import EditableAudioPlayer from '@/components/EditableAudioPlayer';
 
 const createMetadataJSON = (
   data: VaultValues,
@@ -176,6 +177,7 @@ const Create = () => {
   const [moduleFiles, setModuleFiles] = useState<
     Record<number, File>
   >({});
+  const [albumPictures, setAlbumPictures] = useState(null);
   const [moduleUrls, setModuleUrls] = useState<{
     [index: number]: string;
   }>({});
@@ -257,7 +259,14 @@ const Create = () => {
             overflow: 'auto',
           }}
           key={`audioModule${i}`}
-        ></div>
+        >
+          <EditableAudioPlayer
+            profilePicUrl={profilePicUrl}
+            albumPictures={albumPictures}
+            register={register}
+            color={color}
+          />
+        </div>
       );
       continue;
     }
