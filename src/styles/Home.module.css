@@ -119,11 +119,6 @@
   overflow: hidden;
 }
 
-.profileModuleRectangle:hover {
-  opacity: 80%;
-  border-color: var(--artape-white);
-}
-
 .placeholder {
   position: relative;
   font-size: 32px;

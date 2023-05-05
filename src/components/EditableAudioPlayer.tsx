@@ -80,8 +80,6 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
 
   const audioPlayer = useRef<HTMLAudioElement | null>(null);
 
-  //
-
   /* Audio Player Logic */
   return (
     <>
@@ -103,9 +101,9 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
         </div>
 
         <div className={styles.trackContainer}>
-          <button
+          <div
             className={styles.musicPlayerTrack}
-            style={{ cursor: 'default' }}
+            style={{ width: 'auto' }}
           >
             <div className={styles.musicPlayerLeftSide}>
               <div
@@ -208,12 +206,12 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
                 Upload
               </button>
             </div>
-          </button>
+          </div>
         </div>
         <div className={styles.trackContainer}>
-          <button
+          <div
             className={styles.musicPlayerTrack}
-            style={{ cursor: 'default' }}
+            style={{ width: 'auto' }}
           >
             <div className={styles.musicPlayerLeftSide}>
               <div
@@ -316,12 +314,12 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
                 Upload
               </button>
             </div>
-          </button>
+          </div>
         </div>
         <div className={styles.trackContainer}>
-          <button
+          <div
             className={styles.musicPlayerTrack}
-            style={{ cursor: 'default' }}
+            style={{ width: 'auto' }}
           >
             <div className={styles.musicPlayerLeftSide}>
               <div
@@ -424,7 +422,7 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
                 Upload
               </button>
             </div>
-          </button>
+          </div>
         </div>
       </motion.div>
     </>
