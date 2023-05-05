@@ -177,7 +177,6 @@ const Create = () => {
   const [moduleFiles, setModuleFiles] = useState<
     Record<number, File>
   >({});
-  const [albumPictures, setAlbumPictures] = useState(null);
   const [moduleUrls, setModuleUrls] = useState<{
     [index: number]: string;
   }>({});
@@ -262,9 +261,8 @@ const Create = () => {
         >
           <EditableAudioPlayer
             profilePicUrl={profilePicUrl}
-            albumPictures={albumPictures}
             register={register}
-            color={color}
+            watch={watch}
           />
         </div>
       );
