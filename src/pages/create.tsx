@@ -5,7 +5,6 @@ import {
   useEffect,
   useMemo,
 } from 'react';
-import AudioList from '@/components/AudioList';
 import { HexColorPicker } from 'react-colorful';
 
 import { Akord } from '@akord/akord-js';
@@ -15,7 +14,6 @@ import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
 
 import CassetteLogo from '../../public/Artape-Cassete-Logo.gif';
-import avatarAnon from '../../public/Profile_avatar_placeholder_large.png';
 
 import {
   SubmitHandler,
@@ -25,7 +23,7 @@ import {
 } from 'react-hook-form';
 
 import CassetteMemento from '@/components/Images/Mementos/CassetteMemento';
-import ArTapeLogo from '@/components/Images/Logo/ArTAPELogo';
+
 import PineappleMemento from '@/components/Images/Mementos/PineappleMemento';
 import LoudMemento from '@/components/Images/Mementos/LoudMemento';
 import MinimalMemento from '@/components/Images/Mementos/MinimalMemento';
@@ -40,43 +38,33 @@ import EditableAudioPlayer from '@/components/EditableAudioPlayer';
 const createMetadataJSON = (
   data: VaultValues,
   audioFiles: { moduleId: number; files: AudioFileState[] } | null,
-  imageFiles: ImageFileState[] | null,
-  profilePicName: string,
-  memento: string,
+  isAudioFile,
+  isAlbumPictureFile,
+  imageModules: ImageFileState[] | null,
   color: string
 ) => {
+  console.log('Images inside createMetadataJSON:', imageModules);
   const metadata = {
-    profilePic: profilePicName,
+    profilePic: data.profilePic[0].name,
     tapeArtistName: data.tapeArtistName,
     tapeDescription: data.tapeDescription,
     type: data.type,
     color: color,
-    memento: memento,
-    audioFiles: audioFiles
-      ? audioFiles.files.map((file) => ({
-          trackNumber: file.trackNumber,
-          albumPicture: imageFiles?.[0].name ?? '',
+    memento: data.memento,
+    // audioFiles: audioFiles
+    //   ? audioFiles.files.map((file) => ({
+    //       trackNumber: file.trackNumber,
+    //       name: file.name,
+    //       artistName: data.tapeArtistName,
+    //       duration: file.duration,
+    //     }))
+    //   : [],
+    imageFiles: imageModules
+      ? imageModules.map((file) => ({
           name: file.name,
-          artistName: data.tapeArtistName,
-          duration: file.duration,
+          alt: file.alt,
+          moduleId: file.moduleId,
         }))
-      : [],
-    imageFiles: imageFiles
-      ? imageFiles
-          .filter((file) => {
-            const isProfilePic = file.name === profilePicName;
-            const isAlbumPicture = audioFiles
-              ? audioFiles.files.some(
-                  (audioFile) => audioFile.albumPicture === file.name
-                )
-              : false;
-            return !isProfilePic && !isAlbumPicture;
-          })
-          .map((file) => ({
-            name: file.name,
-            alt: file.alt,
-            moduleId: file.moduleId,
-          }))
       : [],
   };
   return JSON.stringify(metadata);
@@ -133,6 +121,10 @@ type VaultValues = {
   color: string;
   moduleId: number;
   moduleFiles: File[];
+  albumPicture1: File[];
+  artistName1: string;
+  songName1: string;
+  audioFile1: File[];
 };
 
 const loader = (
@@ -174,6 +166,8 @@ const getMementoSvgContent = (
 };
 
 const Create = () => {
+  const [isAudioFile, setIsAudioFile] = useState(null);
+  const [isAlbumPictureFile, setIsAlbumPictureFile] = useState(null);
   const [moduleFiles, setModuleFiles] = useState<
     Record<number, File>
   >({});
@@ -263,6 +257,10 @@ const Create = () => {
             profilePicUrl={profilePicUrl}
             register={register}
             watch={watch}
+            isAudioFile={isAudioFile}
+            setIsAudioFile={setIsAudioFile}
+            isAlbumPictureFile={isAlbumPictureFile}
+            setIsAlbumPictureFile={setIsAlbumPictureFile}
           />
         </div>
       );
@@ -332,60 +330,48 @@ const Create = () => {
   const onSubmit: SubmitHandler<VaultValues> = async (data, e) => {
     setLoading(true);
     console.log('submitting');
-    // const profilePicFile = data.profilePic;
     let imageModules: any = [];
     const processFiles = async () => {
-      const filteredFiles = Object.values(moduleFiles).filter(
-        (_file, index) => index + 1 !== 2
-      );
+      const filteredFiles = Object.values(moduleFiles);
 
-      const promises = filteredFiles.map(async (file) => {
+      for (let index = 0; index < filteredFiles.length; index++) {
+        let moduleId = index + 1;
+        const file = filteredFiles[index];
+
         if (file.type.startsWith('image')) {
+          if (index === 1) {
+            moduleId = index + 2;
+          }
+          if (index !== 1) {
+            moduleId = index + 1;
+          }
+
           const imageModule = {
             name: file.name,
             alt: file.name,
-            moduleId:
-              Object.keys(moduleFiles).findIndex(
-                (key) => moduleFiles[parseInt(key)] === file
-              ) + 1,
+            moduleId: moduleId,
           };
           imageModules.push(imageModule);
         }
-      });
-
-      await Promise.all(promises);
-      console.log(imageModules);
+      }
     };
-    // if (profilePicFile) {
-    //   console.log(profilePicFile);
-    // } else {
-    //   console.error('Profile picture file is missing');
-    // }
-    // setImageFiles([
-    //   {
-    //     imageFile: data.imageModule1,
-    //     alt: data.imageModule1.name,
-    //     moduleId: 1,
-    //     name: data.imageModule1.name,
-    //   },
-    // ]);
+    console.log(isAlbumPictureFile);
+    console.log(isAudioFile);
+
+    processFiles().then(() => {
+      setLoading(false);
+    });
 
     let tapeInfo: File | null = null;
+    const metadataJSON = createMetadataJSON(
+      data,
+      isAudioFile,
+      isAlbumPictureFile,
+      imageModules,
+      color
+    );
 
-    // if (audioFiles && imageFiles) {
-    //   const profilePic = data.profilePic;
-    //   let profilePicName = profilePic[0].name;
-
-    //   const metadataJSON = createMetadataJSON(
-    //     data,
-    //     audioFiles,
-    //     imageFiles,
-    //     profilePicName,
-    //     data.memento,
-    //     color
-    //   );
-
-    //   console.log(metadataJSON);
+    // }
 
     //   tapeInfo = new File([metadataJSON], 'tapeInfo.json', {
     //     type: 'application/json',
@@ -486,10 +472,6 @@ const Create = () => {
     //   }
     //   console.log('SUCCESS UPLOADED :)');
     // }
-
-    processFiles().then(() => {
-      setLoading(false);
-    });
   };
 
   /**** Helper Functions ****/

@@ -70,10 +70,13 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
   audioFiles,
   profilePicUrl,
   register,
+  isAudioFile,
+  setIsAudioFile,
+  isAlbumPictureFile,
+  setIsAlbumPictureFile,
   watch,
 }) => {
-  const [isAudioUploaded, setIsAudioUploaded] = useState(false);
-  const [isAlbumPictureUrl, setIsAlbumPictureUrl] = useState(false);
+  const [isAlbumPictureUrl, setIsAlbumPictureUrl] = useState(null);
 
   const inputRef = useRef(null);
   const handleUploadButtonClick = () => {
@@ -82,7 +85,10 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
     }
   };
 
-  const albumPictureFile = watch('albumPicture-1');
+  const handleAlbumPicture1Upload = (picture) => {
+    setIsAlbumPictureFile(picture);
+    setIsAlbumPictureUrl(URL.createObjectURL(picture));
+  };
 
   /* Audio Player Logic */
   return (
@@ -113,59 +119,77 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
               <div
                 className={styles.songArt}
                 style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  cursor: 'pointer',
+                  borderRadius: '4px',
                   position: 'relative',
                   border: '1px solid #ffffff',
-                  objectFit: 'cover',
-                  cursor: 'pointer',
                 }}
               >
-                <label
-                  htmlFor={`albumPicture-1`}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {isAlbumPictureUrl ? (
+                {isAlbumPictureUrl ? (
+                  <label
+                    htmlFor={`albumPicture1`}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                    }}
+                  >
                     <Image
                       src={isAlbumPictureUrl}
-                      alt={`albumPicture-1`}
-                      width={350}
-                      height={350}
+                      alt={`albumPicture1`}
+                      width={100}
+                      height={100}
                       style={{
                         borderRadius: '12px',
                         objectFit: 'cover',
                         cursor: 'pointer',
                       }}
                     />
-                  ) : (
+                  </label>
+                ) : (
+                  <label
+                    htmlFor={`albumPicture1`}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                    }}
+                  >
                     <UploadButton color={'#ffffff'} />
-                  )}
-                  <input
-                    {...register('albumPicture-1', {
-                      required: true,
-                    })}
-                    id={'albumPicture-1'}
-                    type="file"
-                    name="profilePic"
-                    accept="image/*"
-                    style={{ display: 'none', width: '100%' }}
-                  />
-                </label>
+                  </label>
+                )}
+                <input
+                  {...register('albumPicture1')}
+                  onChange={(e) => {
+                    handleAlbumPicture1Upload(e.target.files[0]);
+                  }}
+                  id={'albumPicture1'}
+                  type="file"
+                  name="profilePic"
+                  accept="image/*"
+                  style={{ display: 'none', width: '100%' }}
+                />
               </div>
               <div className={styles.musicInfo}>
                 <div className={styles.artistTitleTrack}>
                   <p>
-                    {' '}
                     <input
-                      {...register('ArtistName1', {
+                      {...register('artistName1', {
                         required: true,
                       })}
                       type="text"
@@ -203,18 +227,19 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
             </div>
             <div className={styles.musicPlayerRightSide}>
               <input
-                {...register('audioFile-1', { required: true })}
+                {...register('audioFile1', {
+                  onChange: (e) => {
+                    setIsAudioFile(e.target.files[0]);
+                  },
+                })}
                 ref={inputRef}
-                id="audioFile-1"
+                id="audioFile1"
                 type="file"
-                name="audioFile-1"
+                name="audioFile1"
                 accept="audio/*"
-                onChange={(e) =>
-                  setIsAudioUploaded(e.target.files.length > 0)
-                }
                 style={{ display: 'none', width: '100%' }}
               />
-              {isAudioUploaded ? (
+              {isAudioFile ? (
                 <button
                   onClick={handleUploadButtonClick}
                   style={{
