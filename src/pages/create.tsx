@@ -15,12 +15,7 @@ import Image from 'next/image';
 
 import CassetteLogo from '../../public/Artape-Cassete-Logo.gif';
 
-import {
-  SubmitHandler,
-  useForm,
-  useWatch,
-  Control,
-} from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 
 import CassetteMemento from '@/components/Images/Mementos/CassetteMemento';
 
@@ -38,8 +33,6 @@ import EditableAudioPlayer from '@/components/EditableAudioPlayer';
 const createMetadataJSON = (
   data: VaultValues,
   audioFiles: { moduleId: number; files: AudioFileState[] } | null,
-  isAudioFile,
-  isAlbumPictureFile,
   imageModules: ImageFileState[] | null,
   color: string
 ) => {
@@ -72,15 +65,6 @@ const createMetadataJSON = (
 
 /* Types */
 
-type AudioData = {
-  file: File;
-  duration: number;
-  name: string;
-  artistName: string;
-  trackNumber: number;
-  albumPicture: string;
-};
-
 type ImageData = {
   file: File;
   name: string;
@@ -106,7 +90,7 @@ export interface AudioFileState {
 
 type ResultData = {
   type: 'audio' | 'image';
-  data: File | AudioData | ImageData;
+  data: File | AudioFileState | ImageData;
 };
 
 type VaultValues = {
@@ -256,11 +240,9 @@ const Create = () => {
           <EditableAudioPlayer
             profilePicUrl={profilePicUrl}
             register={register}
+            audioFiles={audioFiles}
+            setAudioFiles={setAudioFiles}
             watch={watch}
-            isAudioFile={isAudioFile}
-            setIsAudioFile={setIsAudioFile}
-            isAlbumPictureFile={isAlbumPictureFile}
-            setIsAlbumPictureFile={setIsAlbumPictureFile}
           />
         </div>
       );
@@ -355,21 +337,19 @@ const Create = () => {
         }
       }
     };
-    console.log(isAlbumPictureFile);
-    console.log(isAudioFile);
 
     processFiles().then(() => {
       setLoading(false);
     });
 
     let tapeInfo: File | null = null;
-    const metadataJSON = createMetadataJSON(
-      data,
-      isAudioFile,
-      isAlbumPictureFile,
-      imageModules,
-      color
-    );
+    // const metadataJSON = createMetadataJSON(
+    //   data,
+    //   isAudioFile,
+    //   isAlbumPictureFile,
+    //   imageModules,
+    //   color
+    // );
 
     // }
 
@@ -546,7 +526,16 @@ const Create = () => {
             </div>
             <div style={{ display: 'flex', gap: '24px' }}>
               <div className={styles.profileColorForm}>
-                <p style={{ fontSize: '18px' }}>Pick Profile Color</p>
+                <p
+                  style={{
+                    fontSize: '18px',
+                    background: 'var(--artape-black)',
+                    padding: '10px',
+                    borderRadius: '8px',
+                  }}
+                >
+                  Pick Profile Color
+                </p>
                 <div
                   style={{
                     display: 'flex',
