@@ -4,6 +4,9 @@ import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
 import Loader from './Loader';
 import UploadButton from './Images/UI/UploadButton';
+import CheckIcon from './Images/UI/CheckIcon';
+
+import { AudioFileState } from '@/pages/create';
 
 interface Track {
   track_number: number;
@@ -41,48 +44,91 @@ export interface AlbumPictureFile {
 
 interface AudioPlayerProps {
   tapeInfoJSON: TapeInfo;
-  audioFiles: AudioFile[];
+  audioFiles: {
+    moduleId: number;
+    audio: AudioFileState[];
+  };
+  setAudioFiles: (audioFiles: {
+    moduleId: number;
+    audio: AudioFileState[];
+  }) => void;
   albumPictures: AlbumPictureFile;
   profilePicUrl: string;
-}
-
-function formatToMinutes(duration: number): string {
-  const minutes: number = Math.floor(duration / 60);
-  const seconds: number = Math.round(duration % 60);
-  const durationFormatted: string = `${minutes}:${seconds
-    .toString()
-    .padStart(2, '0')}`;
-  return durationFormatted;
-}
-
-function totalTapeLength(tapeInfo: TapeInfo): string {
-  let totalDuration = 0;
-
-  for (const track of tapeInfo.audioFiles) {
-    totalDuration += track.duration;
-  }
-
-  return formatToMinutes(totalDuration);
+  register: any;
 }
 
 const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
   audioFiles,
-  albumPictures,
+  setAudioFiles,
   profilePicUrl,
+  watch,
   register,
-  color,
 }) => {
-  //   const [currentSongIndex, setCurrentSongIndex] =
-  //     useState<number>(-1);
-  //   const [isPlaying, setisPlaying] = useState<boolean>(false);
-  //   const [volume, setVolume] = useState<number>(1);
-  //   const [currentSong, setCurrentSong] = useState<Track | null>(null);
+  const NUM_TRACKS = 6;
+  const [albumPictureFiles, setAlbumPictureFiles] = useState<
+    (File | null)[]
+  >(Array(NUM_TRACKS).fill(null));
+  const [albumPictureUrls, setAlbumPictureUrls] = useState<
+    (string | null)[]
+  >(Array(NUM_TRACKS).fill(null));
 
-  const audioPlayer = useRef<HTMLAudioElement | null>(null);
+  const handleUploadButtonClick = (index: number) => {
+    document.getElementById(`audioFile${index}`).click();
+  };
 
-  //
+  const handleAudioUpload = async (i: number, file: File) => {
+    // console.log('audioFiles', ...audioFiles.audio); // Log the audioFiles prop
+    const artistName = await watch(`artistName${i}`);
+    const songName = await watch(`songName${i}`);
 
-  /* Audio Player Logic */
+    const albumPictureFile = albumPictureFiles[i - 1];
+    if (file && artistName && songName && albumPictureFile) {
+      const getDuration = (file: File): Promise<number> => {
+        return new Promise((resolve) => {
+          const audio = new Audio(URL.createObjectURL(file));
+          audio.addEventListener('loadedmetadata', () => {
+            resolve(audio.duration);
+          });
+        });
+      };
+      const duration = await getDuration(file);
+
+      const newAudioFile: AudioFileState = {
+        audioFile: file,
+        duration,
+        name: songName,
+        artistName: artistName,
+        trackNumber: i,
+        albumPicture: albumPictureFile,
+      };
+
+      if (audioFiles.audio) {
+        const updatedAudioFiles = [...audioFiles.audio];
+        updatedAudioFiles[i - 1] = newAudioFile;
+        setAudioFiles({ moduleId: 2, audio: updatedAudioFiles });
+      }
+    } else {
+      console.error(
+        'Please upload and fill in all details before uploading, (artist name, song name, album picture, and audio track)'
+      );
+    }
+  };
+
+  const handleAlbumPictureUpload = (i: number, picture: File) => {
+    const url = URL.createObjectURL(picture);
+    setAlbumPictureUrls((prev) => {
+      const updatedUrls = [...prev];
+      updatedUrls[i - 1] = url;
+      console.log(updatedUrls);
+      return updatedUrls;
+    });
+    setAlbumPictureFiles((prev) => {
+      const updatedFiles = [...prev];
+      updatedFiles[i - 1] = picture;
+      return updatedFiles;
+    });
+  };
+
   return (
     <>
       <motion.div
@@ -92,7 +138,6 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
         <div
           className={styles.musicPlayerHeader}
           style={{
-            backgroundImage: `url(${profilePicUrl})`,
             position: 'sticky',
             top: '0',
             height: '80px',
@@ -101,331 +146,147 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
         >
           <audio />
         </div>
-
-        <div className={styles.trackContainer}>
-          <button
-            className={styles.musicPlayerTrack}
-            style={{ cursor: 'default' }}
-          >
-            <div className={styles.musicPlayerLeftSide}>
+        {Array.from({ length: NUM_TRACKS }, (_, i) => i + 1).map(
+          (i) => (
+            <div key={i} className={styles.trackContainer}>
               <div
-                className={styles.songArt}
-                style={{
-                  border: '1px solid #ffffff',
-                  objectFit: 'cover',
-                  cursor: 'pointer',
-                }}
+                className={styles.musicPlayerTrack}
+                style={{ width: 'auto' }}
               >
-                {/* <label
-                  htmlFor={`albumPicture1`}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {albumPictures ? (
-                    <Image
-                      src={albumPictures}
-                      alt={`albumPicture-0`}
-                      width={350}
-                      height={350}
-                      style={{
-                        borderRadius: '12px',
-                        objectFit: 'cover',
-                        cursor: 'pointer',
-                      }}
+                <div className={styles.musicPlayerLeftSide}>
+                  <div
+                    className={styles.songArt}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      borderRadius: '12px',
+                      position: 'relative',
+                      border: '1px solid #ffffff',
+                    }}
+                  >
+                    {albumPictureUrls[i - 1] ? (
+                      <label
+                        htmlFor={`albumPicture${i}`}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <Image
+                          src={albumPictureUrls[i - 1]}
+                          alt={`albumPicture${i}`}
+                          width={75}
+                          height={75}
+                          style={{
+                            objectFit: 'cover',
+                            borderRadius: '12px',
+                            cursor: 'pointer',
+                          }}
+                        />
+                      </label>
+                    ) : (
+                      <label
+                        htmlFor={`albumPicture${i}`}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <UploadButton color={'#ffffff'} />
+                      </label>
+                    )}
+                    :
+                    <input
+                      {...register(`albumPicture${i}`)}
+                      onChange={(e) =>
+                        handleAlbumPictureUpload(i, e.target.files[0])
+                      }
+                      id={`albumPicture${i}`}
+                      type="file"
+                      name="profilePic"
+                      accept="image/*"
+                      style={{ display: 'none', width: '100%' }}
                     />
-                  ) : (
-                    <UploadButton color={color} />
-                  )}
+                  </div>
+                  <div className={styles.musicInfo}>
+                    <div className={styles.artistTitleTrack}>
+                      <p>
+                        <input
+                          {...register(`artistName${i}`, {})}
+                          type="text"
+                          placeholder="Artist Name"
+                          style={{
+                            color: 'var(--artape-black)',
+                            background: 'transparent',
+                            border: 'none',
+                          }}
+                        />
+                      </p>
+                      <h2>
+                        <input
+                          {...register(`songName${i}`, {})}
+                          type="text"
+                          placeholder="Song Name"
+                          style={{
+                            fontSize: '20px',
+                            background: 'transparent',
+                            color: 'var(--artape-black)',
+                            border: 'none',
+                          }}
+                        />
+                      </h2>
+                    </div>
+                    <div className={styles.durationBuyMp3}>
+                      <p>
+                        <span className={styles.duration}></span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.musicPlayerRightSide}>
                   <input
-                    {...register('albumPicture', {
-                      required: true,
-                    })}
-                    id={'albumPicture-0'}
+                    {...register(`audioFile${i}`)}
+                    onChange={(e) => {
+                      handleAudioUpload(i, e.target.files[0]);
+                    }}
+                    id={`audioFile${i}`}
                     type="file"
-                    name="profilePic"
-                    accept="image/*"
+                    name={`audioFile${i}`}
+                    accept="audio/*"
                     style={{ display: 'none', width: '100%' }}
                   />
-                </label> */}
-              </div>
-              <div className={styles.musicInfo}>
-                <div className={styles.artistTitleTrack}>
-                  <p>
-                    {' '}
-                    <input
-                      {...register('ArtistName1', {
-                        required: true,
-                      })}
-                      type="text"
-                      placeholder="Artist Name"
-                      style={{
-                        color: 'var(--artape-black)',
-
-                        background: 'transparent',
-                        border: 'none',
-                      }}
-                    />
-                  </p>
-                  <h2>
-                    <input
-                      {...register('songName1', {
-                        required: true,
-                      })}
-                      type="text"
-                      placeholder="Song Name"
-                      style={{
-                        fontSize: '20px',
-                        background: 'transparent',
-                        color: 'var(--artape-black)',
-                        border: 'none',
-                      }}
-                    />
-                  </h2>
-                </div>
-                <div className={styles.durationBuyMp3}>
-                  <p>
-                    <span className={styles.duration}></span>
-                  </p>
+                  <button
+                    type="button"
+                    onClick={() => handleUploadButtonClick(i)}
+                    style={{
+                      background: 'var(--artape-primary-color)',
+                      color: 'var(--artape-white)',
+                      border: '1px solid var(--artape-white)',
+                    }}
+                  >
+                    Upload
+                  </button>
                 </div>
               </div>
             </div>
-            <div className={styles.musicPlayerRightSide}>
-              <button
-                style={{
-                  background: 'transparent',
-                  border: '1px solid var(--artape-white)',
-                }}
-              >
-                Upload
-              </button>
-            </div>
-          </button>
-        </div>
-        <div className={styles.trackContainer}>
-          <button
-            className={styles.musicPlayerTrack}
-            style={{ cursor: 'default' }}
-          >
-            <div className={styles.musicPlayerLeftSide}>
-              <div
-                className={styles.songArt}
-                style={{
-                  border: '1px solid #ffffff',
-                  objectFit: 'cover',
-                  cursor: 'pointer',
-                }}
-              >
-                {/* <label
-                  htmlFor={`albumPicture1`}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {albumPictures ? (
-                    <Image
-                      src={albumPictures}
-                      alt={`albumPicture-0`}
-                      width={350}
-                      height={350}
-                      style={{
-                        borderRadius: '12px',
-                        objectFit: 'cover',
-                        cursor: 'pointer',
-                      }}
-                    />
-                  ) : (
-                    <UploadButton color={color} />
-                  )}
-                  <input
-                    {...register('albumPicture', {
-                      required: true,
-                    })}
-                    id={'albumPicture-0'}
-                    type="file"
-                    name="profilePic"
-                    accept="image/*"
-                    style={{ display: 'none', width: '100%' }}
-                  />
-                </label> */}
-              </div>
-              <div className={styles.musicInfo}>
-                <div className={styles.artistTitleTrack}>
-                  <p>
-                    {' '}
-                    <input
-                      {...register('ArtistName1', {
-                        required: true,
-                      })}
-                      type="text"
-                      placeholder="Artist Name"
-                      style={{
-                        color: 'var(--artape-black)',
-
-                        background: 'transparent',
-                        border: 'none',
-                      }}
-                    />
-                  </p>
-                  <h2>
-                    <input
-                      {...register('songName1', {
-                        required: true,
-                      })}
-                      type="text"
-                      placeholder="Song Name"
-                      style={{
-                        fontSize: '20px',
-                        background: 'transparent',
-                        color: 'var(--artape-black)',
-                        border: 'none',
-                      }}
-                    />
-                  </h2>
-                </div>
-                <div className={styles.durationBuyMp3}>
-                  <p>
-                    <span className={styles.duration}></span>
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className={styles.musicPlayerRightSide}>
-              <button
-                style={{
-                  background: 'transparent',
-                  border: '1px solid var(--artape-white)',
-                }}
-              >
-                Upload
-              </button>
-            </div>
-          </button>
-        </div>
-        <div className={styles.trackContainer}>
-          <button
-            className={styles.musicPlayerTrack}
-            style={{ cursor: 'default' }}
-          >
-            <div className={styles.musicPlayerLeftSide}>
-              <div
-                className={styles.songArt}
-                style={{
-                  border: '1px solid #ffffff',
-                  objectFit: 'cover',
-                  cursor: 'pointer',
-                }}
-              >
-                {/* <label
-                  htmlFor={`albumPicture1`}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {albumPictures ? (
-                    <Image
-                      src={albumPictures}
-                      alt={`albumPicture-0`}
-                      width={350}
-                      height={350}
-                      style={{
-                        borderRadius: '12px',
-                        objectFit: 'cover',
-                        cursor: 'pointer',
-                      }}
-                    />
-                  ) : (
-                    <UploadButton color={color} />
-                  )}
-                  <input
-                    {...register('albumPicture', {
-                      required: true,
-                    })}
-                    id={'albumPicture-0'}
-                    type="file"
-                    name="profilePic"
-                    accept="image/*"
-                    style={{ display: 'none', width: '100%' }}
-                  />
-                </label> */}
-              </div>
-              <div className={styles.musicInfo}>
-                <div className={styles.artistTitleTrack}>
-                  <p>
-                    {' '}
-                    <input
-                      {...register('ArtistName1', {
-                        required: true,
-                      })}
-                      type="text"
-                      placeholder="Artist Name"
-                      style={{
-                        color: 'var(--artape-black)',
-
-                        background: 'transparent',
-                        border: 'none',
-                      }}
-                    />
-                  </p>
-                  <h2>
-                    <input
-                      {...register('songName1', {
-                        required: true,
-                      })}
-                      type="text"
-                      placeholder="Song Name"
-                      style={{
-                        fontSize: '20px',
-                        background: 'transparent',
-                        color: 'var(--artape-black)',
-                        border: 'none',
-                      }}
-                    />
-                  </h2>
-                </div>
-                <div className={styles.durationBuyMp3}>
-                  <p>
-                    <span className={styles.duration}></span>
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className={styles.musicPlayerRightSide}>
-              <button
-                style={{
-                  background: 'transparent',
-                  border: '1px solid var(--artape-white)',
-                }}
-              >
-                Upload
-              </button>
-            </div>
-          </button>
-        </div>
+          )
+        )}
       </motion.div>
     </>
   );
