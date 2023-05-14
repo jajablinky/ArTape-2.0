@@ -1,11 +1,7 @@
-import {
-  useState,
-  ChangeEvent,
-  CSSProperties,
-  useEffect,
-  useMemo,
-} from 'react';
+import { useState, useEffect } from 'react';
 import { HexColorPicker } from 'react-colorful';
+import { useTape } from '@/components/TapeContext';
+import { useRouter } from 'next/router';
 
 import { Akord } from '@akord/akord-js';
 
@@ -30,28 +26,23 @@ import EditButton from '@/components/Images/UI/EditButton';
 import UploadButton from '@/components/Images/UI/UploadButton';
 import EditableAudioPlayer from '@/components/EditableAudioPlayer';
 
-const createMetadataJSON = (
-  data: VaultValues,
-  audioFiles: { moduleId: number; files: AudioFileState[] } | null,
-  imageModules: ImageFileState[] | null,
-  color: string
-) => {
-  console.log('Images inside createMetadataJSON:', imageModules);
+const createMetadataJSON = (data: VaultValues, audioStateFiles: { moduleId: number; audio: AudioFileState[] }, imageModules: ImageFileState[] | null, color: string) => {
   const metadata = {
-    profilePic: data.profilePic[0].name,
+    profilePicture: data.profilePicture[0].name,
     tapeArtistName: data.tapeArtistName,
     tapeDescription: data.tapeDescription,
     type: data.type,
     color: color,
     memento: data.memento,
-    // audioFiles: audioFiles
-    //   ? audioFiles.files.map((file) => ({
-    //       trackNumber: file.trackNumber,
-    //       name: file.name,
-    //       artistName: data.tapeArtistName,
-    //       duration: file.duration,
-    //     }))
-    //   : [],
+    audioFiles: audioStateFiles
+      ? audioStateFiles.audio.map((file) => ({
+          trackNumber: file.trackNumber,
+          name: file.name,
+          artistName: file.artistName,
+          duration: file.duration,
+          albumPicture: file.albumPicture.name,
+        }))
+      : [],
     imageFiles: imageModules
       ? imageModules.map((file) => ({
           name: file.name,
@@ -60,7 +51,7 @@ const createMetadataJSON = (
         }))
       : [],
   };
-  return JSON.stringify(metadata);
+  return metadata;
 };
 
 /* Types */
@@ -85,7 +76,7 @@ export interface AudioFileState {
   name: string;
   artistName: string;
   trackNumber: number;
-  albumPicture: string;
+  albumPicture: File;
 }
 
 type ResultData = {
@@ -94,7 +85,7 @@ type ResultData = {
 };
 
 type VaultValues = {
-  profilePic: File[];
+  profilePicture: File[];
   tapeArtistName: string;
   file: string;
   memento: string;
@@ -105,25 +96,12 @@ type VaultValues = {
   color: string;
   moduleId: number;
   moduleFiles: File[];
-  albumPicture1: File[];
-  artistName1: string;
-  songName1: string;
-  audioFile1: File[];
+  albumPicture: File[];
 };
 
-const loader = (
-  <Image
-    src={CassetteLogo}
-    width={15}
-    alt="artape-logo"
-    style={{ filter: 'invert(1)' }}
-  />
-);
+const loader = <Image src={CassetteLogo} width={15} alt="artape-logo" style={{ filter: 'invert(1)' }} />;
 
-const getMementoSvgContent = (
-  memento: string,
-  color: string
-): Blob | null => {
+const getMementoSvgContent = (memento: string, color: string): Blob | null => {
   let svgContent: string | null = null;
   switch (memento) {
     case 'Pineapple':
@@ -150,32 +128,26 @@ const getMementoSvgContent = (
 };
 
 const Create = () => {
-  const [isAudioFile, setIsAudioFile] = useState(null);
-  const [isAlbumPictureFile, setIsAlbumPictureFile] = useState(null);
-  const [moduleFiles, setModuleFiles] = useState<
-    Record<number, File>
-  >({});
+  const router = useRouter();
+  const [moduleFiles, setModuleFiles] = useState<Record<number, File>>({});
   const [moduleUrls, setModuleUrls] = useState<{
     [index: number]: string;
   }>({});
   const [selectedMemento, setSelectedMemento] = useState('Pineapple');
   const [profilePicUrl, setProfilePicUrl] = useState('');
   const [loading, setLoading] = useState(false);
-  const [audioFiles, setAudioFiles] = useState<{
+  const [audioStateFiles, setAudioStateFiles] = useState<{
     moduleId: number;
-    files: AudioFileState[];
+    audio: AudioFileState[];
   } | null>({
     moduleId: 2,
-    files: [],
+    audio: [],
   });
   const [color, setColor] = useState('#aabbcc');
-  const [imageFiles, setImageFiles] = useState<
-    ImageFileState[] | null
-  >(null);
 
-  const handleMementoChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const { tape, setTape } = useTape();
+
+  const handleMementoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedMemento(event.target.value);
   };
 
@@ -188,7 +160,7 @@ const Create = () => {
     formState: { errors },
   } = useForm<VaultValues>();
 
-  const watchedProfilePic = watch('profilePic');
+  const watchedProfilePic = watch('profilePicture');
   useEffect(() => {
     if (watchedProfilePic?.length > 0) {
       setProfilePicUrl(URL.createObjectURL(watchedProfilePic[0]));
@@ -197,10 +169,7 @@ const Create = () => {
     }
   }, [watchedProfilePic]);
 
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number
-  ) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const files = e.target.files;
     if (files && files.length > 0) {
       setModuleFiles((prevModuleFiles) => ({
@@ -237,24 +206,14 @@ const Create = () => {
           }}
           key={`audioModule${i}`}
         >
-          <EditableAudioPlayer
-            profilePicUrl={profilePicUrl}
-            register={register}
-            audioFiles={audioFiles}
-            setAudioFiles={setAudioFiles}
-            watch={watch}
-          />
+          <EditableAudioPlayer profilePicUrl={profilePicUrl} register={register} audioFiles={audioStateFiles} setAudioFiles={setAudioStateFiles} watch={watch} />
         </div>
       );
       continue;
     }
     modules.push(
       <div
-        className={
-          i === 6
-            ? styles.profileModuleRectangle
-            : styles.profileModule
-        }
+        className={i === 6 ? styles.profileModuleRectangle : styles.profileModule}
         style={{
           display: 'flex',
           justifyContent: 'center',
@@ -308,24 +267,28 @@ const Create = () => {
       </div>
     );
   }
+  useEffect(() => {
+    console.log('Updated tape context: ', tape);
+  }, [tape]);
 
   const onSubmit: SubmitHandler<VaultValues> = async (data, e) => {
     setLoading(true);
     console.log('submitting');
     let imageModules: any = [];
+    let imageUploadModules: any = [];
     const processFiles = async () => {
       const filteredFiles = Object.values(moduleFiles);
 
       for (let index = 0; index < filteredFiles.length; index++) {
-        let moduleId = index + 1;
+        let moduleId;
         const file = filteredFiles[index];
 
         if (file.type.startsWith('image')) {
-          if (index === 1) {
-            moduleId = index + 2;
-          }
-          if (index !== 1) {
+          if (index === 0) {
             moduleId = index + 1;
+          }
+          if (index !== 0) {
+            moduleId = index + 2;
           }
 
           const imageModule = {
@@ -333,7 +296,14 @@ const Create = () => {
             alt: file.name,
             moduleId: moduleId,
           };
+
+          const imageUploadModule = {
+            name: file.name,
+            url: file,
+            moduleId: moduleId,
+          };
           imageModules.push(imageModule);
+          imageUploadModules.push(imageUploadModule);
         }
       }
     };
@@ -341,133 +311,90 @@ const Create = () => {
     processFiles().then(() => {
       setLoading(false);
     });
+    let tapeInfoJSONUpload: File | null = null;
+    const metadataJSON = createMetadataJSON(data, audioStateFiles, imageModules, color);
 
-    let tapeInfo: File | null = null;
-    // const metadataJSON = createMetadataJSON(
-    //   data,
-    //   isAudioFile,
-    //   isAlbumPictureFile,
-    //   imageModules,
-    //   color
-    // );
+    tapeInfoJSONUpload = new File([metadataJSON], 'tapeInfo.json', {
+      type: 'application/json',
+    });
 
+    const { akord } = await Akord.auth.signIn(data.email, data.password);
+    console.log('successful sign-in and verification');
+    const { vaultId } = await akord.vault.create(data.tapeArtistName);
+    console.log(`successfully created vault: ${vaultId}`);
+
+    // // Upload Profile Pic
+    // if (profilePicture) {
+    //   const { stackId } = await akord.stack.create(vaultId, profilePicture, profilePicture.name);
+    //   console.log(`Uploaded file: ${profilePicture.name}, Stack ID: ${stackId}`);
     // }
 
-    //   tapeInfo = new File([metadataJSON], 'tapeInfo.json', {
-    //     type: 'application/json',
-    //   });
-    // } else {
-    //   console.error('Audio or image files are missing');
+    // if (data.memento) {
+    //   const mementoSvgContent = getMementoSvgContent(data.memento, color);
+    //   if (mementoSvgContent) {
+    //     const mementoSvgFile = new File([mementoSvgContent], `${data.memento}.svg`, { type: 'text/html' });
+    //     const { stackId: mementoStackId } = await akord.stack.create(vaultId, mementoSvgFile, mementoSvgFile.name);
+    //     console.log(`Uploaded memento: ${mementoSvgFile.name}, Stack ID: ${mementoStackId}`);
+    //   }
     // }
-
-    // if ((data.email && data.password && imageFiles) || audioFiles) {
-    //   const { akord } = await Akord.auth.signIn(
-    //     data.email,
-    //     data.password
-    //   );
-    //   console.log('successful sign-in and verification');
-    //   const { vaultId } = await akord.vault.create(
-    //     data.tapeArtistName
-    //   );
-    //   console.log(`successfully created vault: ${vaultId}`);
-
-    //   const profilePic = data.profilePic[0];
-    //   let profilePicName = data.profilePic[0].name;
-
-    //   // Upload Profile Pic
-    //   if (profilePic) {
-    //     const { stackId } = await akord.stack.create(
-    //       vaultId,
-    //       profilePic,
-    //       profilePic.name
-    //     );
-    //     console.log(
-    //       `Uploaded file: ${profilePic.name}, Stack ID: ${stackId}`
-    //     );
-    //     profilePicName = profilePic.name;
+    // // Upload audio files
+    // if (audioStateFiles) {
+    //   for (const { audioFile } of audioStateFiles.audio) {
+    //     const { stackId } = await akord.stack.create(vaultId, audioFile, audioFile.name);
+    //     console.log(`Uploaded file: ${audioFile.name}, Stack ID: ${stackId}`);
     //   }
     // }
 
-    //   if (data.memento) {
-    //     const mementoSvgContent = getMementoSvgContent(
-    //       data.memento,
-    //       color
-    //     );
-    //     if (mementoSvgContent) {
-    //       const mementoSvgFile = new File(
-    //         [mementoSvgContent],
-    //         `${data.memento}.svg`,
-    //         { type: 'text/html' }
-    //       );
-    //       const { stackId: mementoStackId } =
-    //         await akord.stack.create(
-    //           vaultId,
-    //           mementoSvgFile,
-    //           mementoSvgFile.name
-    //         );
-    //       console.log(
-    //         `Uploaded memento: ${mementoSvgFile.name}, Stack ID: ${mementoStackId}`
-    //       );
-    //     }
+    // // Upload image files
+    // if (imageUploadModules) {
+    //   for (const image of imageUploadModules) {
+    //     const { stackId } = await akord.stack.create(vaultId, image.url, image.name);
+    //     console.log(`Uploaded file: ${image.name}, Stack ID: ${stackId}`);
     //   }
-
-    //   // Upload audio files
-    //   if (audioFiles) {
-    //     for (const { audioFile } of audioFiles.files) {
-    //       const { stackId } = await akord.stack.create(
-    //         vaultId,
-    //         audioFile,
-    //         audioFile.name
-    //       );
-    //       console.log(
-    //         `Uploaded file: ${audioFile.name}, Stack ID: ${stackId}`
-    //       );
-    //     }
-    //   }
-
-    //   // Upload image files
-    //   if (imageFiles) {
-    //     for (const imageFileState of imageFiles) {
-    //       const { stackId } = await akord.stack.create(
-    //         vaultId,
-    //         imageFileState.imageFile,
-    //         imageFileState.name
-    //       );
-    //       console.log(
-    //         `Uploaded file: ${imageFileState.name}, Stack ID: ${stackId}`
-    //       );
-    //     }
-    //   }
-
-    //   // Upload tapeInfo.json
-    //   if (tapeInfo) {
-    //     const { stackId } = await akord.stack.create(
-    //       vaultId,
-    //       tapeInfo,
-    //       tapeInfo.name
-    //     );
-    //     console.log(
-    //       `Uploaded file: ${tapeInfo.name}, Stack ID: ${stackId}`
-    //     );
-    //   }
-    //   console.log('SUCCESS UPLOADED :)');
     // }
-  };
 
-  /**** Helper Functions ****/
+    // // Upload tapeInfo.json
+    // if (tapeInfoJSONUpload) {
+    //   const { stackId } = await akord.stack.create(vaultId, tapeInfoJSONUpload, tapeInfoJSONUpload.name);
+    //   console.log(`Uploaded file: ${tapeInfoJSONUpload.name}, Stack ID: ${stackId}`);
+    // }
 
-  const getAudioDuration = (file: File): Promise<number> => {
-    return new Promise((resolve, reject) => {
-      const audio = new Audio(URL.createObjectURL(file));
-      audio.addEventListener('loadedmetadata', () => {
-        resolve(audio.duration);
-      });
-      audio.addEventListener('error', () => {
-        reject(new Error('Error loading audio file metadata.'));
-      });
+    // console.log('SUCCESS UPLOADED :)');
+
+    // reformatting imageFiles and audioFiles to fit context when mapped per vault id at different page
+    const imageFiles = imageUploadModules.map((imageModule) => {
+      return {
+        name: imageModule.name,
+        url: URL.createObjectURL(imageModule.url),
+      };
+    });
+    const audioFiles = audioStateFiles.audio.map((audioFile) => {
+      return {
+        name: audioFile.name,
+        url: URL.createObjectURL(audioFile.audioFile),
+      };
+    });
+
+    const profilePicture = {
+      name: data.profilePicture[0].name,
+      url: URL.createObjectURL(data.profilePicture[0]),
+    };
+
+    const albumPicture = {
+      name: audioStateFiles.audio[0].albumPicture.name,
+      url: URL.createObjectURL(audioStateFiles.audio[0].albumPicture),
+    };
+    setTape({
+      audioFiles,
+      imageFiles,
+      tapeInfoJSON: metadataJSON,
+      albumPicture,
+      profilePicture,
+    });
+    router.push({
+      pathname: `/tape/${[vaultId]}`,
     });
   };
-
   return (
     <>
       <main
@@ -497,9 +424,7 @@ const Create = () => {
                   gap: '24px',
                 }}
               >
-                <p style={{ fontSize: '18px' }}>
-                  Sign in with Existing Akord Account
-                </p>
+                <p style={{ fontSize: '18px' }}>Sign in with Existing Akord Account</p>
                 <input
                   {...register('email', { required: true })}
                   type="email"
@@ -529,7 +454,8 @@ const Create = () => {
                 <p
                   style={{
                     fontSize: '18px',
-                    background: 'var(--artape-black)',
+                    background: 'var(--artape-white)',
+                    border: '1px solid var(--artape-primary-color)',
                     padding: '10px',
                     borderRadius: '8px',
                   }}
@@ -553,21 +479,10 @@ const Create = () => {
                       justifyContent: 'space-between',
                     }}
                   >
-                    <label
-                      htmlFor="one"
-                      style={{ color: `${color}` }}
-                    >
+                    <label htmlFor="one" style={{ color: `${color}` }}>
                       Pineapple
                     </label>
-                    <input
-                      {...register('memento')}
-                      className={styles.radioButton}
-                      name="memento"
-                      id="one"
-                      type="radio"
-                      value="Pineapple"
-                      onChange={handleMementoChange}
-                    />
+                    <input {...register('memento')} className={styles.radioButton} name="memento" id="one" type="radio" value="Pineapple" onChange={handleMementoChange} />
                   </div>
                   <div
                     style={{
@@ -575,21 +490,10 @@ const Create = () => {
                       justifyContent: 'space-between',
                     }}
                   >
-                    <label
-                      htmlFor="two"
-                      style={{ color: `${color}` }}
-                    >
+                    <label htmlFor="two" style={{ color: `${color}` }}>
                       Loud
                     </label>
-                    <input
-                      className={styles.radioButton}
-                      {...register('memento')}
-                      value="Loud"
-                      name="memento"
-                      id="two"
-                      type="radio"
-                      onChange={handleMementoChange}
-                    />
+                    <input className={styles.radioButton} {...register('memento')} value="Loud" name="memento" id="two" type="radio" onChange={handleMementoChange} />
                   </div>
                   <div
                     style={{
@@ -597,21 +501,10 @@ const Create = () => {
                       justifyContent: 'space-between',
                     }}
                   >
-                    <label
-                      htmlFor="three"
-                      style={{ color: `${color}` }}
-                    >
+                    <label htmlFor="three" style={{ color: `${color}` }}>
                       Minimal
                     </label>
-                    <input
-                      className={styles.radioButton}
-                      {...register('memento')}
-                      name="memento"
-                      value="Minimal"
-                      id="three"
-                      type="radio"
-                      onChange={handleMementoChange}
-                    />
+                    <input className={styles.radioButton} {...register('memento')} name="memento" value="Minimal" id="three" type="radio" onChange={handleMementoChange} />
                   </div>
                   <div
                     style={{
@@ -619,21 +512,10 @@ const Create = () => {
                       justifyContent: 'space-between',
                     }}
                   >
-                    <label
-                      htmlFor="four"
-                      style={{ color: `${color}` }}
-                    >
+                    <label htmlFor="four" style={{ color: `${color}` }}>
                       Tape
                     </label>
-                    <input
-                      className={styles.radioButton}
-                      {...register('memento')}
-                      value="Tape"
-                      name="memento"
-                      id="four"
-                      type="radio"
-                      onChange={handleMementoChange}
-                    />
+                    <input className={styles.radioButton} {...register('memento')} value="Tape" name="memento" id="four" type="radio" onChange={handleMementoChange} />
                   </div>
                 </div>
               </div>
@@ -667,7 +549,7 @@ const Create = () => {
                 >
                   {profilePicUrl ? (
                     <label
-                      htmlFor="profilePic"
+                      htmlFor="profilePicture"
                       style={{
                         position: 'absolute',
                         top: 0,
@@ -694,7 +576,7 @@ const Create = () => {
                     </label>
                   ) : (
                     <label
-                      htmlFor="profilePic"
+                      htmlFor="profilePicture"
                       style={{
                         position: 'absolute',
                         top: 0,
@@ -710,14 +592,7 @@ const Create = () => {
                       <UploadButton color={color} />
                     </label>
                   )}
-                  <input
-                    {...register('profilePic', { required: true })}
-                    id="profilePic"
-                    type="file"
-                    name="profilePic"
-                    accept="image/*"
-                    style={{ display: 'none', width: '100%' }}
-                  />
+                  <input {...register('profilePicture')} id="profilePicture" type="file" name="profilePicture" accept="image/*" style={{ display: 'none', width: '100%' }} />
                 </div>
                 <div>
                   <div
@@ -750,18 +625,10 @@ const Create = () => {
                       's Tape
                     </span>
                     <div className={styles.memento}>
-                      {selectedMemento === 'Pineapple' && (
-                        <PineappleMemento color={color} />
-                      )}
-                      {selectedMemento === 'Loud' && (
-                        <LoudMemento color={color} />
-                      )}
-                      {selectedMemento === 'Minimal' && (
-                        <MinimalMemento color={color} />
-                      )}
-                      {selectedMemento === 'Tape' && (
-                        <CassetteMemento color={color} />
-                      )}{' '}
+                      {selectedMemento === 'Pineapple' && <PineappleMemento color={color} />}
+                      {selectedMemento === 'Loud' && <LoudMemento color={color} />}
+                      {selectedMemento === 'Minimal' && <MinimalMemento color={color} />}
+                      {selectedMemento === 'Tape' && <CassetteMemento color={color} />}{' '}
                     </div>
                   </div>
 
@@ -818,20 +685,16 @@ const Create = () => {
               loader
             ) : (
               <>
-                <span style={{ marginRight: '20px' }}>
+                <span
+                  style={{
+                    marginRight: '20px',
+                    color: 'var(--artape-white)',
+                  }}
+                >
                   Submit & Generate Tape
                 </span>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 21 22"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M11.4844 15.2662C11.4844 15.8117 11.0455 16.2505 10.5 16.2505C9.95449 16.2505 9.51562 15.8117 9.51562 15.2662V3.8609L5.61914 7.75701C5.23359 8.14252 4.61016 8.14252 4.22871 7.75701C3.84727 7.3715 3.84316 6.74812 4.22871 6.36671L9.80273 0.789132C10.1883 0.403623 10.8117 0.403623 11.1932 0.789132L16.7754 6.36671C17.1609 6.75222 17.1609 7.3756 16.7754 7.75701C16.3898 8.13841 15.7664 8.14252 15.385 7.75701L11.4885 3.8609V15.2662H11.4844ZM12.7969 14.9381V12.9696H18.375C19.8229 12.9696 21 14.1466 21 15.5943V18.8753C21 20.323 19.8229 21.5 18.375 21.5H2.625C1.17715 21.5 0 20.323 0 18.8753V15.5943C0 14.1466 1.17715 12.9696 2.625 12.9696H8.20312V14.9381H2.625C2.26406 14.9381 1.96875 15.2334 1.96875 15.5943V18.8753C1.96875 19.2362 2.26406 19.5314 2.625 19.5314H18.375C18.7359 19.5314 19.0312 19.2362 19.0312 18.8753V15.5943C19.0312 15.2334 18.7359 14.9381 18.375 14.9381H12.7969ZM15.75 17.2348C15.75 16.9737 15.8537 16.7234 16.0383 16.5388C16.2229 16.3542 16.4733 16.2505 16.7344 16.2505C16.9954 16.2505 17.2458 16.3542 17.4304 16.5388C17.615 16.7234 17.7188 16.9737 17.7188 17.2348C17.7188 17.4958 17.615 17.7462 17.4304 17.9308C17.2458 18.1154 16.9954 18.2191 16.7344 18.2191C16.4733 18.2191 16.2229 18.1154 16.0383 17.9308C15.8537 17.7462 15.75 17.4958 15.75 17.2348Z"
-                    fill="black"
-                  />
+                <svg width="16" height="16" viewBox="0 0 21 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11.4844 15.2662C11.4844 15.8117 11.0455 16.2505 10.5 16.2505C9.95449 16.2505 9.51562 15.8117 9.51562 15.2662V3.8609L5.61914 7.75701C5.23359 8.14252 4.61016 8.14252 4.22871 7.75701C3.84727 7.3715 3.84316 6.74812 4.22871 6.36671L9.80273 0.789132C10.1883 0.403623 10.8117 0.403623 11.1932 0.789132L16.7754 6.36671C17.1609 6.75222 17.1609 7.3756 16.7754 7.75701C16.3898 8.13841 15.7664 8.14252 15.385 7.75701L11.4885 3.8609V15.2662H11.4844ZM12.7969 14.9381V12.9696H18.375C19.8229 12.9696 21 14.1466 21 15.5943V18.8753C21 20.323 19.8229 21.5 18.375 21.5H2.625C1.17715 21.5 0 20.323 0 18.8753V15.5943C0 14.1466 1.17715 12.9696 2.625 12.9696H8.20312V14.9381H2.625C2.26406 14.9381 1.96875 15.2334 1.96875 15.5943V18.8753C1.96875 19.2362 2.26406 19.5314 2.625 19.5314H18.375C18.7359 19.5314 19.0312 19.2362 19.0312 18.8753V15.5943C19.0312 15.2334 18.7359 14.9381 18.375 14.9381H12.7969ZM15.75 17.2348C15.75 16.9737 15.8537 16.7234 16.0383 16.5388C16.2229 16.3542 16.4733 16.2505 16.7344 16.2505C16.9954 16.2505 17.2458 16.3542 17.4304 16.5388C17.615 16.7234 17.7188 16.9737 17.7188 17.2348C17.7188 17.4958 17.615 17.7462 17.4304 17.9308C17.2458 18.1154 16.9954 18.2191 16.7344 18.2191C16.4733 18.2191 16.2229 18.1154 16.0383 17.9308C15.8537 17.7462 15.75 17.4958 15.75 17.2348Z" fill="var(--artape-white)" />
                 </svg>
               </>
             )}

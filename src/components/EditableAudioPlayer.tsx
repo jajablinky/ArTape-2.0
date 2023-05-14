@@ -44,30 +44,30 @@ export interface AlbumPictureFile {
 
 interface AudioPlayerProps {
   tapeInfoJSON: TapeInfo;
-  audioFiles: AudioFileState[];
-  setAudioFiles: (audioFiles: AudioFileState[]) => void;
+  audioFiles: {
+    moduleId: number;
+    audio: AudioFileState[];
+  };
+  setAudioFiles: (audioFiles: {
+    moduleId: number;
+    audio: AudioFileState[];
+  }) => void;
   albumPictures: AlbumPictureFile;
   profilePicUrl: string;
   register: any;
 }
 
-function formatToMinutes(duration: number): string {
-  const minutes: number = Math.floor(duration / 60);
-  const seconds: number = Math.round(duration % 60);
-  const durationFormatted: string = `${minutes}:${seconds
-    .toString()
-    .padStart(2, '0')}`;
-  return durationFormatted;
-}
-
 const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
-  audioFiles = [],
+  audioFiles,
   setAudioFiles,
   profilePicUrl,
   watch,
   register,
 }) => {
   const NUM_TRACKS = 6;
+  const [albumPictureFiles, setAlbumPictureFiles] = useState<
+    (File | null)[]
+  >(Array(NUM_TRACKS).fill(null));
   const [albumPictureUrls, setAlbumPictureUrls] = useState<
     (string | null)[]
   >(Array(NUM_TRACKS).fill(null));
@@ -75,44 +75,44 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
   const handleUploadButtonClick = (index: number) => {
     document.getElementById(`audioFile${index}`).click();
   };
+
   const handleAudioUpload = async (i: number, file: File) => {
-    watch(`artistName${i}`);
-    watch(`songName${i}`);
-    watch(`albumPicture${i}`);
-    const getDuration = (file: File): Promise<number> => {
-      return new Promise((resolve) => {
-        const audio = new Audio(URL.createObjectURL(file));
-        audio.addEventListener('loadedmetadata', () => {
-          resolve(audio.duration);
+    // console.log('audioFiles', ...audioFiles.audio); // Log the audioFiles prop
+    const artistName = await watch(`artistName${i}`);
+    const songName = await watch(`songName${i}`);
+
+    const albumPictureFile = albumPictureFiles[i - 1];
+    if (file && artistName && songName && albumPictureFile) {
+      const getDuration = (file: File): Promise<number> => {
+        return new Promise((resolve) => {
+          const audio = new Audio(URL.createObjectURL(file));
+          audio.addEventListener('loadedmetadata', () => {
+            resolve(audio.duration);
+          });
         });
-      });
-    };
-    const duration = await getDuration(file);
-    console.log(duration);
-    console.log(file);
+      };
+      const duration = await getDuration(file);
+
+      const newAudioFile: AudioFileState = {
+        audioFile: file,
+        duration,
+        name: songName,
+        artistName: artistName,
+        trackNumber: i,
+        albumPicture: albumPictureFile,
+      };
+
+      if (audioFiles.audio) {
+        const updatedAudioFiles = [...audioFiles.audio];
+        updatedAudioFiles[i - 1] = newAudioFile;
+        setAudioFiles({ moduleId: 2, audio: updatedAudioFiles });
+      }
+    } else {
+      console.error(
+        'Please upload and fill in all details before uploading, (artist name, song name, album picture, and audio track)'
+      );
+    }
   };
-  //   const artistNameInput = artistNameRefs.current[i - 1];
-  //   const songNameInput = songNameRefs.current[i - 1];
-
-  //   if (!artistNameInput || !songNameInput) {
-  //     console.error(
-  //       'Failed to find input elements for artist name or song name'
-  //     );
-  //     return;
-  //   }
-
-  //   const newAudioFile: AudioFileState = {
-  //     audioFile: file,
-  //     duration,
-  //     name: songNameInput.value,
-  //     artistName: artistNameInput.value,
-  //     trackNumber: i,
-  //     albumPicture: albumPictureUrls[i - 1],
-  //   };
-  //   const updatedAudioFiles = [...audioFiles];
-  //   updatedAudioFiles[i - 1] = newAudioFile;
-  //   setAudioFiles(updatedAudioFiles);
-  // };
 
   const handleAlbumPictureUpload = (i: number, picture: File) => {
     const url = URL.createObjectURL(picture);
@@ -121,6 +121,11 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
       updatedUrls[i - 1] = url;
       console.log(updatedUrls);
       return updatedUrls;
+    });
+    setAlbumPictureFiles((prev) => {
+      const updatedFiles = [...prev];
+      updatedFiles[i - 1] = picture;
+      return updatedFiles;
     });
   };
 
@@ -133,7 +138,6 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
         <div
           className={styles.musicPlayerHeader}
           style={{
-            backgroundImage: `url(${profilePicUrl})`,
             position: 'sticky',
             top: '0',
             height: '80px',
@@ -224,9 +228,7 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
                     <div className={styles.artistTitleTrack}>
                       <p>
                         <input
-                          {...register(`artistName${i}`, {
-                            required: true,
-                          })}
+                          {...register(`artistName${i}`, {})}
                           type="text"
                           placeholder="Artist Name"
                           style={{
@@ -238,9 +240,7 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
                       </p>
                       <h2>
                         <input
-                          {...register(`songName${i}`, {
-                            required: true,
-                          })}
+                          {...register(`songName${i}`, {})}
                           type="text"
                           placeholder="Song Name"
                           style={{
@@ -272,9 +272,11 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
                     style={{ display: 'none', width: '100%' }}
                   />
                   <button
+                    type="button"
                     onClick={() => handleUploadButtonClick(i)}
                     style={{
-                      background: 'transparent',
+                      background: 'var(--artape-primary-color)',
+                      color: 'var(--artape-white)',
                       border: '1px solid var(--artape-white)',
                     }}
                   >

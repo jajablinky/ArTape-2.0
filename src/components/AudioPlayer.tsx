@@ -91,8 +91,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       };
     }),
   });
-  const [audioFetched, setAudioFetched] = useState<boolean>(true);
 
+  const [audioFetched, setAudioFetched] = useState<boolean>(true);
   const [currentSongIndex, setCurrentSongIndex] =
     useState<number>(-1);
   const [isPlaying, setisPlaying] = useState<boolean>(false);
