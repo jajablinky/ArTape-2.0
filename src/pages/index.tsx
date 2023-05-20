@@ -11,6 +11,7 @@ import ArTapeLogo from '../../public/ArTAPE.svg';
 import CassetteLogo from '../../public/Artape-Cassete-Logo.gif';
 import Link from 'next/link';
 import Loader from '@/components/Loader';
+import LoadingOverlay from '@/components/LoadingOverlay';
 
 type VaultValues = {
   email: string;
@@ -279,6 +280,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
+        {loading ? <LoadingOverlay /> : null}
         <div
           style={{
             display: 'flex',
