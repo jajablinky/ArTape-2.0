@@ -48,29 +48,16 @@ interface AudioPlayerProps {
     moduleId: number;
     audio: AudioFileState[];
   };
-  setAudioFiles: (audioFiles: {
-    moduleId: number;
-    audio: AudioFileState[];
-  }) => void;
+  setAudioFiles: (audioFiles: { moduleId: number; audio: AudioFileState[] }) => void;
   albumPictures: AlbumPictureFile;
   profilePicUrl: string;
   register: any;
 }
 
-const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
-  audioFiles,
-  setAudioFiles,
-  profilePicUrl,
-  watch,
-  register,
-}) => {
-  const NUM_TRACKS = 6;
-  const [albumPictureFiles, setAlbumPictureFiles] = useState<
-    (File | null)[]
-  >(Array(NUM_TRACKS).fill(null));
-  const [albumPictureUrls, setAlbumPictureUrls] = useState<
-    (string | null)[]
-  >(Array(NUM_TRACKS).fill(null));
+const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({ audioFiles, setAudioFiles, profilePicUrl, watch, register }) => {
+  const NUM_TRACKS = 3;
+  const [albumPictureFiles, setAlbumPictureFiles] = useState<(File | null)[]>(Array(NUM_TRACKS).fill(null));
+  const [albumPictureUrls, setAlbumPictureUrls] = useState<(string | null)[]>(Array(NUM_TRACKS).fill(null));
 
   const handleUploadButtonClick = (index: number) => {
     document.getElementById(`audioFile${index}`).click();
@@ -108,9 +95,7 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
         setAudioFiles({ moduleId: 2, audio: updatedAudioFiles });
       }
     } else {
-      console.error(
-        'Please upload and fill in all details before uploading, (artist name, song name, album picture, and audio track)'
-      );
+      console.error('Please upload and fill in all details before uploading, (artist name, song name, album picture, and audio track)');
     }
   };
 
@@ -131,10 +116,7 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
 
   return (
     <>
-      <motion.div
-        className={styles.musicPlayerContainer}
-        onClick={(e) => e.stopPropagation()}
-      >
+      <motion.div className={styles.musicPlayerContainer} onClick={(e) => e.stopPropagation()}>
         <div
           className={styles.musicPlayerHeader}
           style={{
@@ -146,147 +128,132 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
         >
           <audio />
         </div>
-        {Array.from({ length: NUM_TRACKS }, (_, i) => i + 1).map(
-          (i) => (
-            <div key={i} className={styles.trackContainer}>
-              <div
-                className={styles.musicPlayerTrack}
-                style={{ width: 'auto' }}
-              >
-                <div className={styles.musicPlayerLeftSide}>
-                  <div
-                    className={styles.songArt}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      cursor: 'pointer',
-                      borderRadius: '12px',
-                      position: 'relative',
-                      border: '1px solid #ffffff',
-                    }}
-                  >
-                    {albumPictureUrls[i - 1] ? (
-                      <label
-                        htmlFor={`albumPicture${i}`}
+        {Array.from({ length: NUM_TRACKS }, (_, i) => i + 1).map((i) => (
+          <div key={i} className={styles.trackContainer}>
+            <div className={styles.musicPlayerTrack} style={{ width: 'auto' }}>
+              <div className={styles.musicPlayerLeftSide}>
+                <div
+                  className={styles.songArt}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    borderRadius: '12px',
+                    position: 'relative',
+                    border: '1px solid #ffffff',
+                  }}
+                >
+                  {albumPictureUrls[i - 1] ? (
+                    <label
+                      htmlFor={`albumPicture${i}`}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <Image
+                        src={albumPictureUrls[i - 1]}
+                        alt={`albumPicture${i}`}
+                        width={75}
+                        height={75}
                         style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          display: 'flex',
-                          justifyContent: 'center',
-                          alignItems: 'center',
+                          objectFit: 'cover',
+                          borderRadius: '12px',
                           cursor: 'pointer',
                         }}
-                      >
-                        <Image
-                          src={albumPictureUrls[i - 1]}
-                          alt={`albumPicture${i}`}
-                          width={75}
-                          height={75}
-                          style={{
-                            objectFit: 'cover',
-                            borderRadius: '12px',
-                            cursor: 'pointer',
-                          }}
-                        />
-                      </label>
-                    ) : (
-                      <label
-                        htmlFor={`albumPicture${i}`}
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          display: 'flex',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <UploadButton color={'#ffffff'} />
-                      </label>
-                    )}
-                    :
-                    <input
-                      {...register(`albumPicture${i}`)}
-                      onChange={(e) =>
-                        handleAlbumPictureUpload(i, e.target.files[0])
-                      }
-                      id={`albumPicture${i}`}
-                      type="file"
-                      name="profilePic"
-                      accept="image/*"
-                      style={{ display: 'none', width: '100%' }}
-                    />
-                  </div>
-                  <div className={styles.musicInfo}>
-                    <div className={styles.artistTitleTrack}>
-                      <p>
-                        <input
-                          {...register(`artistName${i}`, {})}
-                          type="text"
-                          placeholder="Artist Name"
-                          style={{
-                            color: 'var(--artape-black)',
-                            background: 'transparent',
-                            border: 'none',
-                          }}
-                        />
-                      </p>
-                      <h2>
-                        <input
-                          {...register(`songName${i}`, {})}
-                          type="text"
-                          placeholder="Song Name"
-                          style={{
-                            fontSize: '20px',
-                            background: 'transparent',
-                            color: 'var(--artape-black)',
-                            border: 'none',
-                          }}
-                        />
-                      </h2>
-                    </div>
-                    <div className={styles.durationBuyMp3}>
-                      <p>
-                        <span className={styles.duration}></span>
-                      </p>
-                    </div>
-                  </div>
+                      />
+                    </label>
+                  ) : (
+                    <label
+                      htmlFor={`albumPicture${i}`}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <UploadButton color={'#ffffff'} />
+                    </label>
+                  )}
+                  :
+                  <input {...register(`albumPicture${i}`)} onChange={(e) => handleAlbumPictureUpload(i, e.target.files[0])} id={`albumPicture${i}`} type="file" name="profilePic" accept="image/*" style={{ display: 'none', width: '100%' }} />
                 </div>
-                <div className={styles.musicPlayerRightSide}>
-                  <input
-                    {...register(`audioFile${i}`)}
-                    onChange={(e) => {
-                      handleAudioUpload(i, e.target.files[0]);
-                    }}
-                    id={`audioFile${i}`}
-                    type="file"
-                    name={`audioFile${i}`}
-                    accept="audio/*"
-                    style={{ display: 'none', width: '100%' }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleUploadButtonClick(i)}
-                    style={{
-                      background: 'var(--artape-primary-color)',
-                      color: 'var(--artape-white)',
-                      border: '1px solid var(--artape-white)',
-                    }}
-                  >
-                    Upload
-                  </button>
+                <div className={styles.musicInfo}>
+                  <div className={styles.artistTitleTrack}>
+                    <p>
+                      <input
+                        {...register(`artistName${i}`, {})}
+                        type="text"
+                        placeholder="Artist Name"
+                        style={{
+                          color: 'var(--artape-black)',
+                          background: 'transparent',
+                          border: 'none',
+                        }}
+                      />
+                    </p>
+                    <h2>
+                      <input
+                        {...register(`songName${i}`, {})}
+                        type="text"
+                        placeholder="Song Name"
+                        style={{
+                          fontSize: '20px',
+                          background: 'transparent',
+                          color: 'var(--artape-black)',
+                          border: 'none',
+                        }}
+                      />
+                    </h2>
+                  </div>
+                  <div className={styles.durationBuyMp3}>
+                    <p>
+                      <span className={styles.duration}></span>
+                    </p>
+                  </div>
                 </div>
               </div>
+              <div className={styles.musicPlayerRightSide}>
+                <input
+                  {...register(`audioFile${i}`)}
+                  onChange={(e) => {
+                    handleAudioUpload(i, e.target.files[0]);
+                  }}
+                  id={`audioFile${i}`}
+                  type="file"
+                  name={`audioFile${i}`}
+                  accept="audio/*"
+                  style={{ display: 'none', width: '100%' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => handleUploadButtonClick(i)}
+                  style={{
+                    background: 'var(--artape-primary-color)',
+                    color: 'var(--artape-white)',
+                    border: '1px solid var(--artape-white)',
+                  }}
+                >
+                  Upload
+                </button>
+              </div>
             </div>
-          )
-        )}
+          </div>
+        ))}
       </motion.div>
     </>
   );

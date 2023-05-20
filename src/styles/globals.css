@@ -1,8 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 :root {
-  font-family: 'Space Grotesk', sans-serif, Inter, system-ui, Avenir,
-    Helvetica;
+  font-family: 'Space Grotesk', sans-serif, Inter, system-ui, Avenir, Helvetica;
   line-height: 1.2;
   font-weight: 400;
   font-size: 12px;
@@ -41,12 +40,12 @@ p {
 
 button {
   border-radius: 50px;
-  border: 1px solid transparent;
+  border: 1px solid var(--artape-black);
   padding: 1em 100px;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: var(--artape-black);
+  background-color: var(--artape-white);
   cursor: pointer;
   transition: all 0.25s;
 }
@@ -63,8 +62,7 @@ input {
   color: var(--artape-black);
   width: 100%;
   overflow: hidden;
-  font-family: 'Space Grotesk', sans-serif, Inter, system-ui, Avenir,
-    Helvetica;
+  font-family: 'Space Grotesk', sans-serif, Inter, system-ui, Avenir, Helvetica;
 }
 
 input:focus,
