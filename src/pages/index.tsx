@@ -122,6 +122,7 @@ export default function Home() {
   {
     /* -- State  -- */
   }
+  const [progress, setProgress] = useState({ percentage: 0, state: 'Communicating with Akord' });
   const { tape, setTape } = useTape();
   const [loading, setLoading] = useState(false);
   const [akord, setAkord] = useState<Akord | null>();
@@ -145,7 +146,7 @@ export default function Home() {
     const { akord } = await Akord.auth.signIn(data.email, data.password);
     setAkord(akord);
     console.log('successful sign-in');
-
+    setProgress({ percentage: 20, state: `Successful Sign-in, welcome ${data.email}` });
     // select a vault and console log the vault id
     const vaults = await akord.vault.list();
     const tapeInfos = [];
@@ -155,6 +156,7 @@ export default function Home() {
       const { items } = await akord.stack.list(vaultId);
       for (let j = 0; j < items.length; j++) {
         if (items[j].name === 'tapeInfo.json') {
+          setProgress({ percentage: j + 2 * j + 20, state: `Loaded ${j} vaults` });
           tapeInfos.push({
             tapeName: vaults[i].name,
             vaultId,
@@ -280,7 +282,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        {loading ? <LoadingOverlay /> : null}
+        {loading ? <LoadingOverlay progress={progress} /> : null}
         <div
           style={{
             display: 'flex',

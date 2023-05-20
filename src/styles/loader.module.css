@@ -7,6 +7,8 @@
   height: 100%;
   background: rgba(0, 0, 0, 0.9);
   display: flex;
+  gap: 24px;
+  flex-direction: column;
   margin: 0 auto;
   align-items: center;
   justify-content: center;
@@ -20,4 +22,30 @@
 
 .normal {
   filter: none;
+}
+
+.progressContainer {
+  color: var(--artape-white);
+}
+
+.progressBar {
+  width: 400px;
+  height: 30px;
+  border-radius: 10px;
+  background-color: #e6e6e6;
+  margin-bottom: 10px;
+}
+
+.progressBarFill {
+  height: 100%;
+  border-radius: 10px;
+  background-color: var(--artape-primary-color);
+  transition: width 0.5s ease-out;
+}
+
+.progressLabel {
+  margin-top: 10px;
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--artape-primary-color);
 }

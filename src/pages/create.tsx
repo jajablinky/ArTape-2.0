@@ -130,6 +130,7 @@ const getMementoSvgContent = (memento: string, color: string): Blob | null => {
 };
 
 const Create = () => {
+  const [progress, setProgress] = useState({ percentage: 0, state: 'Generating' });
   const router = useRouter();
   const [moduleFiles, setModuleFiles] = useState<Record<number, File>>({});
   const [moduleUrls, setModuleUrls] = useState<{
@@ -276,6 +277,7 @@ const Create = () => {
 
   const onSubmit: SubmitHandler<VaultValues> = async (data, e) => {
     setLoading(true);
+    setProgress({ percentage: 5, state: 'Communicating with Akord' });
     console.log('submitting');
     let imageModules: any = [];
     let imageUploadModules: any = [];
@@ -318,8 +320,9 @@ const Create = () => {
 
       const { akord } = await Akord.auth.signIn(data.email, data.password);
       console.log('successful sign-in and verification');
-      const { vaultId } = await akord.vault.create(data.tapeArtistName);
-      console.log(`successfully created vault: ${vaultId}`);
+      // const { vaultId } = await akord.vault.create(data.tapeArtistName);
+      // console.log(`successfully created vault: ${vaultId}`);
+      setProgress({ percentage: 20, state: 'Successful Sign-in to Akord!' });
 
       // // Upload Profile Pic
       // if (data.profilePicture[0]) {
@@ -393,6 +396,7 @@ const Create = () => {
     };
 
     processFiles().then(() => {
+      setProgress({ percentage: 100, state: 'Success!' });
       setLoading(false);
       // router.push({
       //   pathname: `/tape/${[vaultId]}`,
@@ -410,7 +414,7 @@ const Create = () => {
           } as React.CSSProperties
         }
       >
-        {loading ? <LoadingOverlay /> : null}
+        {loading ? <LoadingOverlay progress={progress} /> : null}
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className={styles.aboveGrid}>
             <h1 style={{ fontSize: '48px' }}>Create a Tape</h1>
