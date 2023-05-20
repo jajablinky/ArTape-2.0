@@ -89,21 +89,21 @@ function EmailPasswordForm({ onSubmit, loading, errors, register }: EmailPasswor
 
 function VaultSelectionForm({ tapeInfoOptions, setSelectedTapeInfo, onSubmit, loading }: VaultSelectionFormProps) {
   return (
-    <form
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '24px',
-        width: '300px',
-      }}
-      onSubmit={onSubmit}
-    >
-      {tapeInfoOptions.map((tapeInfo) => (
-        <label key={tapeInfo.vaultId}>
-          <input type="radio" name="vault" value={tapeInfo.vaultId} onChange={() => setSelectedTapeInfo(tapeInfo)} />
-          {tapeInfo.tapeName}
-        </label>
-      ))}
+    <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: '32px',
+        }}
+      >
+        {tapeInfoOptions.map((tapeInfo) => (
+          <label key={tapeInfo.vaultId} style={{ display: 'flex', flexDirection: 'column', gap: '12px', justifyContent: 'center', alignItems: 'center' }}>
+            <input type="radio" name="vault" value={tapeInfo.vaultId} onChange={() => setSelectedTapeInfo(tapeInfo)} />
+            {tapeInfo.tapeName}
+          </label>
+        ))}
+      </div>
       <button
         type="submit"
         style={{
