@@ -223,6 +223,7 @@ const Create = () => {
           alignItems: 'center',
           cursor: 'pointer',
           position: 'relative',
+          border: errors[`imageModule${i}`] ? '1px solid red' : 'none',
         }}
         key={`imageModule${i}`}
       >
@@ -462,22 +463,20 @@ const Create = () => {
                   placeholder="Email"
                   style={{
                     background: 'transparent',
-                    border: 'none',
-                    borderBottom: '1px solid white',
+                    borderBottom: errors.email ? '1px solid red' : '1px solid white',
                   }}
                 />
-                {errors.email && 'email is required'}
+                {errors.email && <p className={styles.error}>email is required</p>}
                 <input
                   {...register('password', { required: true })}
                   type="password"
                   placeholder="Password"
                   style={{
                     background: 'transparent',
-                    border: 'none',
-                    borderBottom: '1px solid white',
+                    borderBottom: errors.password ? '1px solid red' : '1px solid white',
                   }}
                 />
-                {errors.password && 'password is required'}
+                {errors.password && <p className={styles.error}>password is required</p>}
               </div>
             </div>
             <div style={{ display: 'flex', gap: '24px' }}>
@@ -576,6 +575,7 @@ const Create = () => {
                     cursor: 'pointer',
                     borderRadius: '12px',
                     position: 'relative',
+                    border: '1px solid var(--artape-primary-color)',
                   }}
                 >
                   {profilePicUrl ? (
@@ -618,12 +618,22 @@ const Create = () => {
                         justifyContent: 'center',
                         alignItems: 'center',
                         cursor: 'pointer',
+                        border: errors.profilePicture ? '1px solid red' : 'none',
                       }}
                     >
                       <UploadButton color={color} />
                     </label>
                   )}
-                  <input {...register('profilePicture')} id="profilePicture" type="file" name="profilePicture" accept="image/*" style={{ display: 'none', width: '100%' }} />
+                  <input
+                    {...register('profilePicture', {
+                      required: true,
+                    })}
+                    id="profilePicture"
+                    type="file"
+                    name="profilePicture"
+                    accept="image/*"
+                    style={{ display: 'none', width: '100%' }}
+                  />
                 </div>
                 <div>
                   <div
@@ -642,7 +652,8 @@ const Create = () => {
                       style={{
                         background: 'transparent',
                         fontWeight: 'bold',
-                        border: 'none',
+                        border: errors.tapeArtistName ? '1px solid red' : 'none',
+
                         fontSize: '36px',
                         width: '250px',
                       }}
@@ -669,9 +680,9 @@ const Create = () => {
                       type="text"
                       placeholder="Type (Musician / Podcaster / etc..)"
                       style={{
+                        border: errors.tapeArtistName ? '1px solid red' : 'none',
                         fontSize: '28px',
                         background: 'transparent',
-                        border: 'none',
                       }}
                     />
                   </p>
@@ -691,7 +702,7 @@ const Create = () => {
                         fontSize: '20px',
 
                         background: 'transparent',
-                        border: 'none',
+                        border: errors.tapeArtistName ? '1px solid red' : 'none',
                       }}
                     />
                   </p>
