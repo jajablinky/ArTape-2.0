@@ -134,9 +134,7 @@
   background-color: var(--artape-primary-color);
   bottom: 0px; /* Adjust this value to change the distance from the bottom of the screen */
   left: 50%; /* Set the left position to the middle */
-  transform: translateX(
-    -50%
-  ); /* Shift the button half of its width to the left */
+  transform: translateX(-50%); /* Shift the button half of its width to the left */
   width: 100%;
   z-index: 150; /* Ensures the button stays above other elements */
   border-radius: 0;
@@ -154,4 +152,9 @@
   cursor: pointer;
   width: 50px;
   margin: 0;
+}
+
+.error {
+  color: red;
+  font-size: 16px;
 }
