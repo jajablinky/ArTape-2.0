@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@akord/akord-js": "^3.11.0",
+    "@akord/akord-js": "4.12.0",
     "@next/font": "13.1.6",
     "@shopify/draggable": "^1.0.0-beta.8",
     "@types/node": "^18.15.8",
