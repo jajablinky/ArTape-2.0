@@ -27,39 +27,6 @@ import EditableAudioPlayer from '@/components/EditableAudioPlayer';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import AkordSignIn from '@/components/Helper Functions/AkordSignIn';
 
-const createMetadataJSON = (
-  data: VaultValues,
-  audioStateFiles: { moduleId: number; audio: AudioFileState[] },
-  imageModules: ImageFileState[] | null,
-  color: string
-) => {
-  const metadata = {
-    profilePicture: data.profilePicture[0].name,
-    tapeArtistName: data.tapeArtistName,
-    tapeDescription: data.tapeDescription,
-    type: data.type,
-    color: color,
-    memento: data.memento,
-    audioFiles: audioStateFiles
-      ? audioStateFiles.audio.map((file) => ({
-          trackNumber: file.trackNumber,
-          name: file.name,
-          artistName: file.artistName,
-          duration: file.duration,
-          albumPicture: file.albumPicture.name,
-        }))
-      : [],
-    imageFiles: imageModules
-      ? imageModules.map((file) => ({
-          name: file.name,
-          alt: file.alt,
-          moduleId: file.moduleId,
-        }))
-      : [],
-  };
-  return metadata;
-};
-
 /* Types */
 
 type ImageData = {
@@ -114,6 +81,39 @@ const loader = (
   />
 );
 
+const createMetadataJSON = (
+  data: VaultValues,
+  audioStateFiles: { moduleId: number; audio: AudioFileState[] },
+  imageModules: ImageFileState[] | null,
+  color: string
+) => {
+  const metadata = {
+    profilePicture: data.profilePicture[0].name,
+    tapeArtistName: data.tapeArtistName,
+    tapeDescription: data.tapeDescription,
+    type: data.type,
+    color: color,
+    memento: data.memento,
+    audioFiles: audioStateFiles
+      ? audioStateFiles.audio.map((file) => ({
+          trackNumber: file.trackNumber,
+          name: file.name,
+          artistName: file.artistName,
+          duration: file.duration,
+          albumPicture: file.albumPicture.name,
+        }))
+      : [],
+    imageFiles: imageModules
+      ? imageModules.map((file) => ({
+          name: file.name,
+          alt: file.alt,
+          moduleId: file.moduleId,
+        }))
+      : [],
+  };
+  return metadata;
+};
+
 const getMementoSvgContent = (memento: string, color: string): Blob | null => {
   let svgContent: string | null = null;
   switch (memento) {
@@ -141,6 +141,7 @@ const getMementoSvgContent = (memento: string, color: string): Blob | null => {
 };
 
 const Create = () => {
+  const [vaultId, setVaultId] = useState('');
   const [progress, setProgress] = useState({
     percentage: 0,
     state: 'Generating',
@@ -156,7 +157,7 @@ const Create = () => {
   const [audioStateFiles, setAudioStateFiles] = useState<{
     moduleId: number;
     audio: AudioFileState[];
-  } | null>({
+  }>({
     moduleId: 2,
     audio: [],
   });
@@ -372,6 +373,7 @@ const Create = () => {
           percentage: Math.round((completedUploads / totalFilesToUpload) * 100),
           state: `Successful Sign-in to Akord! and created vault ${vaultId}`,
         });
+        setVaultId(vaultId);
 
         // Upload Profile Pic
         if (data.profilePicture[0]) {
@@ -477,14 +479,13 @@ const Create = () => {
         }
 
         // reformatting imageFiles and audioFiles to fit context when mapped per vault id at different page
-        const imageFiles = imageUploadModules.map((imageModule) => {
+        const imageFiles = imageUploadModules.map((imageModule: any) => {
           return {
             name: imageModule.name,
             url: URL.createObjectURL(imageModule.url),
           };
         });
-
-        const audioFiles = audioStateFiles.audio.map((audioFile) => {
+        const audioFiles = audioStateFiles.audio.map((audioFile: any) => {
           return {
             name: audioFile.name,
             url: URL.createObjectURL(audioFile.audioFile),
@@ -500,7 +501,7 @@ const Create = () => {
           name: audioStateFiles.audio[0].albumPicture.name,
           url: URL.createObjectURL(audioStateFiles.audio[0].albumPicture),
         };
-        console.log('UPLOAD COMPLETE');
+
         setTape({
           audioFiles,
           imageFiles,
@@ -508,7 +509,9 @@ const Create = () => {
           albumPicture,
           profilePicture,
         });
-        return vaultId;
+        console.log('UPLOAD COMPLETE');
+        // return;
+        // // vaultId;
       } catch (error) {
         setLoading(false);
         console.error(error);
@@ -518,12 +521,15 @@ const Create = () => {
     processFiles().then((vaultId) => {
       setProgress({ percentage: 100, state: 'Success!' });
       setLoading(false);
+    });
+  };
+  useEffect(() => {
+    if (tape && tape.albumPicture && tape.audioFiles) {
       router.push({
         pathname: `/tape/${[vaultId]}`,
       });
-    });
-  };
-
+    }
+  }, [tape, router]);
   return (
     <>
       <main
