@@ -183,6 +183,7 @@ export default function Home() {
   const onSubmit: SubmitHandler<VaultValues> = async (data) => {
     setLoading(true);
     const akord = await AkordSignIn(data.email, data.password);
+    setAkord(akord);
     setProgress({
       percentage: 20,
       state: `Successful Sign-in, welcome ${data.email}`,
@@ -192,24 +193,21 @@ export default function Home() {
     ////// add code
 
     // select a vault and console log the vault id
-    const vaults = await akord.vault.list();
+    const vaults = await akord.vault.listAll({
+      tags: {
+        values: ['ArTape'],
+        searchCriteria: 'CONTAINS_SOME',
+      },
+    });
     const tapeInfos = [];
 
     for (let i = 0; i < vaults.length; i++) {
       const vaultId = vaults[i].id;
-      const { items } = await akord.stack.list(vaultId);
-      for (let j = 0; j < items.length; j++) {
-        if (items[j].name === 'tapeInfo.json') {
-          setProgress({
-            percentage: j + 2 * j + 20,
-            state: `Loaded ${j} vaults`,
-          });
-          tapeInfos.push({
-            tapeName: vaults[i].name,
-            vaultId,
-          });
-        }
-      }
+
+      tapeInfos.push({
+        tapeName: vaults[i].name,
+        vaultId,
+      });
     }
 
     // display for user selection which vault to display
@@ -226,6 +224,7 @@ export default function Home() {
     setLoading(true);
     const { vaultId } = selectedTapeInfo;
     if (akord) {
+      console.log('akord');
       const { items } = await akord.stack.list(vaultId);
       let tapeInfoJSON: any;
       const imageFileNameToModuleId = new Map<string, string>();
