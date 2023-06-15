@@ -40,23 +40,41 @@ const Tape = () => {
       return null;
     }
   };
-  const { audioFiles, tapeInfoJSON, imageFiles, albumPicture, profilePicture } = tape;
+  const { audioFiles, tapeInfoJSON, imageFiles, albumPicture, profilePicture } =
+    tape;
 
   useEffect(() => {
     if (imageFiles && imageFiles.length > 0) {
       const filteredImageFiles = imageFiles.filter((image) => {
-        return image.moduleId !== 1 && image.moduleId !== null && typeof image.moduleId !== 'string';
+        return (
+          image.moduleId !== 1 &&
+          image.moduleId !== null &&
+          typeof image.moduleId !== 'string'
+        );
       });
-      const sortedImages = [...filteredImageFiles].sort((a, b) => a.moduleId - b.moduleId);
+      const sortedImages = [...filteredImageFiles].sort(
+        (a, b) => a.moduleId - b.moduleId
+      );
       setSortedImagesFiles(sortedImages);
     }
   }, [imageFiles]);
 
-  const renderFirstImage = (targetModuleId: string) => {
-    const targetImage = imageFiles.find((image) => image.moduleId === targetModuleId);
+  const renderFirstImage = (targetModuleId: number) => {
+    const targetImage = imageFiles.find(
+      (image) => image.moduleId === targetModuleId
+    );
 
     if (targetImage) {
-      return <Image className={targetImage.name} src={targetImage.url} alt={targetImage.name} height={350} width={350} style={{ objectFit: 'cover' }} />;
+      return (
+        <Image
+          className={targetImage.name}
+          src={targetImage.url}
+          alt={targetImage.name}
+          height={350}
+          width={350}
+          style={{ objectFit: 'cover' }}
+        />
+      );
     } else {
       // Handle the case when the image with the target moduleId is not found
       return <div>No image found for the moduleId: {targetModuleId}</div>;
@@ -121,7 +139,9 @@ const Tape = () => {
                 <div className={styles.memento}>{mementoGenerator()}</div>
               </div>
 
-              <p style={{ fontSize: '28px', fontWeight: 'lighter' }}>{tapeInfoJSON.type}</p>
+              <p style={{ fontSize: '28px', fontWeight: 'lighter' }}>
+                {tapeInfoJSON.type}
+              </p>
               <p
                 style={{
                   fontSize: '20px',
@@ -139,7 +159,7 @@ const Tape = () => {
         </div>
 
         <div className={styles.gridProfile}>
-          <div className={styles.profileModule}>{renderFirstImage('1')}</div>
+          <div className={styles.profileModule}>{renderFirstImage(1)}</div>
           <div
             className={styles.profileModuleRectangle}
             style={{
@@ -147,18 +167,43 @@ const Tape = () => {
               overflow: 'auto',
             }}
           >
-            <AudioPlayer audioFiles={audioFiles.filter((audioFile) => audioFile.url !== null) as AudioFile[]} tapeInfoJSON={tapeInfoJSON} albumPicture={albumPicture} />
+            <AudioPlayer
+              audioFiles={
+                audioFiles.filter(
+                  (audioFile) => audioFile.url !== null
+                ) as AudioFile[]
+              }
+              tapeInfoJSON={tapeInfoJSON}
+              albumPicture={albumPicture}
+            />
           </div>
           {sortedImageFiles &&
             sortedImageFiles.map((image) => {
               if (image.url) {
                 return parseInt(image.moduleId) === 6 ? (
-                  <div className={styles.profileModuleRectangle} key={image.name}>
-                    <Image className={image.name} src={image.url} alt={image.name} height={350} width={350} style={{ objectFit: 'cover' }} />
+                  <div
+                    className={styles.profileModuleRectangle}
+                    key={image.name}
+                  >
+                    <Image
+                      className={image.name}
+                      src={image.url}
+                      alt={image.name}
+                      height={350}
+                      width={350}
+                      style={{ objectFit: 'cover' }}
+                    />
                   </div>
                 ) : (
                   <div className={styles.profileModule} key={image.name}>
-                    <Image className={image.name} src={image.url} alt={image.name} height={350} width={350} style={{ objectFit: 'cover' }} />
+                    <Image
+                      className={image.name}
+                      src={image.url}
+                      alt={image.name}
+                      height={350}
+                      width={350}
+                      style={{ objectFit: 'cover' }}
+                    />
                   </div>
                 );
               }

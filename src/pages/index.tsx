@@ -297,7 +297,7 @@ export default function Home() {
                 url: blobUrl,
                 moduleId,
               });
-              if (item.name === tapeInfoJSON.profilePic) {
+              if (item.name === tapeInfoJSON.profilePicture) {
                 profilePicture.name = item.name;
                 profilePicture.url = blobUrl;
               }
