@@ -79,7 +79,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     duration: totalTapeLength(tapeInfoJSON),
     tracks: audioFiles.map((audioFile) => {
       const audioInfo = tapeInfoJSON.audioFiles.find(
-        (item) => item.name === audioFile.name
+        (item) => item.name + '.mp3' === audioFile.name
       ) || { trackNumber: 0, name: '', duration: 0, artistName: '' };
       return {
         track_number: audioInfo.trackNumber,
@@ -99,6 +99,11 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   const [currentSong, setCurrentSong] = useState<Track | null>(null);
 
   const audioPlayer = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    console.log('Tape Use Effect: ', tape);
+    console.log('AlbumPicture: ', albumPicture);
+  }, [tape, albumPicture]);
 
   useEffect(() => {
     if (!audioPlayer.current) {
