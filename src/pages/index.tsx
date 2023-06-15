@@ -248,7 +248,8 @@ export default function Home() {
       };
 
       profilePicture.name = (tapeInfoJSON && tapeInfoJSON.profilePicture) || '';
-      albumPicture.name = (tapeInfoJSON && tapeInfoJSON.albumPicture) || '';
+      albumPicture.name =
+        (tapeInfoJSON && tapeInfoJSON.audioFiles[0].albumPicture) || '';
 
       let tapeInfoPromise: Promise<void | null> = Promise.resolve();
 
@@ -301,7 +302,11 @@ export default function Home() {
                 profilePicture.name = item.name;
                 profilePicture.url = blobUrl;
               }
-              if (item.name === tapeInfoJSON.audioFiles[0].albumPicture) {
+              if (
+                item.name === tapeInfoJSON.audioFiles[0].albumPicture ||
+                item.name === tapeInfoJSON.audioFiles[1].albumPicture ||
+                item.name === tapeInfoJSON.audioFiles[2].albumPicture
+              ) {
                 albumPicture.name = item.name;
                 albumPicture.url = blobUrl;
               }

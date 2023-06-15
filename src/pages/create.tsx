@@ -413,6 +413,7 @@ const Create = () => {
           }
         }
 
+        // Create operation to upload album picture for each audio file making sure there is no duplicates
         // Upload audio files
         console.log(audioStateFiles);
         for (const { audioFile } of audioStateFiles.audio) {
