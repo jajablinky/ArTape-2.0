@@ -3,6 +3,10 @@ import { motion } from 'framer-motion';
 import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
 import Loader from './Loader';
+import StopIcon from './Images/UI/StopIcon.tsx';
+import PrevIcon from './Images/UI/PrevIcon';
+import NextIcon from './Images/UI/NextIcon';
+import PlayIcon from './Images/UI/PlayIcon';
 
 interface Track {
   track_number: number;
@@ -209,25 +213,42 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
           }}
         >
           <audio onEnded={handleEnded} ref={audioPlayer} />
-          <p className={styles.amounttotalDuration}>
+          <p className={styles.amountTotalDuration}>
             `{tape.length} tracks, {tape.duration} tape length`
           </p>
-          <p className={styles.artapeLink}>{}</p>
-          <p className={styles.currentSongTitle}>{currentSong?.title}</p>
-          {currentSongIndex !== -1 ? (
-            <button onClick={() => handlePrevSong()}>Prev Song</button>
-          ) : (
-            ''
-          )}
-          <button
-            onClick={() => handleNextSong()}
-            style={{ color: 'var(--artape-primary-color)' }}
-          >
-            Next Song
-          </button>
-          {isPlaying ? (
-            <button onClick={() => handleStop()}>Stop</button>
-          ) : null}
+          <div className={styles.musicControls}>
+            {currentSongIndex !== -1 ? (
+              <button onClick={() => handlePrevSong()}>
+                <PrevIcon
+                  height={30}
+                  width={30}
+                  color={'var(--artape-primary-color)'}
+                />
+              </button>
+            ) : (
+              ''
+            )}
+
+            {isPlaying ? (
+              <button onClick={() => handleStop()}>
+                <StopIcon
+                  height={30}
+                  width={30}
+                  color={'var(--artape-primary-color)'}
+                />
+              </button>
+            ) : null}
+            <button
+              onClick={() => handleNextSong()}
+              style={{ color: 'var(--artape-primary-color)' }}
+            >
+              <NextIcon
+                height={30}
+                width={30}
+                color={'var(--artape-primary-color)'}
+              />
+            </button>
+          </div>
           <input
             type="range"
             min="0"
@@ -271,18 +292,16 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 </div>
                 <div className={styles.musicPlayerRightSide}>
                   {isPlaying && currentSongIndex === index ? (
-                    <Image
-                      src={'/stopButton.svg'}
-                      alt={'Stop Button'}
-                      width={20}
-                      height={20}
+                    <StopIcon
+                      height={15}
+                      width={15}
+                      color={'var(--artape-primary-color)'}
                     />
                   ) : (
-                    <Image
-                      src={'/startButton.svg'}
-                      alt={'Play Button'}
-                      width={20}
-                      height={20}
+                    <PlayIcon
+                      height={15}
+                      width={15}
+                      color={'var(--artape-primary-color)'}
                     />
                   )}
                 </div>

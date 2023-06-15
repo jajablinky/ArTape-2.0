@@ -13,16 +13,27 @@
 .artapeLink {
   margin-bottom: 0px;
 }
+.amountTotalDuration {
+  font-size: large;
+  color: white;
+}
 
 .musicPlayerHeader {
+  display: flex;
+  flex-direction: column;
   color: var(--artape-black);
   background-color: var(--artape-primary-color);
   border-bottom: 1px solid var(--artape-white);
   padding: 0.6em 1.2em;
   object-fit: contain;
   z-index: 150;
+  gap: 8px;
 }
 
+.musicControls {
+  display: flex;
+  justify-content: center;
+}
 .musicPlayerTrack {
   display: flex;
   flex-direction: row;
@@ -134,7 +145,9 @@
   background-color: var(--artape-primary-color);
   bottom: 0px; /* Adjust this value to change the distance from the bottom of the screen */
   left: 50%; /* Set the left position to the middle */
-  transform: translateX(-50%); /* Shift the button half of its width to the left */
+  transform: translateX(
+    -50%
+  ); /* Shift the button half of its width to the left */
   width: 100%;
   z-index: 150; /* Ensures the button stays above other elements */
   border-radius: 0;
