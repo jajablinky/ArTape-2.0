@@ -48,16 +48,29 @@ interface AudioPlayerProps {
     moduleId: number;
     audio: AudioFileState[];
   };
-  setAudioFiles: (audioFiles: { moduleId: number; audio: AudioFileState[] }) => void;
+  setAudioFiles: (audioFiles: {
+    moduleId: number;
+    audio: AudioFileState[];
+  }) => void;
   albumPictures: AlbumPictureFile;
   profilePicUrl: string;
   register: any;
 }
 
-const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({ audioFiles, setAudioFiles, profilePicUrl, watch, register }) => {
+const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
+  audioFiles,
+  setAudioFiles,
+  profilePicUrl,
+  watch,
+  register,
+}) => {
   const NUM_TRACKS = 3;
-  const [albumPictureFiles, setAlbumPictureFiles] = useState<(File | null)[]>(Array(NUM_TRACKS).fill(null));
-  const [albumPictureUrls, setAlbumPictureUrls] = useState<(string | null)[]>(Array(NUM_TRACKS).fill(null));
+  const [albumPictureFiles, setAlbumPictureFiles] = useState<(File | null)[]>(
+    Array(NUM_TRACKS).fill(null)
+  );
+  const [albumPictureUrls, setAlbumPictureUrls] = useState<(string | null)[]>(
+    Array(NUM_TRACKS).fill(null)
+  );
 
   const handleUploadButtonClick = (index: number) => {
     document.getElementById(`audioFile${index}`).click();
@@ -95,7 +108,9 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({ audioFiles, setAudioF
         setAudioFiles({ moduleId: 2, audio: updatedAudioFiles });
       }
     } else {
-      console.error('Please upload and fill in all details before uploading, (artist name, song name, album picture, and audio track)');
+      console.error(
+        'Please upload and fill in all details before uploading, (artist name, song name, album picture, and audio track)'
+      );
     }
   };
 
@@ -116,7 +131,10 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({ audioFiles, setAudioF
 
   return (
     <>
-      <motion.div className={styles.musicPlayerContainer} onClick={(e) => e.stopPropagation()}>
+      <motion.div
+        className={styles.musicPlayerContainer}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div
           className={styles.musicPlayerHeader}
           style={{
@@ -190,7 +208,17 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({ audioFiles, setAudioF
                     </label>
                   )}
                   :
-                  <input {...register(`albumPicture${i}`)} onChange={(e) => handleAlbumPictureUpload(i, e.target.files[0])} id={`albumPicture${i}`} type="file" name="profilePic" accept="image/*" style={{ display: 'none', width: '100%' }} />
+                  <input
+                    {...register(`albumPicture${i}`)}
+                    onChange={(e) =>
+                      handleAlbumPictureUpload(i, e.target.files[0])
+                    }
+                    id={`albumPicture${i}`}
+                    type="file"
+                    name="profilePic"
+                    accept="image/*"
+                    style={{ display: 'none', width: '100%' }}
+                  />
                 </div>
                 <div className={styles.musicInfo}>
                   <div className={styles.artistTitleTrack}>
@@ -260,3 +288,6 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({ audioFiles, setAudioF
 };
 
 export default EditableAudioPlayer;
+
+// Pass down Error
+// Make Required

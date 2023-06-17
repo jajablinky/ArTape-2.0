@@ -40,13 +40,8 @@ const Tape = () => {
       return null;
     }
   };
-  const {
-    audioFiles,
-    tapeInfoJSON,
-    imageFiles,
-    albumPicture,
-    profilePicture,
-  } = tape;
+  const { audioFiles, tapeInfoJSON, imageFiles, albumPicture, profilePicture } =
+    tape;
 
   useEffect(() => {
     if (imageFiles && imageFiles.length > 0) {
@@ -82,9 +77,7 @@ const Tape = () => {
       );
     } else {
       // Handle the case when the image with the target moduleId is not found
-      return (
-        <div>No image found for the moduleId: {targetModuleId}</div>
-      );
+      return <div>No image found for the moduleId: {targetModuleId}</div>;
     }
   };
 
@@ -141,13 +134,9 @@ const Tape = () => {
               >
                 <h1>
                   <b>{tapeInfoJSON.tapeArtistName}</b>
-                  <span style={{ fontWeight: 'normal' }}>
-                    's Tape
-                  </span>
+                  <span style={{ fontWeight: 'normal' }}>'s Tape</span>
                 </h1>
-                <div className={styles.memento}>
-                  {mementoGenerator()}
-                </div>
+                <div className={styles.memento}>{mementoGenerator()}</div>
               </div>
 
               <p style={{ fontSize: '28px', fontWeight: 'lighter' }}>
@@ -170,9 +159,7 @@ const Tape = () => {
         </div>
 
         <div className={styles.gridProfile}>
-          <div className={styles.profileModule}>
-            {renderFirstImage(1)}
-          </div>
+          <div className={styles.profileModule}>{renderFirstImage(1)}</div>
           <div
             className={styles.profileModuleRectangle}
             style={{
@@ -208,10 +195,7 @@ const Tape = () => {
                     />
                   </div>
                 ) : (
-                  <div
-                    className={styles.profileModule}
-                    key={image.name}
-                  >
+                  <div className={styles.profileModule} key={image.name}>
                     <Image
                       className={image.name}
                       src={image.url}
