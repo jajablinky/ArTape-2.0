@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import styles from '@/styles/Home.module.css';
-import Image from 'next/image';
+
 import Loader from './Loader';
 import StopIcon from './Images/UI/StopIcon.tsx';
 import PrevIcon from './Images/UI/PrevIcon';
@@ -82,8 +82,10 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     type: tapeInfoJSON.type,
     duration: totalTapeLength(tapeInfoJSON),
     tracks: audioFiles.map((audioFile) => {
+      // Split the name and get the base (ignore the extension)
+      const baseName = audioFile.name.split('.')[0];
       const audioInfo = tapeInfoJSON.audioFiles.find(
-        (item) => item.name + '.mp3' === audioFile.name
+        (item) => item.name === baseName
       ) || { trackNumber: 0, name: '', duration: 0, artistName: '' };
       return {
         track_number: audioInfo.trackNumber,

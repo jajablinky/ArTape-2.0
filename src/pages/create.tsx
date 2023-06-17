@@ -368,7 +368,7 @@ const Create = () => {
         const { vaultId } = await akord.vault.create(data.tapeArtistName, {
           tags: ['ArTape', 'Music'],
         });
-        console.log(`successfully created vault: ${vaultId}`);
+        // console.log(`successfully created vault: ${vaultId}`);
         setProgress({
           percentage: Math.round((completedUploads / totalFilesToUpload) * 100),
           state: `Successful Sign-in to Akord! and created vault ${vaultId}`,
@@ -484,6 +484,7 @@ const Create = () => {
           return {
             name: imageModule.name,
             url: URL.createObjectURL(imageModule.url),
+            moduleId: imageModule.moduleId,
           };
         });
         const audioFiles = audioStateFiles.audio.map((audioFile: any) => {
@@ -506,31 +507,31 @@ const Create = () => {
         setTape({
           audioFiles,
           imageFiles,
-          tapeInfoJSON: tapeInfoJSONUpload,
+          tapeInfoJSON: JSON.parse(metadataJSON),
           albumPicture,
           profilePicture,
         });
         console.log('UPLOAD COMPLETE');
-        // return;
-        // // vaultId;
       } catch (error) {
         setLoading(false);
         console.error(error);
       }
     };
 
-    processFiles().then((vaultId) => {
+    processFiles().then(() => {
       setProgress({ percentage: 100, state: 'Success!' });
       setLoading(false);
     });
   };
   useEffect(() => {
     if (tape && tape.albumPicture && tape.audioFiles) {
+      console.log(tape);
       router.push({
         pathname: `/tape/${[vaultId]}`,
       });
     }
   }, [tape, router]);
+
   return (
     <>
       <main
