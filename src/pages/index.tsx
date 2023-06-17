@@ -225,7 +225,37 @@ export default function Home() {
     const { vaultId } = selectedTapeInfo;
     if (akord) {
       console.log('akord');
-      const { items } = await akord.stack.list(vaultId);
+
+      //Find the most recent folder's id
+      const folders = await akord.folder.listAll(vaultId);
+      const { id } = folders.reduce(
+        (highest, currentFolder) => {
+          const [highestMajor, highestMinor, highestPatch] = highest.name
+            .split('.')
+            .map(Number);
+          const [currentMajor, currentMinor, currentPatch] = currentFolder.name
+            .split('.')
+            .map(Number);
+
+          if (currentMajor > highestMajor) return currentFolder;
+          if (currentMajor === highestMajor && currentMinor > highestMinor)
+            return currentFolder;
+          if (
+            currentMajor === highestMajor &&
+            currentMinor === highestMinor &&
+            currentPatch > highestPatch
+          )
+            return currentFolder;
+
+          return highest;
+        },
+        { name: '0.0.0', id: '' }
+      );
+
+      const items = await akord.stack.listAll(vaultId, { parentId: id });
+
+      console.log(items);
+
       let tapeInfoJSON: any;
       const imageFileNameToModuleId = new Map<string, string>();
       const audioPromises: Promise<string | null | void>[] = [];

@@ -368,6 +368,7 @@ const Create = () => {
         const { vaultId } = await akord.vault.create(data.tapeArtistName, {
           tags: ['ArTape', 'Music'],
         });
+        const { folderId } = await akord.folder.create(vaultId, '1.0.0');
         // console.log(`successfully created vault: ${vaultId}`);
         setProgress({
           percentage: Math.round((completedUploads / totalFilesToUpload) * 100),
@@ -382,6 +383,7 @@ const Create = () => {
             data.profilePicture[0],
             data.profilePicture[0].name
           );
+          const { transactionId } = await akord.stack.move(stackId, folderId);
           completedUploads += 1;
           setProgress({
             percentage: Math.round(
@@ -407,6 +409,10 @@ const Create = () => {
               mementoSvgFile,
               mementoSvgFile.name
             );
+            const { transactionId } = await akord.stack.move(
+              mementoStackId,
+              folderId
+            );
             console.log(
               `Uploaded memento: ${mementoSvgFile.name}, Stack ID: ${mementoStackId}`
             );
@@ -424,6 +430,7 @@ const Create = () => {
               audioFile,
               audioFile.name
             );
+            const { transactionId } = await akord.stack.move(stackId, folderId);
             completedUploads += 1;
             setProgress({
               percentage: Math.round(
@@ -449,6 +456,8 @@ const Create = () => {
               image.url,
               image.name
             );
+            const { transactionId } = await akord.stack.move(stackId, folderId);
+
             completedUploads += 1;
             setProgress({
               percentage: Math.round(
@@ -467,6 +476,7 @@ const Create = () => {
             tapeInfoJSONUpload,
             tapeInfoJSONUpload.name
           );
+          const { transactionId } = await akord.stack.move(stackId, folderId);
           completedUploads += 1;
           setProgress({
             percentage: Math.round(
