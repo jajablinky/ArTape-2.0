@@ -82,7 +82,7 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
     if (audioFile) {
       audioFile.click();
       setClickedAudioTrack((prevState) =>
-        prevState.map((item, i) => (i === index ? true : item))
+        prevState.map((item, i) => (i === index - 1 ? true : item))
       );
     }
   };
@@ -282,12 +282,18 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
                   type="button"
                   onClick={() => handleUploadButtonClick(i)}
                   style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
                     background: 'var(--artape-primary-color)',
                     color: 'var(--artape-white)',
                     border: '1px solid var(--artape-white)',
+                    width: '200px',
+                    height: '60px',
+                    padding: '0px',
                   }}
                 >
-                  {clickedAudioTracks[i] ? (
+                  {clickedAudioTracks[i - 1] ? (
                     <CheckIcon color="#05D00D" />
                   ) : (
                     'Upload'
