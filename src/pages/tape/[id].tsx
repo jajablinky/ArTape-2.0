@@ -81,6 +81,12 @@ const Tape = () => {
     }
   };
 
+  const handleEditClick = () => {
+    router.push({
+      pathname: `/tape/${[id]}/edit`,
+    });
+  };
+
   return (
     <>
       <main
@@ -153,7 +159,7 @@ const Tape = () => {
               </p>
             </div>
           </div>
-          <div className={styles.artistHeaderRight}>
+          <div className={styles.artistHeaderRight} onClick={handleEditClick}>
             <EditButton color={tapeInfoJSON.color} />
           </div>
         </div>

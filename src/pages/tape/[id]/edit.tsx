@@ -9,7 +9,7 @@ import styles from '@/styles/Home.module.css';
 
 import Image from 'next/image';
 
-import CassetteLogo from '../../public/Artape-Cassete-Logo.gif';
+import CassetteLogo from '../../../../public/Artape-Cassete-Logo.gif';
 
 import { SubmitHandler, useForm } from 'react-hook-form';
 
@@ -142,7 +142,14 @@ const getMementoSvgContent = (memento: string, color: string): Blob | null => {
   }
 };
 
-const Create = () => {
+const Edit = () => {
+  const { tape, setTape } = useTape();
+  if (!tape) {
+    return <div>No tape data available</div>;
+  }
+  const { audioFiles, tapeInfoJSON, imageFiles, albumPicture, profilePicture } =
+    tape;
+
   const [progress, setProgress] = useState({
     percentage: 0,
     state: 'Generating',
@@ -152,8 +159,8 @@ const Create = () => {
   const [moduleUrls, setModuleUrls] = useState<{
     [index: number]: string;
   }>({});
-  const [selectedMemento, setSelectedMemento] = useState('Pineapple');
-  const [profilePicUrl, setProfilePicUrl] = useState('');
+  const [selectedMemento, setSelectedMemento] = useState('');
+  const [profilePicUrl, setProfilePicUrl] = useState(profilePicture.url);
   const [loading, setLoading] = useState(false);
   const [audioStateFiles, setAudioStateFiles] = useState<{
     moduleId: number;
@@ -162,12 +169,24 @@ const Create = () => {
     moduleId: 2,
     audio: [],
   });
-  const [color, setColor] = useState('#0022ff');
-
-  const { tape, setTape } = useTape();
+  const [color, setColor] = useState(tapeInfoJSON.color);
 
   const handleMementoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedMemento(event.target.value);
+  };
+
+  const mementoGenerator = () => {
+    if (tapeInfoJSON.memento === 'Pineapple') {
+      return <PineappleMemento color={color} />;
+    } else if (tapeInfoJSON.memento === 'Loud') {
+      return <LoudMemento color={color} />;
+    } else if (tapeInfoJSON.memento === 'Minimal') {
+      return <MinimalMemento color={color} />;
+    } else if (tapeInfoJSON.memento === 'Minimal') {
+      return <CassetteMemento color={color} />;
+    } else {
+      return null;
+    }
   };
 
   /* - Form Submit: Uploading when User Is Ready With All Files - */
@@ -201,9 +220,22 @@ const Create = () => {
     }
   };
 
+  useEffect(() => {
+    let initialModuleUrls = {};
+    const sortedImageFiles = [...imageFiles].sort(
+      (a, b) => a.moduleId - b.moduleId
+    );
+
+    sortedImageFiles.forEach((imageFile, index) => {
+      initialModuleUrls[imageFile.moduleId] = imageFile.url;
+    });
+
+    setModuleUrls(initialModuleUrls);
+  }, []);
+
   const numberOfModules = 7;
   const modules = [];
-
+  // to preview file
   useEffect(() => {
     const keys = Object.keys(moduleFiles);
     keys.forEach((key) => {
@@ -215,8 +247,10 @@ const Create = () => {
         }));
       }
     });
+    console.log(moduleFiles);
   }, [moduleFiles]);
 
+  //to push the audio module
   for (let i = 1; i <= numberOfModules; i++) {
     if (i === 2) {
       modules.push(
@@ -239,6 +273,7 @@ const Create = () => {
       );
       continue;
     }
+    //push all the image modules
     modules.push(
       <div
         className={
@@ -780,7 +815,8 @@ const Create = () => {
                         required: true,
                       })}
                       type="text"
-                      placeholder="Artist Name"
+                      placeholder={tapeInfoJSON.tapeArtistName}
+                      value={tapeInfoJSON.tapeArtistName}
                       style={{
                         background: 'transparent',
                         fontWeight: 'bold',
@@ -801,6 +837,7 @@ const Create = () => {
                       's Tape
                     </span>
                     <div className={styles.memento}>
+                      {selectedMemento === '' && mementoGenerator()}
                       {selectedMemento === 'Pineapple' && (
                         <PineappleMemento color={color} />
                       )}
@@ -820,7 +857,8 @@ const Create = () => {
                     <input
                       {...register('type', { required: true })}
                       type="text"
-                      placeholder="Type (Musician / Podcaster / etc..)"
+                      placeholder={tapeInfoJSON.type}
+                      value={tapeInfoJSON.type}
                       style={{
                         border: errors.tapeArtistName
                           ? '1px solid red'
@@ -841,7 +879,8 @@ const Create = () => {
                         required: true,
                       })}
                       type="text"
-                      placeholder="Add A Description"
+                      placeholder={tapeInfoJSON.tapeDescription}
+                      value={tapeInfoJSON.tapeDescription}
                       style={{
                         fontSize: '20px',
 
@@ -854,9 +893,7 @@ const Create = () => {
                   </p>
                 </div>
               </div>
-              <div className={styles.artistHeaderRight}>
-                <EditButton color={color} />
-              </div>
+              <div className={styles.artistHeaderRight}></div>
             </div>
           </div>
 
@@ -902,4 +939,4 @@ const Create = () => {
   );
 };
 
-export default Create;
+export default Edit;
