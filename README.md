@@ -2,6 +2,8 @@
 
 Welcome to ArTape, a decentralized music app built on top of the Akord JavaScript SDK and Arweave. This project aims to revolutionize the way we create audio/visual content apps through the creation of digital mixtapes, or "ArTapes". These ArTapes can either be token-gated or made public, catering to a wide range of use cases and user preferences including airdrops etc..
 
+## Akord
+
 Akord is a platform for managing your digital assets securely. It leverages blockchain technology for identity verification. It is a new kind of digital vault where your data is safe, private, and protected. This platform aims to combat the data breach epidemic by ensuring users maintain full control of their data​1​.
 
 The Akord contract is a secure and auditable contract that allows you to manage access and editing rights. It's important to note that applications must be reviewed before the contract becomes active​5​.
