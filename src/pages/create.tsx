@@ -337,7 +337,7 @@ const Create = () => {
       }
     }
 
-    const processFiles = async () => {
+    const processAndUploadFiles = async () => {
       try {
         // Calculate total number of files to upload
         const totalFilesToUpload =
@@ -528,7 +528,7 @@ const Create = () => {
       }
     };
 
-    processFiles().then(() => {
+    processAndUploadFiles().then(() => {
       setProgress({ percentage: 100, state: 'Success!' });
       setLoading(false);
     });

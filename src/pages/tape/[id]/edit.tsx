@@ -29,6 +29,25 @@ import Loader from '@/components/Loader';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import AkordSignIn from '@/components/Helper Functions/AkordSignIn';
 
+function getNextVersion(highest: string) {
+  const [major, minor, lowest] = highest.split('.').map(Number);
+
+  let nextMajor = major;
+  let nextMinor = minor;
+  let nextLowest = lowest + 1;
+
+  if (nextLowest === 10) {
+    nextLowest = 0;
+    nextMinor += 1;
+    if (nextMinor === 10) {
+      nextMinor = 0;
+      nextMajor += 1;
+    }
+  }
+
+  return `${nextMajor}.${nextMinor}.${nextLowest}`;
+}
+
 const createMetadataJSON = (
   data: VaultValues,
   audioStateFiles: { moduleId: number; audio: AudioFileState[] },
@@ -154,6 +173,8 @@ const Edit = () => {
     percentage: 0,
     state: 'Generating',
   });
+  const [vaultId, setVaultId] = useState('');
+
   const router = useRouter();
   const [moduleFiles, setModuleFiles] = useState<Record<number, File>>({});
   const [moduleUrls, setModuleUrls] = useState<{
@@ -377,175 +398,241 @@ const Edit = () => {
       }
     }
 
-    const processFiles = async () => {
-      // Calculate total number of files to upload
-      const totalFilesToUpload =
-        1 + // for tapeInfo.json
-        (data.profilePicture[0] ? 1 : 0) + // for profile picture
-        (data.memento ? 1 : 0) + // for memento
-        (audioStateFiles ? audioStateFiles.audio.length : 0) + // for audio files
-        imageUploadModules.length; // for image files
+    const processAndUploadFiles = async () => {
+      try {
+        // Calculate total number of files to upload
+        const totalFilesToUpload =
+          1 + // for tapeInfo.json
+          (data.profilePicture[0] ? 1 : 0) + // for profile picture
+          (data.memento ? 1 : 0) + // for memento
+          (audioStateFiles ? audioStateFiles.audio.length : 0) + // for audio files
+          imageUploadModules.length; // for image files
 
-      let completedUploads = 0;
+        let completedUploads = 0;
 
-      let tapeInfoJSONUpload: File | null = null;
-      const metadata = createMetadataJSON(
-        data,
-        audioStateFiles,
-        imageModules,
-        color
-      );
-
-      // Convert metadata object into a JSON string
-      const metadataJSON = JSON.stringify(metadata);
-
-      tapeInfoJSONUpload = new File([metadataJSON], 'tapeInfo.json', {
-        type: 'application/json',
-      });
-
-      const akord = await AkordSignIn(data.email, data.password);
-
-      const { vaultId } = await akord.vault.create(data.tapeArtistName);
-      console.log(`successfully created vault: ${vaultId}`);
-      setProgress({
-        percentage: Math.round((completedUploads / totalFilesToUpload) * 100),
-        state: `Successful Sign-in to Akord! and created vault ${vaultId}`,
-      });
-
-      // Upload Profile Pic
-      if (data.profilePicture[0]) {
-        const { stackId } = await akord.stack.create(
-          vaultId,
-          data.profilePicture[0],
-          data.profilePicture[0].name
+        let tapeInfoJSONUpload: File | null = null;
+        const metadata = createMetadataJSON(
+          data,
+          audioStateFiles,
+          imageModules,
+          color
         );
-        completedUploads += 1;
+
+        // Convert metadata object into a JSON string
+        const metadataJSON = JSON.stringify(metadata);
+
+        tapeInfoJSONUpload = new File([metadataJSON], 'tapeInfo.json', {
+          type: 'application/json',
+        });
+
+        const akord = await AkordSignIn(data.email, data.password);
+        const { vaultId } = await akord.vault.create(data.tapeArtistName, {
+          tags: ['ArTape', 'Music'],
+        });
+        // get all the folders in akord vault and sort them
+        // Find the most recent folder's id
+        const folders = await akord.folder.listAll(vaultId);
+        const { name } = folders.reduce(
+          (highest, currentFolder) => {
+            const [highestMajor, highestMinor, highestlowlowest] = highest.name
+              .split('.')
+              .map(Number);
+            const [currentMajor, currentMinor, currentlowlowest] =
+              currentFolder.name.split('.').map(Number);
+
+            if (currentMajor > highestMajor) return currentFolder;
+            if (currentMajor === highestMajor && currentMinor > highestMinor)
+              return currentFolder;
+            if (
+              currentMajor === highestMajor &&
+              currentMinor === highestMinor &&
+              currentlowlowest > highestlowlowest
+            )
+              return currentFolder;
+
+            return highest;
+          },
+          { name: '0.0.0', id: '' }
+        );
+
+        const versionToCreate = getNextVersion(name);
+
+        const { folderId } = await akord.folder.create(
+          vaultId,
+          versionToCreate
+        );
+        // console.log(`successfully created vault: ${vaultId}`);
         setProgress({
           percentage: Math.round((completedUploads / totalFilesToUpload) * 100),
-          state: `Uploaded Profile Picture!`,
+          state: `Successful Sign-in to Akord! and created vault ${vaultId}`,
         });
-        console.log(
-          `Uploaded file: ${data.profilePicture[0].name}, Stack ID: ${stackId}`
-        );
-      }
+        setVaultId(vaultId);
 
-      if (data.memento) {
-        const mementoSvgContent = getMementoSvgContent(data.memento, color);
-        if (mementoSvgContent) {
-          const mementoSvgFile = new File(
-            [mementoSvgContent],
-            `${data.memento}.svg`,
-            { type: 'text/html' }
-          );
-          const { stackId: mementoStackId } = await akord.stack.create(
+        // Upload Profile Pic
+        if (data.profilePicture[0]) {
+          const { stackId } = await akord.stack.create(
             vaultId,
-            mementoSvgFile,
-            mementoSvgFile.name
+            data.profilePicture[0],
+            data.profilePicture[0].name
           );
+          const { transactionId } = await akord.stack.move(stackId, folderId);
+          completedUploads += 1;
+          setProgress({
+            percentage: Math.round(
+              (completedUploads / totalFilesToUpload) * 100
+            ),
+            state: `Uploaded Profile Picture!`,
+          });
           console.log(
-            `Uploaded memento: ${mementoSvgFile.name}, Stack ID: ${mementoStackId}`
+            `Uploaded file: ${data.profilePicture[0].name}, Stack ID: ${stackId}`
           );
         }
-      }
 
-      // Upload audio files
-      if (audioStateFiles) {
+        if (data.memento) {
+          const mementoSvgContent = getMementoSvgContent(data.memento, color);
+          if (mementoSvgContent) {
+            const mementoSvgFile = new File(
+              [mementoSvgContent],
+              `${data.memento}.svg`,
+              { type: 'text/html' }
+            );
+            const { stackId: mementoStackId } = await akord.stack.create(
+              vaultId,
+              mementoSvgFile,
+              mementoSvgFile.name
+            );
+            const { transactionId } = await akord.stack.move(
+              mementoStackId,
+              folderId
+            );
+            console.log(
+              `Uploaded memento: ${mementoSvgFile.name}, Stack ID: ${mementoStackId}`
+            );
+          }
+        }
+
+        // Create operation to upload album picture for each audio file making sure there is no duplicates
+        // Upload audio files
+        console.log(audioStateFiles);
         for (const { audioFile } of audioStateFiles.audio) {
+          try {
+            console.log(audioFile);
+            const { stackId } = await akord.stack.create(
+              vaultId,
+              audioFile,
+              audioFile.name
+            );
+            const { transactionId } = await akord.stack.move(stackId, folderId);
+            completedUploads += 1;
+            setProgress({
+              percentage: Math.round(
+                (completedUploads / totalFilesToUpload) * 100
+              ),
+              state: `Uploaded audio file: ${audioFile.name}`,
+            });
+            console.log(
+              `Uploaded file: ${audioFile.name}, Stack ID: ${stackId}`
+            );
+          } catch (error) {
+            console.log(error);
+            setLoading(false);
+            setProgress({ percentage: 0, state: 'initial' });
+          }
+        }
+
+        // Upload image files
+        if (imageUploadModules) {
+          for (const image of imageUploadModules) {
+            const { stackId } = await akord.stack.create(
+              vaultId,
+              image.url,
+              image.name
+            );
+            const { transactionId } = await akord.stack.move(stackId, folderId);
+
+            completedUploads += 1;
+            setProgress({
+              percentage: Math.round(
+                (completedUploads / totalFilesToUpload) * 100
+              ),
+              state: `Uploaded image file: ${image.name}`,
+            });
+            console.log(`Uploaded file: ${image.name}, Stack ID: ${stackId}`);
+          }
+        }
+
+        // Upload tapeInfo.json
+        if (tapeInfoJSONUpload) {
           const { stackId } = await akord.stack.create(
             vaultId,
-            audioFile,
-            audioFile.name
+            tapeInfoJSONUpload,
+            tapeInfoJSONUpload.name
           );
+          const { transactionId } = await akord.stack.move(stackId, folderId);
           completedUploads += 1;
           setProgress({
             percentage: Math.round(
               (completedUploads / totalFilesToUpload) * 100
             ),
-            state: `Uploaded audio file: ${audioFile.name}`,
+            state: `Uploaded tapeInfo.json`,
           });
-          console.log(`Uploaded file: ${audioFile.name}, Stack ID: ${stackId}`);
-        }
-      }
-
-      // Upload image files
-      if (imageUploadModules) {
-        for (const image of imageUploadModules) {
-          const { stackId } = await akord.stack.create(
-            vaultId,
-            image.url,
-            image.name
+          console.log(
+            `Uploaded file: ${tapeInfoJSONUpload.name}, Stack ID: ${stackId}`
           );
-          completedUploads += 1;
-          setProgress({
-            percentage: Math.round(
-              (completedUploads / totalFilesToUpload) * 100
-            ),
-            state: `Uploaded image file: ${image.name}`,
-          });
-          console.log(`Uploaded file: ${image.name}, Stack ID: ${stackId}`);
         }
-      }
 
-      // Upload tapeInfo.json
-      if (tapeInfoJSONUpload) {
-        const { stackId } = await akord.stack.create(
-          vaultId,
-          tapeInfoJSONUpload,
-          tapeInfoJSONUpload.name
-        );
-        completedUploads += 1;
-        setProgress({
-          percentage: Math.round((completedUploads / totalFilesToUpload) * 100),
-          state: `Uploaded tapeInfo.json`,
+        // reformatting imageFiles and audioFiles to fit context when mapped per vault id at different page
+        const imageFiles = imageUploadModules.map((imageModule: any) => {
+          return {
+            name: imageModule.name,
+            url: URL.createObjectURL(imageModule.url),
+            moduleId: imageModule.moduleId,
+          };
         });
-        console.log(
-          `Uploaded file: ${tapeInfoJSONUpload.name}, Stack ID: ${stackId}`
-        );
+        const audioFiles = audioStateFiles.audio.map((audioFile: any) => {
+          return {
+            name: audioFile.name,
+            url: URL.createObjectURL(audioFile.audioFile),
+          };
+        });
+
+        const profilePicture = {
+          name: data.profilePicture[0].name,
+          url: URL.createObjectURL(data.profilePicture[0]),
+        };
+
+        const albumPicture = {
+          name: audioStateFiles.audio[0].albumPicture.name,
+          url: URL.createObjectURL(audioStateFiles.audio[0].albumPicture),
+        };
+
+        setTape({
+          audioFiles,
+          imageFiles,
+          tapeInfoJSON: JSON.parse(metadataJSON),
+          albumPicture,
+          profilePicture,
+        });
+        console.log('UPLOAD COMPLETE');
+      } catch (error) {
+        setLoading(false);
+        console.error(error);
       }
-
-      // reformatting imageFiles and audioFiles to fit context when mapped per vault id at different page
-      const imageFiles = imageUploadModules.map((imageModule) => {
-        return {
-          name: imageModule.name,
-          url: URL.createObjectURL(imageModule.url),
-        };
-      });
-
-      const audioFiles = audioStateFiles.audio.map((audioFile) => {
-        return {
-          name: audioFile.name,
-          url: URL.createObjectURL(audioFile.audioFile),
-        };
-      });
-
-      const profilePicture = {
-        name: data.profilePicture[0].name,
-        url: URL.createObjectURL(data.profilePicture[0]),
-      };
-
-      const albumPicture = {
-        name: audioStateFiles.audio[0].albumPicture.name,
-        url: URL.createObjectURL(audioStateFiles.audio[0].albumPicture),
-      };
-      console.log('SUCCESS UPLOADED :)');
-      setTape({
-        audioFiles,
-        imageFiles,
-        tapeInfoJSON: tapeInfoJSONUpload,
-        albumPicture,
-        profilePicture,
-      });
-      return vaultId;
     };
 
-    processFiles().then((vaultId) => {
+    processAndUploadFiles().then(() => {
       setProgress({ percentage: 100, state: 'Success!' });
       setLoading(false);
+    });
+  };
+  useEffect(() => {
+    if (tape && tape.albumPicture && tape.audioFiles) {
+      console.log(tape);
       router.push({
         pathname: `/tape/${[vaultId]}`,
       });
-    });
-  };
+    }
+  }, [tape, router]);
 
   return (
     <>
