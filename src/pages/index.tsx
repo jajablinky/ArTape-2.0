@@ -226,7 +226,7 @@ export default function Home() {
     if (akord) {
       console.log('akord');
 
-      //Find the most recent folder's id
+      // Find the most recent folder's id
       const folders = await akord.folder.listAll(vaultId);
       const { id } = folders.reduce(
         (highest, currentFolder) => {
@@ -252,6 +252,7 @@ export default function Home() {
         { name: '0.0.0', id: '' }
       );
 
+      // List all items inside the most recent version of tape
       const items = await akord.stack.listAll(vaultId, { parentId: id });
 
       console.log(items);

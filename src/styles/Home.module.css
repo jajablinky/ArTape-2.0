@@ -1,6 +1,5 @@
 .main {
   max-width: 1280px;
-  --artape-white: rgba(255, 255, 255, 0.87);
   --artape-primary-color: #0022ff;
   --artape-black: #242424;
   padding-top: 128px;
@@ -15,7 +14,7 @@
 }
 .amountTotalDuration {
   font-size: large;
-  color: white;
+  color: var(--artape-white);
 }
 
 .musicPlayerHeader {
@@ -54,6 +53,14 @@
 
 .artistTitleTrack {
   margin-bottom: 20px;
+}
+
+.artistHeaderRight {
+  cursor: pointer;
+  transition: opacity 250ms ease-in-out;
+}
+.artistHeaderRight:hover {
+  opacity: 50%;
 }
 
 .songArt {
