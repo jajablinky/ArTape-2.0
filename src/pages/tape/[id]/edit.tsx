@@ -31,18 +31,19 @@ import AkordSignIn from '@/components/Helper Functions/AkordSignIn';
 import getNextVersion from '@/components/Helper Functions/getNextVersion';
 
 const createMetadataJSON = (
-  data: VaultValues,
   audioStateFiles: { moduleId: number; audio: AudioFileState[] },
   imageModules: ImageFileState[] | null,
-  color: string
+  color: string,
+  tape,
+  selectedMemento
 ) => {
   const metadata = {
-    profilePicture: data.profilePicture[0].name,
-    tapeArtistName: data.tapeArtistName,
-    tapeDescription: data.tapeDescription,
-    type: data.type,
+    profilePicture: tape.profilePicture.name,
+    tapeArtistName: tape.tapeInfoJSON.tapeArtistName,
+    tapeDescription: tape.tapeInfoJSON.tapeDescription,
+    type: tape.tapeInfoJSON.type,
     color: color,
-    memento: data.memento,
+    memento: selectedMemento,
     audioFiles: audioStateFiles
       ? audioStateFiles.audio.map((file) => ({
           trackNumber: file.trackNumber,
@@ -162,7 +163,8 @@ const Edit = () => {
   const [moduleUrls, setModuleUrls] = useState<{
     [index: number]: string;
   }>({});
-  const [selectedMemento, setSelectedMemento] = useState('');
+  const [selectedMemento, setSelectedMemento] = useState(tapeInfoJSON.memento);
+  // Profile Pic States
   const [profilePicUrl, setProfilePicUrl] = useState(profilePicture.url);
   const [loading, setLoading] = useState(false);
   const [audioStateFiles, setAudioStateFiles] = useState<{
@@ -170,9 +172,11 @@ const Edit = () => {
     audio: AudioFileState[];
   } | null>({
     moduleId: 2,
-    audio: [],
+    audio: audioFiles,
   });
   const [color, setColor] = useState(tapeInfoJSON.color);
+  const [finishEdit, setFinishEdit] = useState(false);
+  const { id } = router.query;
 
   const handleMementoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedMemento(event.target.value);
@@ -210,7 +214,7 @@ const Edit = () => {
     }
   }, [watchedProfilePic]);
 
-  const handleFileChange = (
+  const handleImageFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     index: number
   ) => {
@@ -221,6 +225,32 @@ const Edit = () => {
         [index]: files[0],
       }));
     }
+  };
+
+  const handleProfilePictureChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files[0];
+    const url = URL.createObjectURL(file);
+    setProfilePicUrl(url);
+    setTape((prevTape) => ({
+      ...prevTape,
+      profilePicture: {
+        ...prevTape.profilePicture,
+        url: url,
+      },
+    }));
+  };
+
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setTape((prevTape) => ({
+      ...prevTape,
+      tapeInfoJSON: {
+        ...prevTape.tapeInfoJSON,
+        [name]: value,
+      },
+    }));
   };
 
   useEffect(() => {
@@ -253,7 +283,7 @@ const Edit = () => {
     console.log(moduleFiles);
   }, [moduleFiles]);
 
-  //to push the audio module
+  // to push the audio module
   for (let i = 1; i <= numberOfModules; i++) {
     if (i === 2) {
       modules.push(
@@ -266,16 +296,22 @@ const Edit = () => {
           key={`audioModule${i}`}
         >
           <EditableAudioPlayer
+            required={false}
             profilePicUrl={profilePicUrl}
             register={register}
             audioFiles={audioStateFiles}
             setAudioFiles={setAudioStateFiles}
             watch={watch}
+            tapeInfoJSON={tapeInfoJSON}
           />
         </div>
       );
       continue;
     }
+
+    useEffect(() => {
+      console.log(audioFiles);
+    }, []);
     //push all the image modules
     modules.push(
       <div
@@ -324,15 +360,13 @@ const Edit = () => {
             <UploadButton color={color} />
           )}
           <input
-            {...register(`imageModule${i}` as keyof VaultValues, {
-              required: true,
-            })}
+            {...register(`imageModule${i}` as keyof VaultValues, {})}
             id={`imageModule${i}`}
             type="file"
             name={`imageModule${i}`}
             accept="image/*"
             style={{ display: 'none', width: '100%' }}
-            onChange={(e) => handleFileChange(e, i)}
+            onChange={(e) => handleImageFileChange(e, i)}
           />
         </label>
       </div>
@@ -385,20 +419,15 @@ const Edit = () => {
         // Calculate total number of files to upload
         const totalFilesToUpload =
           1 + // for tapeInfo.json
-          (data.profilePicture[0] ? 1 : 0) + // for profile picture
-          (data.memento ? 1 : 0) + // for memento
+          (tape.profilePicture ? 1 : 0) + // for profile picture
+          (tape.tapeInfoJSON.memento ? 1 : 0) + // for memento
           (audioStateFiles ? audioStateFiles.audio.length : 0) + // for audio files
           imageUploadModules.length; // for image files
 
         let completedUploads = 0;
 
         let tapeInfoJSONUpload: File | null = null;
-        const metadata = createMetadataJSON(
-          data,
-          audioStateFiles,
-          imageModules,
-          color
-        );
+        const metadata = tapeInfoJSON;
 
         // Convert metadata object into a JSON string
         const metadataJSON = JSON.stringify(metadata);
@@ -408,12 +437,12 @@ const Edit = () => {
         });
 
         const akord = await AkordSignIn(data.email, data.password);
-        const { vaultId } = await akord.vault.create(data.tapeArtistName, {
-          tags: ['ArTape', 'Music'],
-        });
+
+        await akord.vault.rename(id, tapeInfoJSON.tapeArtistName);
+
         // get all the folders in akord vault and sort them
         // Find the most recent folder's id
-        const folders = await akord.folder.listAll(vaultId);
+        const folders = await akord.folder.listAll(id);
         const { name } = folders.reduce(
           (highest, currentFolder) => {
             const [highestMajor, highestMinor, highestlowlowest] = highest.name
@@ -439,23 +468,29 @@ const Edit = () => {
 
         const versionToCreate = getNextVersion(name);
 
-        const { folderId } = await akord.folder.create(
-          vaultId,
-          versionToCreate
-        );
+        const { folderId } = await akord.folder.create(id, versionToCreate);
         // console.log(`successfully created vault: ${vaultId}`);
         setProgress({
           percentage: Math.round((completedUploads / totalFilesToUpload) * 100),
           state: `Successful Sign-in to Akord! and created vault ${vaultId}`,
         });
-        setVaultId(vaultId);
+        setVaultId(id);
 
         // Upload Profile Pic
-        if (data.profilePicture[0]) {
+        if (tape.profilePicture) {
+          // Fetch the blob data from the URL
+          const response = await fetch(tape.profilePicture.url);
+          const blob = await response.blob();
+
+          // Create a new File instance
+          const file = new File([blob], tape.profilePicture.name, {
+            type: blob.type,
+          });
+
           const { stackId } = await akord.stack.create(
             vaultId,
-            data.profilePicture[0],
-            data.profilePicture[0].name
+            file,
+            file.name
           );
           const { transactionId } = await akord.stack.move(stackId, folderId);
           completedUploads += 1;
@@ -465,17 +500,18 @@ const Edit = () => {
             ),
             state: `Uploaded Profile Picture!`,
           });
-          console.log(
-            `Uploaded file: ${data.profilePicture[0].name}, Stack ID: ${stackId}`
-          );
+          console.log(`Uploaded file: ${file.name}, Stack ID: ${stackId}`);
         }
 
-        if (data.memento) {
-          const mementoSvgContent = getMementoSvgContent(data.memento, color);
+        if (tape.tapeInfoJSON) {
+          const mementoSvgContent = getMementoSvgContent(
+            selectedMemento,
+            color
+          );
           if (mementoSvgContent) {
             const mementoSvgFile = new File(
               [mementoSvgContent],
-              `${data.memento}.svg`,
+              `${selectedMemento}.svg`,
               { type: 'text/html' }
             );
             const { stackId: mementoStackId } = await akord.stack.create(
@@ -495,7 +531,6 @@ const Edit = () => {
 
         // Create operation to upload album picture for each audio file making sure there is no duplicates
         // Upload audio files
-        console.log(audioStateFiles);
         for (const { audioFile } of audioStateFiles.audio) {
           try {
             console.log(audioFile);
@@ -564,37 +599,29 @@ const Edit = () => {
         }
 
         // reformatting imageFiles and audioFiles to fit context when mapped per vault id at different page
-        const imageFiles = imageUploadModules.map((imageModule: any) => {
-          return {
-            name: imageModule.name,
-            url: URL.createObjectURL(imageModule.url),
-            moduleId: imageModule.moduleId,
-          };
-        });
-        const audioFiles = audioStateFiles.audio.map((audioFile: any) => {
-          return {
-            name: audioFile.name,
-            url: URL.createObjectURL(audioFile.audioFile),
-          };
-        });
+        // const imageFiles = imageUploadModules.map((imageModule: any) => {
+        //   return {
+        //     name: imageModule.name,
+        //     url: URL.createObjectURL(imageModule.url),
+        //     moduleId: imageModule.moduleId,
+        //   };
+        // });
+        // const audioFiles = audioStateFiles.audio.map((audioFile: any) => {
+        //   return {
+        //     name: audioFile.name,
+        //     url: URL.createObjectURL(audioFile.audioFile),
+        //   };
+        // });
 
-        const profilePicture = {
-          name: data.profilePicture[0].name,
-          url: URL.createObjectURL(data.profilePicture[0]),
-        };
+        // const profilePicture = {
+        //   name: tape.profilePicture.name,
+        //   url: URL.createObjectURL(data.profilePicture[0]),
+        // };
 
-        const albumPicture = {
-          name: audioStateFiles.audio[0].albumPicture.name,
-          url: URL.createObjectURL(audioStateFiles.audio[0].albumPicture),
-        };
-
-        setTape({
-          audioFiles,
-          imageFiles,
-          tapeInfoJSON: JSON.parse(metadataJSON),
-          albumPicture,
-          profilePicture,
-        });
+        // const albumPicture = {
+        //   name: audioStateFiles.audio[0].albumPicture.name,
+        //   url: URL.createObjectURL(audioStateFiles.audio[0].albumPicture),
+        // };
         console.log('UPLOAD COMPLETE');
       } catch (error) {
         setLoading(false);
@@ -604,17 +631,17 @@ const Edit = () => {
 
     processAndUploadFiles().then(() => {
       setProgress({ percentage: 100, state: 'Success!' });
+      setFinishEdit(true);
       setLoading(false);
     });
   };
   useEffect(() => {
-    if (tape && tape.albumPicture && tape.audioFiles) {
-      console.log(tape);
+    if (finishEdit) {
       router.push({
-        pathname: `/tape/${[vaultId]}`,
+        pathname: `/tape/${[id]}`,
       });
     }
-  }, [tape, router]);
+  }, [finishEdit, router]);
 
   return (
     <>
@@ -861,11 +888,10 @@ const Edit = () => {
                     </label>
                   )}
                   <input
-                    {...register('profilePicture', {
-                      required: true,
-                    })}
+                    {...register('profilePicture')}
                     id="profilePicture"
                     type="file"
+                    onChange={handleProfilePictureChange}
                     name="profilePicture"
                     accept="image/*"
                     style={{ display: 'none', width: '100%' }}
@@ -880,12 +906,10 @@ const Edit = () => {
                     }}
                   >
                     <input
-                      {...register('tapeArtistName', {
-                        required: true,
-                      })}
+                      {...register('tapeArtistName')}
                       type="text"
                       placeholder={tapeInfoJSON.tapeArtistName}
-                      value={tapeInfoJSON.tapeArtistName}
+                      onChange={handleDescriptionChange}
                       style={{
                         background: 'transparent',
                         fontWeight: 'bold',
@@ -924,10 +948,10 @@ const Edit = () => {
 
                   <p style={{ fontWeight: 'lighter' }}>
                     <input
-                      {...register('type', { required: true })}
+                      {...register('type')}
                       type="text"
                       placeholder={tapeInfoJSON.type}
-                      value={tapeInfoJSON.type}
+                      onChange={handleDescriptionChange}
                       style={{
                         border: errors.tapeArtistName
                           ? '1px solid red'
@@ -944,12 +968,10 @@ const Edit = () => {
                     }}
                   >
                     <input
-                      {...register('tapeDescription', {
-                        required: true,
-                      })}
+                      {...register('tapeDescription', {})}
                       type="text"
                       placeholder={tapeInfoJSON.tapeDescription}
-                      value={tapeInfoJSON.tapeDescription}
+                      onChange={handleDescriptionChange}
                       style={{
                         fontSize: '20px',
 

@@ -55,6 +55,7 @@ interface AudioPlayerProps {
   albumPictures: AlbumPictureFile;
   profilePicUrl: string;
   register: any;
+  required: boolean;
 }
 
 const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
@@ -63,19 +64,32 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
   profilePicUrl,
   watch,
   register,
+  required,
+  tapeInfoJSON,
 }) => {
+  const NUM_TRACKS = 3;
+  const [artistNames, setArtistNames] = useState(Array(NUM_TRACKS).fill(''));
+  const [songNames, setSongNames] = useState(Array(NUM_TRACKS).fill(''));
   const [clickedAudioTracks, setClickedAudioTrack] = useState([
     false,
     false,
     false,
   ]);
-  const NUM_TRACKS = 3;
+
   const [albumPictureFiles, setAlbumPictureFiles] = useState<(File | null)[]>(
     Array(NUM_TRACKS).fill(null)
   );
   const [albumPictureUrls, setAlbumPictureUrls] = useState<(string | null)[]>(
     Array(NUM_TRACKS).fill(null)
   );
+
+  // in edit mode
+  useEffect(() => {
+    if (tapeInfoJSON) {
+      setArtistNames(tapeInfoJSON.audioFiles.map((file) => file.artistName));
+      setSongNames(tapeInfoJSON.audioFiles.map((file) => file.name));
+    }
+  }, [tapeInfoJSON]);
 
   const handleUploadButtonClick = (index: number) => {
     const audioFile = document.getElementById(`audioFile${index}`);
@@ -89,9 +103,18 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
 
   const handleAudioUpload = async (i: number, file: File) => {
     // console.log('audioFiles', ...audioFiles.audio); // Log the audioFiles prop
-    const artistName = await watch(`artistName${i}`);
-    const songName = await watch(`songName${i}`);
-
+    let artistName;
+    let songName;
+    //handling case for edit or create mode
+    if (tapeInfoJSON) {
+      //edit mode
+      const artistName = artistNames[i - 1];
+      const songName = songNames[i - 1];
+    } else {
+      //create mode
+      artistName = await watch(`artistName${i}`);
+      songName = await watch(`songName${i}`);
+    }
     const albumPictureFile = albumPictureFiles[i - 1];
     if (file && artistName && songName && albumPictureFile) {
       const getDuration = (file: File): Promise<number> => {
@@ -220,13 +243,13 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
                   )}
                   :
                   <input
-                    {...register(`albumPicture${i}`)}
+                    {...register(`albumPicture${i}`, { required: required })}
                     onChange={(e) =>
                       handleAlbumPictureUpload(i, e.target.files[0])
                     }
                     id={`albumPicture${i}`}
                     type="file"
-                    name="profilePic"
+                    name="albumPicture"
                     accept="image/*"
                     style={{ display: 'none', width: '100%' }}
                   />
@@ -234,29 +257,70 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
                 <div className={styles.musicInfo}>
                   <div className={styles.artistTitleTrack}>
                     <p>
-                      <input
-                        {...register(`artistName${i}`, {})}
-                        type="text"
-                        placeholder="Artist Name"
-                        style={{
-                          color: 'var(--artape-black)',
-                          background: 'transparent',
-                          border: 'none',
-                        }}
-                      />
+                      {tapeInfoJSON ? (
+                        <input
+                          {...register(`artistName${i}`, {
+                            required: required,
+                          })}
+                          type="text"
+                          value={artistNames[i - 1]}
+                          onChange={(e) => {
+                            const newArtistNames = [...artistNames];
+                            newArtistNames[i - 1] = e.target.value;
+                            setArtistNames(newArtistNames);
+                          }}
+                          style={{
+                            color: 'var(--artape-black)',
+                            background: 'transparent',
+                            border: 'none',
+                          }}
+                        />
+                      ) : (
+                        <input
+                          {...register(`artistName${i}`, {
+                            required: required,
+                          })}
+                          type="text"
+                          placeholder="Artist Name"
+                          style={{
+                            color: 'var(--artape-black)',
+                            background: 'transparent',
+                            border: 'none',
+                          }}
+                        />
+                      )}
                     </p>
                     <h2>
-                      <input
-                        {...register(`songName${i}`, {})}
-                        type="text"
-                        placeholder="Song Name"
-                        style={{
-                          fontSize: '20px',
-                          background: 'transparent',
-                          color: 'var(--artape-black)',
-                          border: 'none',
-                        }}
-                      />
+                      {tapeInfoJSON ? (
+                        <input
+                          {...register(`songName${i}`, { required: required })}
+                          type="text"
+                          value={songNames[i - 1]}
+                          onChange={(e) => {
+                            const newSongNames = [...songNames];
+                            newSongNames[i - 1] = e.target.value;
+                            setSongNames(newSongNames);
+                          }}
+                          style={{
+                            fontSize: '20px',
+                            background: 'transparent',
+                            color: 'var(--artape-black)',
+                            border: 'none',
+                          }}
+                        />
+                      ) : (
+                        <input
+                          {...register(`songName${i}`, { required: required })}
+                          type="text"
+                          placeholder="Song Name"
+                          style={{
+                            fontSize: '20px',
+                            background: 'transparent',
+                            color: 'var(--artape-black)',
+                            border: 'none',
+                          }}
+                        />
+                      )}
                     </h2>
                   </div>
                   <div className={styles.durationBuyMp3}>
@@ -268,7 +332,7 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
               </div>
               <div className={styles.musicPlayerRightSide}>
                 <input
-                  {...register(`audioFile${i}`)}
+                  {...register(`audioFile${i}`, { required: required })}
                   onChange={(e) => {
                     handleAudioUpload(i, e.target.files[0]);
                   }}
