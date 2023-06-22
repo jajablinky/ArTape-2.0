@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import Head from 'next/head';
 import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
@@ -13,8 +13,6 @@ import { useRouter } from 'next/router';
 import { Akord, Auth } from '@akord/akord-js';
 
 import { useTape } from '@/components/TapeContext';
-import ArTapeLogo from '../../public/ArTAPE.svg';
-import CassetteLogo from '../../public/Artape-Cassete-Logo.gif';
 import Link from 'next/link';
 import Loader from '@/components/Loader';
 import LoadingOverlay from '@/components/LoadingOverlay';
@@ -254,9 +252,6 @@ export default function Home() {
 
       // List all items inside the most recent version of tape
       const items = await akord.stack.listAll(vaultId, { parentId: id });
-
-      console.log(items);
-
       let tapeInfoJSON: any;
       const imageFileNameToModuleId = new Map<string, string>();
       const audioPromises: Promise<string | null | void>[] = [];
@@ -357,14 +352,12 @@ export default function Home() {
         albumPicture,
         profilePicture,
       });
-
       router.push({
         pathname: `/tape/${[vaultId]}`,
       });
     }
     setLoading(false);
   };
-
   return (
     <>
       <Head>

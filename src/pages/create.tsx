@@ -228,6 +228,7 @@ const Create = () => {
           key={`audioModule${i}`}
         >
           <EditableAudioPlayer
+            required={true}
             profilePicUrl={profilePicUrl}
             register={register}
             audioFiles={audioStateFiles}
