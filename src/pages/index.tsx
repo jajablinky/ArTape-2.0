@@ -1,7 +1,6 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import Head from 'next/head';
 import styles from '@/styles/Home.module.css';
-import Image from 'next/image';
 import {
   useForm,
   SubmitHandler,
@@ -18,15 +17,8 @@ import Loader from '@/components/Loader';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import AkordSignIn from '@/components/Helper Functions/AkordSignIn';
 
-type VaultValues = {
-  email: string;
-  password: string;
-};
-
-type TapeInfo = {
-  tapeName: string;
-  vaultId: string;
-};
+import { TapeInfo } from '@/types/TapeInfo';
+import { VaultValues } from '@/types/VaultValues';
 
 interface VaultSelectionFormProps {
   tapeInfoOptions: TapeInfo[];
@@ -182,13 +174,11 @@ export default function Home() {
     setLoading(true);
     const akord = await AkordSignIn(data.email, data.password);
     setAkord(akord);
+
     setProgress({
       percentage: 20,
       state: `Successful Sign-in, welcome ${data.email}`,
     });
-    // search for vaults based on tags instead
-
-    ////// add code
 
     // select a vault and console log the vault id
     const vaults = await akord.vault.listAll({
@@ -210,7 +200,6 @@ export default function Home() {
 
     // display for user selection which vault to display
     setTapeInfoOptions(tapeInfos);
-    console.log(tapeInfos);
     setIsAuthenticated(true);
 
     setLoading(false);

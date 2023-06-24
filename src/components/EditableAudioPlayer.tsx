@@ -34,7 +34,7 @@ interface TapeInfo {
 
 export interface AudioFile {
   name: string;
-  url: string;
+  url: string | null;
 }
 
 export interface AlbumPictureFile {
@@ -57,6 +57,7 @@ interface AudioPlayerProps {
   register: any;
   required: boolean;
 }
+// audioStateFiles changes to audioFiles
 
 const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
   audioFiles,
@@ -83,13 +84,54 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
     Array(NUM_TRACKS).fill(null)
   );
 
-  // in edit mode
+  useEffect(() => {
+    const getDuration = (file: File): Promise<number> => {
+      return new Promise((resolve) => {
+        const audio = new Audio(URL.createObjectURL(file));
+        audio.addEventListener('loadedmetadata', () => {
+          resolve(audio.duration);
+        });
+      });
+    };
+
+    if (tapeInfoJSON && audioFiles.prevAudioFiles) {
+      const getAudioFiles = async () => {
+        const newAudioFiles = [];
+
+        for (let i = 0; i < audioFiles.prevAudioFiles.length; i++) {
+          // need to create files from URLS
+          const file = audioFiles.prevAudioFiles[i];
+          // can combine artist name and song name useEffect into here as well
+          const artistName = artistNames[i];
+          const songName = songNames[i];
+          const albumPictureFile = albumPictureFiles[i];
+          const duration = await getDuration(file);
+
+          newAudioFiles.push({
+            audioFile: file,
+            duration,
+            name: songName,
+            artistName: artistName,
+            trackNumber: i + 1,
+            albumPicture: albumPictureFile,
+          });
+        }
+
+        setAudioFiles({ moduleId: 2, audio: newAudioFiles });
+      };
+
+      getAudioFiles();
+    }
+  }, []);
+
+  // In Edit Mode
   useEffect(() => {
     if (tapeInfoJSON) {
       setArtistNames(tapeInfoJSON.audioFiles.map((file) => file.artistName));
       setSongNames(tapeInfoJSON.audioFiles.map((file) => file.name));
     }
   }, [tapeInfoJSON]);
+  //
 
   const handleUploadButtonClick = (index: number) => {
     const audioFile = document.getElementById(`audioFile${index}`);
@@ -101,17 +143,19 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
     }
   };
 
+  // i need to account
+
   const handleAudioUpload = async (i: number, file: File) => {
-    // console.log('audioFiles', ...audioFiles.audio); // Log the audioFiles prop
     let artistName;
     let songName;
-    //handling case for edit or create mode
+
+    // handling case for edit or create mode
     if (tapeInfoJSON) {
-      //edit mode
-      const artistName = artistNames[i - 1];
-      const songName = songNames[i - 1];
+      // edit mode
+      artistName = artistNames[i - 1];
+      songName = songNames[i - 1];
     } else {
-      //create mode
+      // create mode
       artistName = await watch(`artistName${i}`);
       songName = await watch(`songName${i}`);
     }
