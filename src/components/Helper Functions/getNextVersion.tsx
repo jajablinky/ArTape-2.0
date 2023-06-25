@@ -1,5 +1,3 @@
-import React from 'react';
-
 const getNextVersion = (highest: string) => {
   const [major, minor, lowest] = highest.split('.').map(Number);
 
