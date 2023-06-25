@@ -1,15 +1,9 @@
 import { FormEvent, useState } from 'react';
 import Head from 'next/head';
 import styles from '@/styles/Home.module.css';
-import {
-  useForm,
-  SubmitHandler,
-  FieldErrors,
-  UseFormRegister,
-  UseFormHandleSubmit,
-} from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { useRouter } from 'next/router';
-import { Akord, Auth } from '@akord/akord-js';
+import { Akord, Auth, NodeLike } from '@akord/akord-js';
 
 import { useTape } from '@/components/TapeContext';
 import Link from 'next/link';
@@ -20,132 +14,14 @@ import AkordSignIn from '@/components/Helper Functions/AkordSignIn';
 import { TapeInfo } from '@/types/TapeInfo';
 import { VaultValues } from '@/types/VaultValues';
 
-interface VaultSelectionFormProps {
-  tapeInfoOptions: TapeInfo[];
-  setSelectedTapeInfo: (tapeInfo: TapeInfo) => void;
-  handleSubmit: UseFormHandleSubmit<VaultValues>;
-  onSubmit: (event: React.FormEvent<HTMLFormElement>) => Promise<void>; // Update this line
-  loading: boolean;
-}
-
-type EmailPasswordFormProps = {
-  onSubmit: (event: React.FormEvent) => void;
-  loading: boolean;
-  errors: FieldErrors<VaultValues>;
-  register: UseFormRegister<VaultValues>;
-};
-
-function EmailPasswordForm({
-  onSubmit,
-  loading,
-  errors,
-  register,
-}: EmailPasswordFormProps) {
-  return (
-    <form
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '24px',
-        width: '300px',
-      }}
-      onSubmit={onSubmit}
-    >
-      <input
-        {...register('email', { required: true })}
-        type="email"
-        placeholder="Email"
-        style={{
-          background: 'transparent',
-          border: 'none',
-          borderBottom: '1px solid var(--artape-black)',
-          textAlign: 'right',
-        }}
-      />
-      {errors.email && <div>Email is required</div>}
-      <input
-        {...register('password', { required: true })}
-        type="password"
-        placeholder="Password"
-        style={{
-          background: 'transparent',
-          border: 'none',
-          borderBottom: '1px solid var(--artape-black)',
-          textAlign: 'right',
-        }}
-      />
-      {errors.password && <div>Password is required</div>}
-      <button
-        type="submit"
-        style={{
-          backgroundColor: 'var(--artape-black)',
-          color: 'var(--artape-white)',
-          fontSize: '12px',
-        }}
-      >
-        {loading ? <Loader /> : <span>Go</span>}
-      </button>
-    </form>
-  );
-}
-
-function VaultSelectionForm({
-  tapeInfoOptions,
-  setSelectedTapeInfo,
-  onSubmit,
-  loading,
-}: VaultSelectionFormProps) {
-  return (
-    <form
-      onSubmit={onSubmit}
-      style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
-    >
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: '32px',
-        }}
-      >
-        {tapeInfoOptions.map((tapeInfo) => (
-          <label
-            key={tapeInfo.vaultId}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '12px',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <input
-              type="radio"
-              name="vault"
-              value={tapeInfo.vaultId}
-              onChange={() => setSelectedTapeInfo(tapeInfo)}
-            />
-            {tapeInfo.tapeName}
-          </label>
-        ))}
-      </div>
-      <button
-        type="submit"
-        style={{
-          background: 'transparent',
-          border: '1px solid var(--artape-black)',
-          fontSize: '12px',
-        }}
-      >
-        {loading ? <Loader /> : 'Load Vault'}
-      </button>
-    </form>
-  );
-}
+import EmailPasswordForm from '@/components/EmailPasswordForm';
+import VaultSelectionForm from '@/components/VaultSelectionForm';
 
 export default function Home() {
-  {
-    /* -- State  -- */
-  }
+  /* -- State  -- */
+  //
+  //
+
   const [progress, setProgress] = useState({
     percentage: 0,
     state: 'Communicating with Akord',
@@ -159,9 +35,10 @@ export default function Home() {
     null
   );
   const [showVaultIdForm, setShowVaultIdForm] = useState(false);
-  {
-    /* -- State  -- */
-  }
+
+  //
+  //
+  /* -- State  -- */
 
   const router = useRouter();
 
@@ -171,6 +48,7 @@ export default function Home() {
     handleSubmit,
   } = useForm<VaultValues>();
   const onSubmit: SubmitHandler<VaultValues> = async (data) => {
+    //
     setLoading(true);
     const akord = await AkordSignIn(data.email, data.password);
     setAkord(akord);
@@ -180,7 +58,7 @@ export default function Home() {
       state: `Successful Sign-in, welcome ${data.email}`,
     });
 
-    // select a vault and console log the vault id
+    // Display any ArTapes containing the correct tag
     const vaults = await akord.vault.listAll({
       tags: {
         values: ['ArTape'],
@@ -213,10 +91,16 @@ export default function Home() {
     if (akord) {
       console.log('akord');
 
+      // Type guard to make sure that folders must contain an object with name
+      type NamedNode = NodeLike & { name: string };
+
       // Find the most recent folder's id
       const folders = await akord.folder.listAll(vaultId);
-      const { id } = folders.reduce(
-        (highest, currentFolder) => {
+      const namedFolders: NamedNode[] = folders.filter(
+        (folder: NodeLike): folder is NamedNode => 'name' in folder
+      );
+      const { id } = namedFolders.reduce<NamedNode>(
+        (highest: NamedNode, currentFolder: NamedNode): NamedNode => {
           const [highestMajor, highestMinor, highestPatch] = highest.name
             .split('.')
             .map(Number);
@@ -236,7 +120,7 @@ export default function Home() {
 
           return highest;
         },
-        { name: '0.0.0', id: '' }
+        { name: '0.0.0', id: '' } as NamedNode
       );
 
       // List all items inside the most recent version of tape
@@ -250,7 +134,7 @@ export default function Home() {
       const imageFiles: {
         name: string;
         url: string | null;
-        moduleId: string;
+        moduleId: number;
       }[] = [];
 
       let profilePicture: { name: string; url: string } = {
@@ -307,7 +191,8 @@ export default function Home() {
             .getVersion(imageId)
             .then(({ data: decryptedImage }) => {
               const blobUrl = URL.createObjectURL(new Blob([decryptedImage]));
-              const moduleId = imageFileNameToModuleId.get(item.name) || '';
+              const moduleId =
+                Number(imageFileNameToModuleId.get(item.name)) || 0;
               imageFiles.push({
                 name: item.name,
                 url: blobUrl,
