@@ -21,6 +21,9 @@ export interface Tape extends Omit<TapeInfoJSON, 'audioFiles' | 'imageFiles' | '
   tapeInfoJSON: TapeInfoJSON | null;
 }
 
+export type ArrayAudioFileWithUrls = AudioFileWithUrls[];
+
+
 export interface AudioFile {
     trackNumber: number;
     name: string;

@@ -8,8 +8,7 @@ async function processItem(
   item: any,
   tapeInfoJSON: TapeInfoJSON | null,
   akord: any,
-  albumPictures: { [name: string]: string },
-  imageFileNameToModuleId: Map<string, string>
+  albumPictures: { [name: string]: string }
 ) {
   // Variable to hold the return values
   let result: {
@@ -53,6 +52,16 @@ async function processItem(
     const imageMeta = tapeInfoJSON?.imageFiles.find(
       (image) => image.name === item.name
     );
+    // Find the matching image index and its corresponding moduleId in the tapeInfoJSON
+    let matchingImageModuleId;
+    const matchingImageIndex = tapeInfoJSON?.imageFiles.findIndex(
+      (image) => image.name === item.name
+    );
+    if (matchingImageIndex !== -1 && matchingImageIndex !== undefined) {
+      matchingImageModuleId =
+        tapeInfoJSON?.imageFiles[matchingImageIndex].moduleId;
+    }
+
     // Only add to imageFiles if it's not a profile picture or album picture
     if (
       item.name !== tapeInfoJSON?.profilePicture &&
@@ -64,7 +73,7 @@ async function processItem(
         {
           name: item.name,
           alt: imageMeta?.alt || '',
-          moduleId: Number(imageFileNameToModuleId.get(item.name)) || 0,
+          moduleId: matchingImageModuleId || 0,
           url: blobUrl,
         },
       ];

@@ -7,49 +7,11 @@ import StopIcon from './Images/UI/StopIcon.tsx';
 import PrevIcon from './Images/UI/PrevIcon';
 import NextIcon from './Images/UI/NextIcon';
 import PlayIcon from './Images/UI/PlayIcon';
-
-interface Track {
-  track_number: number;
-  title: string;
-  duration: number;
-  id: string;
-  artist: string;
-  src: string;
-}
-
-interface Tape {
-  title: string;
-  length: number;
-  type: string;
-  duration: string;
-  tracks: Track[]; // Add the tracks property here
-}
-
-interface TapeInfo {
-  tapeArtistName: string;
-  type: string;
-  audioFiles: {
-    trackNumber: number;
-    name: string;
-    duration: number;
-    artistName: string;
-  }[];
-}
-
-export interface AudioFile {
-  name: string;
-  url: string;
-}
-
-export interface AlbumPictureFile {
-  name: string;
-  url: string | null;
-}
+import { AudioFileWithUrls } from '@/types/TapeInfo';
 
 interface AudioPlayerProps {
-  tapeInfoJSON: TapeInfo;
-  audioFiles: AudioFile[];
-  albumPicture: AlbumPictureFile;
+  color: string;
+  audioFiles: AudioFileWithUrls[];
 }
 
 function formatToMinutes(duration: number): string {
@@ -61,66 +23,40 @@ function formatToMinutes(duration: number): string {
   return durationFormatted;
 }
 
-function totalTapeLength(tapeInfo: TapeInfo): string {
-  let totalDuration = 0;
+// function totalTapeLength(tapeInfo: TapeInfo): string {
+//   let totalDuration = 0;
 
-  for (const track of tapeInfo.audioFiles) {
-    totalDuration += track.duration;
-  }
+//   for (const track of tapeInfo.audioFiles) {
+//     totalDuration += track.duration;
+//   }
 
-  return formatToMinutes(totalDuration);
-}
+//   return formatToMinutes(totalDuration);
+// }
 
-const AudioPlayer: React.FC<AudioPlayerProps> = ({
-  tapeInfoJSON,
-  audioFiles,
-  albumPicture,
-}) => {
-  const [tape, setTape] = useState<Tape>({
-    title: tapeInfoJSON.tapeArtistName,
-    length: tapeInfoJSON.audioFiles.length,
-    type: tapeInfoJSON.type,
-    duration: totalTapeLength(tapeInfoJSON),
-    tracks: audioFiles.map((audioFile) => {
-      // Split the name and get the base (ignore the extension)
-      const baseName = audioFile.name.split('.')[0];
-      const audioInfo = tapeInfoJSON.audioFiles.find(
-        (item) => item.name === baseName
-      ) || { trackNumber: 0, name: '', duration: 0, artistName: '' };
-      return {
-        track_number: audioInfo.trackNumber,
-        title: audioInfo.name,
-        duration: audioInfo.duration,
-        id: audioInfo.trackNumber.toString(),
-        artist: audioInfo.artistName,
-        src: audioFile.url,
-      };
-    }),
-  });
-
+const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
   const [audioFetched, setAudioFetched] = useState<boolean>(true);
   const [currentSongIndex, setCurrentSongIndex] = useState<number>(-1);
   const [isPlaying, setisPlaying] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(1);
-  const [currentSong, setCurrentSong] = useState<Track | null>(null);
+  const [currentSong, setCurrentSong] = useState<AudioFileWithUrls | null>(
+    null
+  );
 
   const audioPlayer = useRef<HTMLAudioElement | null>(null);
-
-  useEffect(() => {
-    console.log('Tape Use Effect: ', tape);
-    console.log('AlbumPicture: ', albumPicture);
-  }, [tape, albumPicture]);
 
   useEffect(() => {
     if (!audioPlayer.current) {
       audioPlayer.current = new Audio();
     }
-    setCurrentSong(tape.tracks[currentSongIndex]);
+    setCurrentSong(audioFiles[currentSongIndex]);
 
-    if (audioPlayer.current && currentSongIndex !== -1) {
-      audioPlayer.current.removeEventListener('ended', handleEnded);
-      audioPlayer.current.src = tape.tracks[currentSongIndex].src;
-      audioPlayer.current.addEventListener('ended', handleEnded);
+    if (audioPlayer.current && currentSongIndex !== -1 && audioFiles) {
+      const currentAudioUrl = audioFiles[currentSongIndex].audioUrl;
+      if (currentAudioUrl) {
+        audioPlayer.current.removeEventListener('ended', handleEnded);
+        audioPlayer.current.src = currentAudioUrl;
+        audioPlayer.current.addEventListener('ended', handleEnded);
+      }
 
       if (isPlaying) {
         audioPlayer.current.play();
@@ -160,7 +96,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
   const handleNextSong = (): void => {
     setCurrentSongIndex(
-      currentSongIndex === tape.length - 1 ? 0 : currentSongIndex + 1
+      currentSongIndex === audioFiles.length - 1 ? 0 : currentSongIndex + 1
     );
     setisPlaying(true);
   };
@@ -215,9 +151,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
           }}
         >
           <audio onEnded={handleEnded} ref={audioPlayer} />
-          <p className={styles.amountTotalDuration}>
-            `{tape.length} tracks, {tape.duration} tape length`
-          </p>
           <div className={styles.musicControls}>
             {currentSongIndex !== -1 ? (
               <button onClick={() => handlePrevSong()}>
@@ -263,7 +196,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
         </div>
 
         {audioFetched ? (
-          tape.tracks.map((track: Track, index: number) => (
+          audioFiles.map((audioFile, index: number) => (
             <div key={index} className={styles.trackContainer}>
               <button
                 className={styles.musicPlayerTrack}
@@ -274,19 +207,19 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
                   <div
                     className={styles.songArt}
                     style={{
-                      backgroundImage: `url(${albumPicture.url})`,
+                      backgroundImage: `url(${audioFiles[index].albumPictureUrl})`,
                       objectFit: 'cover',
                     }}
                   ></div>
                   <div className={styles.musicInfo}>
                     <div className={styles.artistTitleTrack}>
-                      <p>{track.artist}</p>
-                      <h2>{track.title}</h2>
+                      <p>{audioFile.artistName}</p>
+                      <h2>{audioFile.name}</h2>
                     </div>
                     <div className={styles.durationBuyMp3}>
                       <p>
                         <span className={styles.duration}>
-                          {formatToMinutes(track.duration)}
+                          {formatToMinutes(audioFile.duration)}
                         </span>
                       </p>
                     </div>
@@ -308,9 +241,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
                   )}
                 </div>
               </button>
-              {audioFetched && (
+              {audioFetched && audioFile.audioUrl && (
                 <audio>
-                  <source src={track.src} type="audio/mpeg" />
+                  <source src={audioFile.audioUrl} type="audio/mpeg" />
                   Your browser does not support the audio element.
                 </audio>
               )}

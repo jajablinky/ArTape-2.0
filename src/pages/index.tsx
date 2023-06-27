@@ -147,7 +147,7 @@ export default function Home() {
           tapeDescription: '',
           type: '',
         };
-        const imageFileNameToModuleId = new Map<string, string>();
+
         const albumPictures: { [name: string]: string } = {};
 
         const tapeInfoPromises: Promise<TapeInfoJSON | null>[] = [];
@@ -171,13 +171,7 @@ export default function Home() {
 
         items.forEach((item) => {
           processPromises.push(
-            processItem(
-              item,
-              tapeInfoJSON,
-              akord,
-              albumPictures,
-              imageFileNameToModuleId
-            )
+            processItem(item, tapeInfoJSON, akord, albumPictures)
           );
         });
 
