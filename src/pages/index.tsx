@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import Head from 'next/head';
 import styles from '@/styles/Home.module.css';
 import { useForm, SubmitHandler } from 'react-hook-form';
@@ -11,34 +11,45 @@ import Loader from '@/components/Loader';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import AkordSignIn from '@/components/Helper Functions/AkordSignIn';
 
-import { TapeInfo } from '@/types/TapeInfo';
+import {
+  AudioFileWithUrls,
+  ImageFileWithUrls,
+  TapeInfo,
+  TapeInfoJSON,
+} from '@/types/TapeInfo';
 import { VaultValues } from '@/types/VaultValues';
 
 import EmailPasswordForm from '@/components/EmailPasswordForm';
 import VaultSelectionForm from '@/components/VaultSelectionForm';
 import ArTapeFontLogo from '@/components/Images/Logos/ArTapeFontLogo';
+import Tape from './tape/[id]';
+import getTapeInfoJSON from '@/components/Helper Functions/getTapeInfoJSON';
+import processItem from '@/components/Helper Functions/processItem';
 
 export default function Home() {
   /* -- State  -- */
-  //
-  //
 
+  // Context & Variable States
+  const { tape, setTape } = useTape();
+  const [akord, setAkord] = useState<Akord | null>();
+
+  // Loading States
   const [progress, setProgress] = useState({
     percentage: 0,
     state: 'Communicating with Akord',
   });
-  const { tape, setTape } = useTape();
   const [loading, setLoading] = useState(false);
-  const [akord, setAkord] = useState<Akord | null>();
+
+  // Tape Info States
   const [tapeInfoOptions, setTapeInfoOptions] = useState<TapeInfo[]>([]);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [selectedTapeInfo, setSelectedTapeInfo] = useState<TapeInfo | null>(
     null
   );
+
+  // Boolean States
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [showVaultIdForm, setShowVaultIdForm] = useState(false);
 
-  //
-  //
   /* -- State  -- */
 
   const router = useRouter();
@@ -85,164 +96,137 @@ export default function Home() {
   };
 
   const handleVaultSelection = async (event: FormEvent<HTMLFormElement>) => {
-    if (!selectedTapeInfo) return;
-    event.preventDefault(); // Add this line to prevent form
-    setLoading(true);
-    const { vaultId } = selectedTapeInfo;
-    if (akord) {
-      console.log('akord');
+    try {
+      if (!selectedTapeInfo) return;
+      event.preventDefault(); // Add this line to prevent form
+      setLoading(true);
+      const { vaultId } = selectedTapeInfo;
+      if (akord) {
+        console.log('akord');
 
-      // Type guard to make sure that folders must contain an object with name
-      type NamedNode = NodeLike & { name: string };
+        // Type guard to make sure that folders must contain an object with name
+        type NamedNode = NodeLike & { name: string };
 
-      // Find the most recent folder's id
-      const folders = await akord.folder.listAll(vaultId);
-      const namedFolders: NamedNode[] = folders.filter(
-        (folder: NodeLike): folder is NamedNode => 'name' in folder
-      );
-      const { id } = namedFolders.reduce<NamedNode>(
-        (highest: NamedNode, currentFolder: NamedNode): NamedNode => {
-          const [highestMajor, highestMinor, highestPatch] = highest.name
-            .split('.')
-            .map(Number);
-          const [currentMajor, currentMinor, currentPatch] = currentFolder.name
-            .split('.')
-            .map(Number);
+        // Find the most recent folder's id
+        const folders = await akord.folder.listAll(vaultId);
+        const namedFolders: NamedNode[] = folders.filter(
+          (folder: NodeLike): folder is NamedNode => 'name' in folder
+        );
+        const { id } = namedFolders.reduce<NamedNode>(
+          (highest: NamedNode, currentFolder: NamedNode): NamedNode => {
+            const [highestMajor, highestMinor, highestPatch] = highest.name
+              .split('.')
+              .map(Number);
+            const [currentMajor, currentMinor, currentPatch] =
+              currentFolder.name.split('.').map(Number);
 
-          if (currentMajor > highestMajor) return currentFolder;
-          if (currentMajor === highestMajor && currentMinor > highestMinor)
-            return currentFolder;
-          if (
-            currentMajor === highestMajor &&
-            currentMinor === highestMinor &&
-            currentPatch > highestPatch
-          )
-            return currentFolder;
+            if (currentMajor > highestMajor) return currentFolder;
+            if (currentMajor === highestMajor && currentMinor > highestMinor)
+              return currentFolder;
+            if (
+              currentMajor === highestMajor &&
+              currentMinor === highestMinor &&
+              currentPatch > highestPatch
+            )
+              return currentFolder;
 
-          return highest;
-        },
-        { name: '0.0.0', id: '' } as NamedNode
-      );
+            return highest;
+          },
+          { name: '0.0.0', id: '' } as NamedNode
+        );
 
-      // List all items inside the most recent version of tape
-      const items = await akord.stack.listAll(vaultId, { parentId: id });
-      let tapeInfoJSON: any;
-      const imageFileNameToModuleId = new Map<string, string>();
-      const audioPromises: Promise<string | null | void>[] = [];
-      const imagePromises: Promise<string | null | void>[] = [];
+        // List all items inside the most recent version of tape
+        const items = await akord.stack.listAll(vaultId, { parentId: id });
+        let tapeInfoJSON: TapeInfoJSON = {
+          audioFiles: [],
+          color: '',
+          imageFiles: [],
+          memento: '',
+          profilePicture: '',
+          tapeArtistName: '',
+          tapeDescription: '',
+          type: '',
+        };
+        const imageFileNameToModuleId = new Map<string, string>();
+        const albumPictures: { [name: string]: string } = {};
 
-      const audioFiles: { name: string; url: string | null }[] = [];
-      const imageFiles: {
-        name: string;
-        url: string | null;
-        moduleId: number;
-      }[] = [];
+        const tapeInfoPromises: Promise<TapeInfoJSON | null>[] = [];
+        items.forEach((item) => {
+          tapeInfoPromises.push(getTapeInfoJSON(item, akord));
+        });
 
-      let profilePicture: { name: string; url: string } = {
-        name: '',
-        url: '',
-      };
-      let albumPicture: { name: string; url: string } = {
-        name: '',
-        url: '',
-      };
+        const tapeInfoJSONs = await Promise.all(tapeInfoPromises);
 
-      profilePicture.name = (tapeInfoJSON && tapeInfoJSON.profilePicture) || '';
-      albumPicture.name =
-        (tapeInfoJSON && tapeInfoJSON.audioFiles[0].albumPicture) || '';
+        // Merge all the TapeInfoJSONs into tapeInfoJSON
+        tapeInfoJSONs.forEach((tapeInfo) => {
+          if (tapeInfo) {
+            tapeInfoJSON = { ...tapeInfoJSON, ...tapeInfo };
+          }
+        });
+        const processPromises: Promise<{
+          audioFiles?: AudioFileWithUrls[];
+          imageFiles?: ImageFileWithUrls[];
+          profilePicture?: { name: string; url: string };
+        }>[] = [];
 
-      let tapeInfoPromise: Promise<void | null> = Promise.resolve();
+        items.forEach((item) => {
+          processPromises.push(
+            processItem(
+              item,
+              tapeInfoJSON,
+              akord,
+              albumPictures,
+              imageFileNameToModuleId
+            )
+          );
+        });
 
-      items.forEach((item) => {
-        if (item.name === 'tapeInfo.json') {
-          const tapeInfoId = item.id;
-          tapeInfoPromise = akord.stack
-            .getVersion(tapeInfoId)
-            .then(({ data: decryptedTapeInfo }) => {
-              const tapeInfoString = new TextDecoder().decode(
-                decryptedTapeInfo
-              );
-              tapeInfoJSON = JSON.parse(tapeInfoString);
-              if (tapeInfoJSON && tapeInfoJSON.imageFiles) {
-                tapeInfoJSON.imageFiles.forEach((image: any) => {
-                  imageFileNameToModuleId.set(image.name, image.moduleId);
-                });
-              }
-              console.log('collected audio metadata');
-              return null;
-            });
-        }
-      });
+        const processResults = await Promise.all(processPromises);
 
-      await tapeInfoPromise;
+        const audioFiles: AudioFileWithUrls[] = [];
+        const imageFiles: ImageFileWithUrls[] = [];
+        const profilePicture: { name: string; url: string } = {
+          name: '',
+          url: '',
+        };
 
-      items.forEach((item) => {
-        if (item.versions[0].type.startsWith('audio')) {
-          const audioId = item.id;
-          const audioPromise = akord.stack
-            .getVersion(audioId)
-            .then(({ data: decryptedAudio }) => {
-              const blobUrl = URL.createObjectURL(new Blob([decryptedAudio]));
-              audioFiles.push({ name: item.name, url: blobUrl });
-            });
-          audioPromises.push(audioPromise);
-        } else if (item.versions[0].type.startsWith('image')) {
-          const imageId = item.id;
-          const imagePromise = akord.stack
-            .getVersion(imageId)
-            .then(({ data: decryptedImage }) => {
-              const blobUrl = URL.createObjectURL(new Blob([decryptedImage]));
-              const moduleId =
-                Number(imageFileNameToModuleId.get(item.name)) || 0;
+        // Merge all the process results into audioFiles, imageFiles, and profilePicture
+        processResults.forEach((result) => {
+          if (result.audioFiles) {
+            audioFiles.push(...result.audioFiles);
+          }
+          if (result.imageFiles) {
+            imageFiles.push(...result.imageFiles);
+          }
+          if (result.profilePicture) {
+            profilePicture.name = result.profilePicture.name;
+            profilePicture.url = result.profilePicture.url;
+          }
+        });
 
-              // Only add to imageFiles if it's not a profile picture or album picture
-              if (
-                item.name !== tapeInfoJSON.profilePicture &&
-                item.name !== tapeInfoJSON.audioFiles[0].albumPicture &&
-                item.name !== tapeInfoJSON.audioFiles[1].albumPicture &&
-                item.name !== tapeInfoJSON.audioFiles[2].albumPicture
-              ) {
-                imageFiles.push({
-                  name: item.name,
-                  url: blobUrl,
-                  moduleId,
-                });
-              }
+        console.log('collected songs');
+        console.log('collected images');
 
-              if (item.name === tapeInfoJSON.profilePicture) {
-                profilePicture.name = item.name;
-                profilePicture.url = blobUrl;
-              }
-              if (
-                item.name === tapeInfoJSON.audioFiles[0].albumPicture ||
-                item.name === tapeInfoJSON.audioFiles[1].albumPicture ||
-                item.name === tapeInfoJSON.audioFiles[2].albumPicture
-              ) {
-                albumPicture.name = item.name;
-                albumPicture.url = blobUrl;
-              }
-            });
-          imagePromises.push(imagePromise);
-        }
-      });
-
-      await Promise.all(audioPromises);
-      await Promise.all(imagePromises);
-      console.log(imageFiles);
-      console.log('collected songs');
-      console.log('collected images');
-      setTape({
-        audioFiles,
-        imageFiles,
-        tapeInfoJSON,
-        albumPicture,
-        profilePicture,
-      });
-      // router.push({
-      //   pathname: `/tape/${[vaultId]}`,
-      // });
+        setTape({
+          audioFiles,
+          color: tapeInfoJSON?.color,
+          imageFiles,
+          memento: tapeInfoJSON?.memento,
+          profilePicture,
+          tapeArtistName: tapeInfoJSON?.tapeArtistName,
+          tapeDescription: tapeInfoJSON?.tapeDescription,
+          type: tapeInfoJSON?.type,
+          tapeInfoJSON,
+        });
+        router.push({
+          pathname: `/tape/${[vaultId]}`,
+        });
+        setLoading(false);
+      }
+    } catch (e) {
+      console.error(e);
+      setLoading(false);
     }
-    setLoading(false);
   };
   return (
     <>
