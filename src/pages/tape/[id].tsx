@@ -4,20 +4,17 @@ import { useTape } from '@/components/TapeContext';
 import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import AudioPlayer, { AudioFile } from '@/components/AudioPlayer';
+import AudioPlayer from '@/components/AudioPlayer';
 import PineappleMemento from '@/components/Images/Mementos/PineappleMemento';
 import LoudMemento from '@/components/Images/Mementos/LoudMemento';
 import MinimalMemento from '@/components/Images/Mementos/MinimalMemento';
 import CassetteMemento from '@/components/Images/Mementos/CassetteMemento';
 import EditButton from '@/components/Images/UI/EditButton';
+import { ImageFileWithUrls } from '@/types/TapeInfo';
 
 const Tape = () => {
   const [sortedImageFiles, setSortedImagesFiles] = useState<
-    {
-      name: string;
-      url: string | null;
-      moduleId: string;
-    }[]
+    ImageFileWithUrls[]
   >([]);
 
   const router = useRouter();
@@ -28,20 +25,28 @@ const Tape = () => {
     return <div>No tape data available</div>;
   }
   const mementoGenerator = () => {
-    if (tapeInfoJSON.memento === 'Pineapple') {
-      return <PineappleMemento color={tapeInfoJSON.color} />;
-    } else if (tapeInfoJSON.memento === 'Loud') {
-      return <LoudMemento color={tapeInfoJSON.color} />;
-    } else if (tapeInfoJSON.memento === 'Minimal') {
-      return <MinimalMemento color={tapeInfoJSON.color} />;
-    } else if (tapeInfoJSON.memento === 'Minimal') {
-      return <CassetteMemento color={tapeInfoJSON.color} />;
+    if (memento === 'Pineapple') {
+      return <PineappleMemento color={color} />;
+    } else if (memento === 'Loud') {
+      return <LoudMemento color={color} />;
+    } else if (memento === 'Minimal') {
+      return <MinimalMemento color={color} />;
+    } else if (memento === 'Minimal') {
+      return <CassetteMemento color={color} />;
     } else {
       return null;
     }
   };
-  const { audioFiles, tapeInfoJSON, imageFiles, albumPicture, profilePicture } =
-    tape;
+  const {
+    audioFiles,
+    color,
+    memento,
+    tapeArtistName,
+    tapeDescription,
+    type,
+    imageFiles,
+    profilePicture,
+  } = tape;
 
   useEffect(() => {
     if (imageFiles && imageFiles.length > 0) {
@@ -68,7 +73,7 @@ const Tape = () => {
       return (
         <Image
           className={targetImage.name}
-          src={targetImage.url}
+          src={targetImage.url || ''}
           alt={targetImage.name}
           height={350}
           width={350}
@@ -93,7 +98,7 @@ const Tape = () => {
         className={styles.main}
         style={
           {
-            '--artape-primary-color': tapeInfoJSON.color,
+            '--artape-primary-color': color,
           } as React.CSSProperties
         }
       >
@@ -139,15 +144,13 @@ const Tape = () => {
                 }}
               >
                 <h1>
-                  <b>{tapeInfoJSON.tapeArtistName}</b>
+                  <b>{tapeArtistName}</b>
                   <span style={{ fontWeight: 'normal' }}>'s Tape</span>
                 </h1>
                 <div className={styles.memento}>{mementoGenerator()}</div>
               </div>
 
-              <p style={{ fontSize: '28px', fontWeight: 'lighter' }}>
-                {tapeInfoJSON.type}
-              </p>
+              <p style={{ fontSize: '28px', fontWeight: 'lighter' }}>{type}</p>
               <p
                 style={{
                   fontSize: '20px',
@@ -155,12 +158,12 @@ const Tape = () => {
                   color: '#656565',
                 }}
               >
-                {tapeInfoJSON.tapeDescription}
+                {tapeDescription}
               </p>
             </div>
           </div>
           <div className={styles.artistHeaderRight} onClick={handleEditClick}>
-            <EditButton color={tapeInfoJSON.color} />
+            <EditButton color={color} />
           </div>
         </div>
 
@@ -173,20 +176,12 @@ const Tape = () => {
               overflow: 'auto',
             }}
           >
-            <AudioPlayer
-              audioFiles={
-                audioFiles.filter(
-                  (audioFile) => audioFile.url !== null
-                ) as AudioFile[]
-              }
-              tapeInfoJSON={tapeInfoJSON}
-              albumPicture={albumPicture}
-            />
+            <AudioPlayer audioFiles={audioFiles} color={color} />
           </div>
           {sortedImageFiles &&
             sortedImageFiles.map((image) => {
               if (image.url) {
-                return parseInt(image.moduleId) === 6 ? (
+                return image.moduleId === 6 ? (
                   <div
                     className={styles.profileModuleRectangle}
                     key={image.name}
