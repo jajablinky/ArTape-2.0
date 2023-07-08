@@ -7,11 +7,11 @@ import StopIcon from './Images/UI/StopIcon.tsx';
 import PrevIcon from './Images/UI/PrevIcon';
 import NextIcon from './Images/UI/NextIcon';
 import PlayIcon from './Images/UI/PlayIcon';
-import { AudioFileWithUrls } from '@/types/TapeInfo';
+import { AudioFileWithFiles } from '@/types/TapeInfo';
 
 interface AudioPlayerProps {
   color: string;
-  audioFiles: AudioFileWithUrls[];
+  audioFiles: AudioFileWithFiles[];
 }
 
 function formatToMinutes(duration: number): string {
@@ -136,6 +136,10 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
       setisPlaying(true);
     }
   };
+
+  useEffect(() => {
+    console.log(audioFiles);
+  });
 
   return (
     <>
