@@ -6,7 +6,7 @@ import Image from 'next/image';
 import UploadButton from './Images/UI/UploadButton';
 import CheckIcon from './Images/UI/CheckIcon';
 
-import { TapeWithFiles } from '@/types/TapeInfo';
+import { TapeInfoJSON, TapeWithFiles } from '@/types/TapeInfo';
 import createNewTape from './Helper Functions/createNewTape';
 
 interface AudioPlayerProps {
@@ -14,17 +14,36 @@ interface AudioPlayerProps {
   tape: TapeWithFiles | null;
   register: any;
   required: boolean;
+  watch: any;
+  tapeInfoJSON: TapeInfoJSON | null;
 }
 
-const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
+const EditModeEditableAudioPlayer: React.FC<AudioPlayerProps> = ({
   setTape,
   tape,
   register,
   required,
+  watch,
+  tapeInfoJSON,
 }) => {
-  const NUM_TRACKS = 3;
-  const [artistNames, setArtistNames] = useState(Array(NUM_TRACKS).fill(''));
-  const [songNames, setSongNames] = useState(Array(NUM_TRACKS).fill(''));
+  const NUM_TRACKS = tape?.audioFiles.length || 3;
+
+  // Make sure tape.audioFiles is defined and filled before trying to set the initial state
+  const initialArtistNames =
+    tape && tape.audioFiles
+      ? tape.audioFiles.map((file) => file.artistName)
+      : Array(NUM_TRACKS).fill('');
+  const initialSongNames =
+    tape && tape.audioFiles
+      ? tape.audioFiles.map((file) => file.name)
+      : Array(NUM_TRACKS).fill('');
+  const initialAlbumPictureUrls =
+    tape && tape.audioFiles
+      ? tape.audioFiles.map((file) => file.albumPictureUrl)
+      : Array(NUM_TRACKS).fill(null);
+
+  const [artistNames, setArtistNames] = useState(initialArtistNames);
+  const [songNames, setSongNames] = useState(initialSongNames);
   const [clickedAudioTracks, setClickedAudioTrack] = useState([
     false,
     false,
@@ -33,7 +52,7 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
 
   // for preview
   const [albumPictureUrls, setAlbumPictureUrls] = useState<(string | null)[]>(
-    Array(NUM_TRACKS).fill(null)
+    initialAlbumPictureUrls
   );
 
   // this will set checkmark on upload button
@@ -137,6 +156,7 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
         newTape.audioFiles[i - 1].name = e.target.value;
         console.log('existing tape song name');
       }
+      tapeInfoJSON.audioFiles[i - 1].name = e.target.value;
       setTape(newTape);
     } else {
       const newTape = createNewTape(i);
@@ -151,7 +171,7 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
         albumPictureFile: null,
         albumPictureUrl: '',
       };
-
+      tapeInfoJSON.audioFiles[i - 1].name = e.target.value;
       setTape(newTape);
     }
   };
@@ -179,6 +199,7 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
         };
       } else {
         // if there's an existing object at the given index
+        tapeInfoJSON.audioFiles[i - 1].artistName = e.target.value;
         newTape.audioFiles[i - 1].artistName = e.target.value;
       }
       setTape(newTape);
@@ -195,7 +216,7 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
         albumPictureFile: null,
         albumPictureUrl: '',
       };
-
+      tapeInfoJSON.audioFiles[i - 1].artistName = e.target.value;
       setTape(newTape);
     }
   };
@@ -230,7 +251,7 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
         newTape.audioFiles[i - 1].albumPictureUrl = url;
         newTape.audioFiles[i - 1].albumPictureFile = picture;
       }
-
+      tapeInfoJSON.audioFiles[i - 1].albumPicture = picture.name;
       setTape(newTape);
     } else {
       const newTape = createNewTape(i);
@@ -246,7 +267,7 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
         albumPictureFile: picture,
         albumPictureUrl: url,
       };
-
+      tapeInfoJSON.audioFiles[i - 1].albumPicture = picture.name;
       setTape(newTape);
     }
   };
@@ -417,7 +438,7 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
                   {clickedAudioTracks[i - 1] ? (
                     <CheckIcon color="#05D00D" />
                   ) : (
-                    'Upload'
+                    'Replace'
                   )}
                 </button>
               </div>
@@ -429,4 +450,4 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
   );
 };
 
-export default EditableAudioPlayer;
+export default EditModeEditableAudioPlayer;

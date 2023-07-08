@@ -9,68 +9,25 @@ import Image from 'next/image';
 
 import CassetteLogo from '../../public/Artape-Cassete-Logo.gif';
 
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { FieldErrors, SubmitHandler, useForm } from 'react-hook-form';
 
 import CassetteMemento from '@/components/Images/Mementos/CassetteMemento';
 
 import PineappleMemento from '@/components/Images/Mementos/PineappleMemento';
 import LoudMemento from '@/components/Images/Mementos/LoudMemento';
 import MinimalMemento from '@/components/Images/Mementos/MinimalMemento';
-import { getPineappleSvgContent } from '@/components/Images/Mementos/PineappleMemento';
-import { getLoudSvgContent } from '@/components/Images/Mementos/LoudMemento';
-import { getMinimalSvgContent } from '@/components/Images/Mementos/MinimalMemento';
-import { getCassetteSvgContent } from '@/components/Images/Mementos/CassetteMemento';
 import EditButton from '@/components/Images/UI/EditButton';
 import UploadButton from '@/components/Images/UI/UploadButton';
 import EditableAudioPlayer from '@/components/EditableAudioPlayer';
 
 import LoadingOverlay from '@/components/LoadingOverlay';
+
+import createMetadataJSON from '@/components/Helper Functions/createMetadataJSON';
+import { SubmitValues } from '@/types/SubmitValues';
 import AkordSignIn from '@/components/Helper Functions/AkordSignIn';
+import getMementoSvgContent from '@/components/Helper Functions/getMementoSvgContent';
 
 /* Types */
-
-type ImageData = {
-  file: File;
-  name: string;
-  alt: string;
-  moduleId: number | null;
-};
-
-interface ImageFileState {
-  imageFile: File;
-  alt: string;
-  name: string;
-  moduleId: number | null;
-}
-
-export interface AudioFileState {
-  audioFile: File;
-  duration: number;
-  name: string;
-  artistName: string;
-  trackNumber: number;
-  albumPicture: File;
-}
-
-type ResultData = {
-  type: 'audio' | 'image';
-  data: File | AudioFileState | ImageData;
-};
-
-type VaultValues = {
-  profilePicture: File[];
-  tapeArtistName: string;
-  file: string;
-  memento: string;
-  email: string;
-  password: string;
-  tapeDescription: string;
-  type: string;
-  color: string;
-  moduleId: number;
-  moduleFiles: File[];
-  albumPicture: File[];
-};
 
 const loader = (
   <Image
@@ -81,86 +38,19 @@ const loader = (
   />
 );
 
-const createMetadataJSON = (
-  data: VaultValues,
-  audioStateFiles: { moduleId: number; audio: AudioFileState[] },
-  imageModules: ImageFileState[] | null,
-  color: string
-) => {
-  const metadata = {
-    profilePicture: data.profilePicture[0].name,
-    tapeArtistName: data.tapeArtistName,
-    tapeDescription: data.tapeDescription,
-    type: data.type,
-    color: color,
-    memento: data.memento,
-    audioFiles: audioStateFiles
-      ? audioStateFiles.audio.map((file) => ({
-          trackNumber: file.trackNumber,
-          name: file.name,
-          artistName: file.artistName,
-          duration: file.duration,
-          albumPicture: file.albumPicture.name,
-        }))
-      : [],
-    imageFiles: imageModules
-      ? imageModules.map((file) => ({
-          name: file.name,
-          alt: file.alt,
-          moduleId: file.moduleId,
-        }))
-      : [],
-  };
-  return metadata;
-};
-
-const getMementoSvgContent = (memento: string, color: string): Blob | null => {
-  let svgContent: string | null = null;
-  switch (memento) {
-    case 'Pineapple':
-      svgContent = getPineappleSvgContent(color);
-      break;
-    case 'Loud':
-      svgContent = getLoudSvgContent(color);
-      break;
-    case 'Minimal':
-      svgContent = getMinimalSvgContent(color);
-      break;
-    case 'Tape':
-      svgContent = getCassetteSvgContent(color);
-      break;
-    default:
-      return null;
-  }
-
-  if (svgContent) {
-    return new Blob([svgContent], { type: 'text/html' });
-  } else {
-    return null;
-  }
-};
-
 const Create = () => {
-  const [vaultId, setVaultId] = useState('');
   const [progress, setProgress] = useState({
     percentage: 0,
     state: 'Generating',
   });
   const router = useRouter();
-  const [moduleFiles, setModuleFiles] = useState<Record<number, File>>({});
+  const [imageFiles, setImageFiles] = useState<Record<number, File>>({});
   const [moduleUrls, setModuleUrls] = useState<{
     [index: number]: string;
   }>({});
   const [selectedMemento, setSelectedMemento] = useState('Pineapple');
   const [profilePicUrl, setProfilePicUrl] = useState('');
   const [loading, setLoading] = useState(false);
-  const [audioStateFiles, setAudioStateFiles] = useState<{
-    moduleId: number;
-    audio: AudioFileState[];
-  }>({
-    moduleId: 2,
-    audio: [],
-  });
   const [color, setColor] = useState('#0022ff');
 
   const { tape, setTape } = useTape();
@@ -176,7 +66,7 @@ const Create = () => {
     watch,
     control,
     formState: { errors },
-  } = useForm<VaultValues>();
+  } = useForm<SubmitValues>();
 
   const watchedProfilePic = watch('profilePicture');
   useEffect(() => {
@@ -187,13 +77,13 @@ const Create = () => {
     }
   }, [watchedProfilePic]);
 
-  const handleFileChange = (
+  const handleImageFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     index: number
   ) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      setModuleFiles((prevModuleFiles) => ({
+      setImageFiles((prevModuleFiles) => ({
         ...prevModuleFiles,
         [index]: files[0],
       }));
@@ -204,9 +94,9 @@ const Create = () => {
   const modules = [];
 
   useEffect(() => {
-    const keys = Object.keys(moduleFiles);
+    const keys = Object.keys(imageFiles);
     keys.forEach((key) => {
-      const file = moduleFiles[parseInt(key)];
+      const file = imageFiles[parseInt(key)];
       if (file) {
         setModuleUrls((prevModuleUrls) => ({
           ...prevModuleUrls,
@@ -214,7 +104,7 @@ const Create = () => {
         }));
       }
     });
-  }, [moduleFiles]);
+  }, [imageFiles]);
 
   for (let i = 1; i <= numberOfModules; i++) {
     if (i === 2) {
@@ -229,11 +119,9 @@ const Create = () => {
         >
           <EditableAudioPlayer
             required={true}
-            profilePicUrl={profilePicUrl}
             register={register}
-            audioFiles={audioStateFiles}
-            setAudioFiles={setAudioStateFiles}
-            watch={watch}
+            setTape={setTape}
+            tape={tape}
           />
         </div>
       );
@@ -250,7 +138,7 @@ const Create = () => {
           alignItems: 'center',
           cursor: 'pointer',
           position: 'relative',
-          border: errors[`imageModule${i}`]
+          border: errors[`imageModule${i}` as keyof FieldErrors<SubmitValues>]
             ? '1px solid red'
             : '1px solid var(--artape-primary-color)',
         }}
@@ -286,7 +174,7 @@ const Create = () => {
             <UploadButton color={color} />
           )}
           <input
-            {...register(`imageModule${i}` as keyof VaultValues, {
+            {...register(`imageModule${i}` as keyof SubmitValues, {
               required: true,
             })}
             id={`imageModule${i}`}
@@ -294,26 +182,25 @@ const Create = () => {
             name={`imageModule${i}`}
             accept="image/*"
             style={{ display: 'none', width: '100%' }}
-            onChange={(e) => handleFileChange(e, i)}
+            onChange={(e) => handleImageFileChange(e, i)}
           />
         </label>
       </div>
     );
   }
 
-  const onSubmit: SubmitHandler<VaultValues> = async (data, e) => {
+  const onSubmit: SubmitHandler<SubmitValues> = async (data, e) => {
     setLoading(true);
+
     setProgress({ percentage: 5, state: 'Communicating with Akord' });
     console.log('submitting');
     let imageModules: any = [];
     let imageUploadModules: any = [];
 
-    const filteredFiles = Object.values(moduleFiles);
-
-    for (let index = 0; index < filteredFiles.length; index++) {
+    const filteredImageFiles = Object.values(imageFiles);
+    for (let index = 0; index < filteredImageFiles.length; index++) {
       let moduleId;
-      const file = filteredFiles[index];
-
+      const file = filteredImageFiles[index];
       if (file.type.startsWith('image')) {
         if (index === 0) {
           moduleId = index + 1;
@@ -343,20 +230,14 @@ const Create = () => {
         // Calculate total number of files to upload
         const totalFilesToUpload =
           1 + // for tapeInfo.json
-          (data.profilePicture[0] ? 1 : 0) + // for profile picture
+          (tape?.profilePicture ? 1 : 0) + // for profile picture
           (data.memento ? 1 : 0) + // for memento
-          (audioStateFiles ? audioStateFiles.audio.length : 0) + // for audio files
+          (tape?.audioFiles ? tape.audioFiles.length : 0) + // for audio files
           imageUploadModules.length; // for image files
 
         let completedUploads = 0;
-
         let tapeInfoJSONUpload: File | null = null;
-        const metadata = createMetadataJSON(
-          data,
-          audioStateFiles,
-          imageModules,
-          color
-        );
+        const metadata = createMetadataJSON(data, tape, color, imageModules);
 
         // Convert metadata object into a JSON string
         const metadataJSON = JSON.stringify(metadata);
@@ -370,12 +251,11 @@ const Create = () => {
           tags: ['ArTape', 'Music'],
         });
         const { folderId } = await akord.folder.create(vaultId, '1.0.0');
-        // console.log(`successfully created vault: ${vaultId}`);
+        console.log(`successfully created vault: ${vaultId}`);
         setProgress({
-          percentage: Math.round((completedUploads / totalFilesToUpload) * 100),
+          percentage: 12,
           state: `Successful Sign-in to Akord! and created vault ${vaultId}`,
         });
-        setVaultId(vaultId);
 
         // Upload Profile Pic
         if (data.profilePicture[0]) {
@@ -410,10 +290,7 @@ const Create = () => {
               mementoSvgFile,
               mementoSvgFile.name
             );
-            const { transactionId } = await akord.stack.move(
-              mementoStackId,
-              folderId
-            );
+            await akord.stack.move(mementoStackId, folderId);
             console.log(
               `Uploaded memento: ${mementoSvgFile.name}, Stack ID: ${mementoStackId}`
             );
@@ -422,30 +299,33 @@ const Create = () => {
 
         // Create operation to upload album picture for each audio file making sure there is no duplicates
         // Upload audio files
-        console.log(audioStateFiles);
-        for (const { audioFile } of audioStateFiles.audio) {
-          try {
-            console.log(audioFile);
-            const { stackId } = await akord.stack.create(
-              vaultId,
-              audioFile,
-              audioFile.name
-            );
-            const { transactionId } = await akord.stack.move(stackId, folderId);
-            completedUploads += 1;
-            setProgress({
-              percentage: Math.round(
-                (completedUploads / totalFilesToUpload) * 100
-              ),
-              state: `Uploaded audio file: ${audioFile.name}`,
-            });
-            console.log(
-              `Uploaded file: ${audioFile.name}, Stack ID: ${stackId}`
-            );
-          } catch (error) {
-            console.log(error);
-            setLoading(false);
-            setProgress({ percentage: 0, state: 'initial' });
+        if (tape?.audioFiles) {
+          for (const { audioFile } of tape.audioFiles) {
+            try {
+              if (audioFile === null) {
+                continue; // if audioFile is null, we skip this iteration
+              }
+              const { stackId } = await akord.stack.create(
+                vaultId,
+                audioFile,
+                audioFile.name
+              );
+              await akord.stack.move(stackId, folderId);
+              completedUploads += 1;
+              setProgress({
+                percentage: Math.round(
+                  (completedUploads / totalFilesToUpload) * 100
+                ),
+                state: `Uploaded audio file: ${audioFile.name}`,
+              });
+              console.log(
+                `Uploaded file: ${audioFile.name}, Stack ID: ${stackId}`
+              );
+            } catch (error) {
+              console.log(error);
+              setLoading(false);
+              setProgress({ percentage: 0, state: 'initial' });
+            }
           }
         }
 
@@ -457,7 +337,7 @@ const Create = () => {
               image.url,
               image.name
             );
-            const { transactionId } = await akord.stack.move(stackId, folderId);
+            await akord.stack.move(stackId, folderId);
 
             completedUploads += 1;
             setProgress({
@@ -498,50 +378,45 @@ const Create = () => {
             moduleId: imageModule.moduleId,
           };
         });
-        const audioFiles = audioStateFiles.audio.map((audioFile: any) => {
-          return {
-            name: audioFile.name,
-            url: URL.createObjectURL(audioFile.audioFile),
-          };
-        });
 
         const profilePicture = {
           name: data.profilePicture[0].name,
           url: URL.createObjectURL(data.profilePicture[0]),
         };
 
-        const albumPicture = {
-          name: audioStateFiles.audio[0].albumPicture.name,
-          url: URL.createObjectURL(audioStateFiles.audio[0].albumPicture),
-        };
+        const tapeDescription = metadata?.tapeDescription;
+        const tapeArtistName = metadata?.tapeArtistName;
+        const memento = metadata?.memento;
+        const type = metadata?.type;
 
         setTape({
-          audioFiles,
-          imageFiles,
-          tapeInfoJSON: JSON.parse(metadataJSON),
-          albumPicture,
+          ...tape,
           profilePicture,
+          imageFiles,
+          type,
+          tapeDescription,
+          tapeArtistName,
+          memento,
+          color,
+          tapeInfoJSON: metadata,
+          audioFiles: tape?.audioFiles || [],
         });
         console.log('UPLOAD COMPLETE');
+        return vaultId;
       } catch (error) {
         setLoading(false);
         console.error(error);
       }
     };
 
-    processAndUploadFiles().then(() => {
+    processAndUploadFiles().then((vaultId) => {
       setProgress({ percentage: 100, state: 'Success!' });
       setLoading(false);
+      router.push({
+        pathname: `/tape/${vaultId}`,
+      });
     });
   };
-  useEffect(() => {
-    if (tape && tape.albumPicture && tape.audioFiles) {
-      console.log(tape);
-      router.push({
-        pathname: `/tape/${[vaultId]}`,
-      });
-    }
-  }, [tape, router]);
 
   return (
     <>
