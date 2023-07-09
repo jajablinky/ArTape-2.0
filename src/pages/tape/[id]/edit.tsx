@@ -187,54 +187,60 @@ const Edit = () => {
     e: React.ChangeEvent<HTMLInputElement>,
     index: number
   ) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      setTape((prevTape) => {
-        const updatedImageFiles = [...prevTape.imageFiles];
-        const newImageFile = {
-          url: URL.createObjectURL(files[0]),
-          moduleId: index,
-          name: files[0].name,
-          alt: files[0].name,
-        };
-        const newImageTapeInfo = {
-          moduleId: index,
-          name: files[0].name,
-          alt: files[0].name,
-        };
-        const existingFileIndex = updatedImageFiles.findIndex(
-          (file) => file.moduleId === index
-        );
-        if (existingFileIndex !== -1) {
-          // replace existing file if it exists
-          updatedImageFiles[existingFileIndex] = newImageFile;
-        } else {
-          // add new file if it doesn't exist
-          updatedImageFiles.push(newImageFile);
-        }
+    try {
+      const files = e.target.files;
+      if (files && files.length > 0) {
+        setTape((prevTape) => {
+          const updatedImageFiles = [...prevTape.imageFiles];
+          const newImageFile = {
+            url: URL.createObjectURL(files[0]),
+            moduleId: index,
+            name: files[0].name,
+            alt: files[0].name,
+          };
+          const newImageTapeInfo = {
+            moduleId: index,
+            name: files[0].name,
+            alt: files[0].name,
+          };
+          const existingFileIndex = updatedImageFiles.findIndex(
+            (file) => file.moduleId === index
+          );
+          if (existingFileIndex !== -1) {
+            // replace existing file if it exists
+            updatedImageFiles[existingFileIndex] = newImageFile;
+          } else {
+            // add new file if it doesn't exist
+            updatedImageFiles.push(newImageFile);
+          }
 
-        const updatedTapeInfoImageFiles = [...prevTape.tapeInfoJSON.imageFiles];
-        const existingTapeInfoFileIndex = updatedTapeInfoImageFiles.findIndex(
-          (file) => file.moduleId === index
-        );
-        if (existingTapeInfoFileIndex !== -1) {
-          // replace existing file in tapeInfoJSON if it exists
-          updatedTapeInfoImageFiles[existingTapeInfoFileIndex] =
-            newImageTapeInfo;
-        } else {
-          // add new file to tapeInfoJSON if it doesn't exist
-          updatedTapeInfoImageFiles.push(newImageTapeInfo);
-        }
+          const updatedTapeInfoImageFiles = [
+            ...prevTape.tapeInfoJSON.imageFiles,
+          ];
+          const existingTapeInfoFileIndex = updatedTapeInfoImageFiles.findIndex(
+            (file) => file.moduleId === index
+          );
+          if (existingTapeInfoFileIndex !== -1) {
+            // replace existing file in tapeInfoJSON if it exists
+            updatedTapeInfoImageFiles[existingTapeInfoFileIndex] =
+              newImageTapeInfo;
+          } else {
+            // add new file to tapeInfoJSON if it doesn't exist
+            updatedTapeInfoImageFiles.push(newImageTapeInfo);
+          }
 
-        return {
-          ...prevTape,
-          imageFiles: updatedImageFiles,
-          tapeInfoJSON: {
-            ...prevTape.tapeInfoJSON,
-            imageFiles: updatedTapeInfoImageFiles,
-          },
-        };
-      });
+          return {
+            ...prevTape,
+            imageFiles: updatedImageFiles,
+            tapeInfoJSON: {
+              ...prevTape.tapeInfoJSON,
+              imageFiles: updatedTapeInfoImageFiles,
+            },
+          };
+        });
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 

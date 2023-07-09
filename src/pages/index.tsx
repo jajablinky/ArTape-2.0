@@ -212,9 +212,9 @@ export default function Home() {
           type: tapeInfoJSON?.type,
           tapeInfoJSON,
         });
-        router.push({
-          pathname: `/tape/${[vaultId]}`,
-        });
+        // router.push({
+        //   pathname: `/tape/${[vaultId]}`,
+        // });
         setLoading(false);
       }
     } catch (e) {
@@ -222,6 +222,10 @@ export default function Home() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    console.log(tape);
+  }, [tape]);
   return (
     <>
       <Head>

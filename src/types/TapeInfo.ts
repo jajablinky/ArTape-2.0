@@ -34,6 +34,7 @@ export interface AudioFile {
   artistName: string;
   duration: number;
   albumPicture: string;
+  fileName: string;
 }
 
 export interface AudioFileWithUrls extends AudioFile {

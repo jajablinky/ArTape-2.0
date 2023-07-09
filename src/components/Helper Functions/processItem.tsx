@@ -23,14 +23,14 @@ async function processItem(
     const { data: decryptedAudio } = await akord.stack.getVersion(audioId);
 
     const blobUrl = URL.createObjectURL(new Blob([decryptedAudio]));
-    const itemNameWithoutExtension = item.name
-      .split('.')
-      .slice(0, -1)
-      .join('.');
 
+    console.log('tape info json', tapeInfoJSON);
     const audioMeta = tapeInfoJSON?.audioFiles.find((audio) =>
-      audio.name.includes(itemNameWithoutExtension)
+      audio.fileName.includes(item.name)
     );
+
+    console.log('audio meta', audioMeta);
+
     result.audioFiles = [
       {
         trackNumber: audioMeta?.trackNumber || 0,
@@ -40,6 +40,7 @@ async function processItem(
         albumPicture: audioMeta?.albumPicture || '',
         audioUrl: blobUrl,
         albumPictureUrl: albumPictures[audioMeta?.albumPicture || ''] || null,
+        fileName: audioMeta?.fileName || '',
       },
     ];
   }

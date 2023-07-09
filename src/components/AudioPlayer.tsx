@@ -38,7 +38,7 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
   const [currentSongIndex, setCurrentSongIndex] = useState<number>(-1);
   const [isPlaying, setisPlaying] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(1);
-  const [currentSong, setCurrentSong] = useState<AudioFileWithUrls | null>(
+  const [currentSong, setCurrentSong] = useState<AudioFileWithFiles | null>(
     null
   );
 

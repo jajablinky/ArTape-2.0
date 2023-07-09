@@ -28,7 +28,6 @@ const EditModeEditableAudioPlayer: React.FC<AudioPlayerProps> = ({
 }) => {
   const NUM_TRACKS = tape?.audioFiles.length || 3;
 
-  // Make sure tape.audioFiles is defined and filled before trying to set the initial state
   const initialArtistNames =
     tape && tape.audioFiles
       ? tape.audioFiles.map((file) => file.artistName)
@@ -97,6 +96,7 @@ const EditModeEditableAudioPlayer: React.FC<AudioPlayerProps> = ({
           albumPicture: '',
           albumPictureFile: null,
           albumPictureUrl: '',
+          fileName: '',
 
           // other properties will be undefined
         };
@@ -171,7 +171,7 @@ const EditModeEditableAudioPlayer: React.FC<AudioPlayerProps> = ({
         albumPictureFile: null,
         albumPictureUrl: '',
       };
-      tapeInfoJSON.audioFiles[i - 1].name = e.target.value;
+      tapeInfoJSON.audioFiles[i - 1].fileName = e.target.value;
       setTape(newTape);
     }
   };
@@ -196,6 +196,7 @@ const EditModeEditableAudioPlayer: React.FC<AudioPlayerProps> = ({
           albumPicture: '',
           albumPictureFile: null,
           albumPictureUrl: '',
+          fileName: '',
         };
       } else {
         // if there's an existing object at the given index
@@ -215,6 +216,7 @@ const EditModeEditableAudioPlayer: React.FC<AudioPlayerProps> = ({
         albumPicture: '',
         albumPictureFile: null,
         albumPictureUrl: '',
+        fileName: '',
       };
       tapeInfoJSON.audioFiles[i - 1].artistName = e.target.value;
       setTape(newTape);
@@ -245,6 +247,7 @@ const EditModeEditableAudioPlayer: React.FC<AudioPlayerProps> = ({
           albumPicture: picture.name,
           albumPictureFile: picture,
           albumPictureUrl: url,
+          fileName: '',
         };
       } else {
         // if there's an existing object at the given index
@@ -266,6 +269,7 @@ const EditModeEditableAudioPlayer: React.FC<AudioPlayerProps> = ({
         albumPicture: picture.name,
         albumPictureFile: picture,
         albumPictureUrl: url,
+        fileName: '',
       };
       tapeInfoJSON.audioFiles[i - 1].albumPicture = picture.name;
       setTape(newTape);
