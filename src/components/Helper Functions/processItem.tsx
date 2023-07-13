@@ -24,12 +24,9 @@ async function processItem(
 
     const blobUrl = URL.createObjectURL(new Blob([decryptedAudio]));
 
-    console.log('tape info json', tapeInfoJSON);
-    const audioMeta = tapeInfoJSON?.audioFiles.find((audio) =>
-      audio.fileName.includes(item.name)
+    const audioMeta = tapeInfoJSON?.audioFiles.find(
+      (audio) => audio.fileName === item.name
     );
-
-    console.log('audio meta', audioMeta);
 
     result.audioFiles = [
       {

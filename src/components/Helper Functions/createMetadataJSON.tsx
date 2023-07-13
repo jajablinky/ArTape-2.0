@@ -21,7 +21,7 @@ const createMetadataJSON = (
             artistName: file.artistName,
             duration: file.duration,
             albumPicture: file.albumPicture,
-            fileName: file.name,
+            fileName: file.fileName,
           }))
         : [],
       imageFiles: imageModules

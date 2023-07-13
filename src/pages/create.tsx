@@ -191,7 +191,7 @@ const Create = () => {
 
   const onSubmit: SubmitHandler<SubmitValues> = async (data, e) => {
     setLoading(true);
-
+    console.log(tape);
     setProgress({ percentage: 5, state: 'Communicating with Akord' });
     console.log('submitting');
     let imageModules: any = [];
@@ -401,8 +401,9 @@ const Create = () => {
           tapeInfoJSON: metadata,
           audioFiles: tape?.audioFiles || [],
         });
+        console.log(metadata);
         console.log('UPLOAD COMPLETE');
-        return vaultId;
+        // return vaultId;
       } catch (error) {
         setLoading(false);
         console.error(error);
@@ -517,7 +518,9 @@ const Create = () => {
                       Pineapple
                     </label>
                     <input
-                      {...register('memento')}
+                      {...register('memento', {
+                        required: true,
+                      })}
                       className={styles.radioButton}
                       name="memento"
                       id="one"
@@ -537,7 +540,9 @@ const Create = () => {
                     </label>
                     <input
                       className={styles.radioButton}
-                      {...register('memento')}
+                      {...register('memento', {
+                        required: true,
+                      })}
                       value="Loud"
                       name="memento"
                       id="two"
@@ -556,7 +561,9 @@ const Create = () => {
                     </label>
                     <input
                       className={styles.radioButton}
-                      {...register('memento')}
+                      {...register('memento', {
+                        required: true,
+                      })}
                       name="memento"
                       value="Minimal"
                       id="three"
@@ -575,7 +582,9 @@ const Create = () => {
                     </label>
                     <input
                       className={styles.radioButton}
-                      {...register('memento')}
+                      {...register('memento', {
+                        required: true,
+                      })}
                       value="Tape"
                       name="memento"
                       id="four"

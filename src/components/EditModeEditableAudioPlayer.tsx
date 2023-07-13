@@ -96,13 +96,14 @@ const EditModeEditableAudioPlayer: React.FC<AudioPlayerProps> = ({
           albumPicture: '',
           albumPictureFile: null,
           albumPictureUrl: '',
-          fileName: '',
+          fileName: file.name,
 
           // other properties will be undefined
         };
       } else {
         // if there's an existing object at the given index
         newTape.audioFiles[i - 1].audioFile = file;
+        newTape.audioFiles[i - 1].fileName = file.name;
         newTape.audioFiles[i - 1].audioUrl = URL.createObjectURL(file);
         newTape.audioFiles[i - 1].duration = duration;
       }
@@ -120,6 +121,7 @@ const EditModeEditableAudioPlayer: React.FC<AudioPlayerProps> = ({
         trackNumber: i,
         albumPicture: '',
         albumPictureFile: null,
+        fileName: file.name,
         albumPictureUrl: '',
       };
 
