@@ -31,7 +31,7 @@ async function processItem(
     result.audioFiles = [
       {
         trackNumber: audioMeta?.trackNumber || 0,
-        name: item.name,
+        name: audioMeta?.name || '',
         artistName: audioMeta?.artistName || '',
         duration: audioMeta?.duration || 0,
         albumPicture: audioMeta?.albumPicture || '',
