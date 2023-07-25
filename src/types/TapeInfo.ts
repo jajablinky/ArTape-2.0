@@ -33,6 +33,7 @@ export interface TapeWithImageFiles extends Tape {
 
   imageFiles: ImageFileWithFiles[];
 }
+
 export interface AudioFile {
   trackNumber: number;
   name: string;
@@ -63,5 +64,5 @@ export interface ImageFileWithUrls extends ImageFile{
 }
 
 export interface ImageFileWithFiles extends ImageFileWithUrls{
-imageFile: File | null
+file: File | null
 }

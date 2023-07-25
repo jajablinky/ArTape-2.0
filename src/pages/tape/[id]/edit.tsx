@@ -25,7 +25,7 @@ import getNextVersion from '@/components/Helper Functions/getNextVersion';
 import EditModeEditableAudioPlayer from '@/components/EditModeEditableAudioPlayer';
 import { SubmitValues } from '@/types/SubmitValues';
 import getMementoSvgContent from '@/components/Helper Functions/getMementoSvgContent';
-import { TapeWithAudioFiles } from '@/types/TapeInfo';
+import { TapeWithAudioFiles, TapeWithImageFiles } from '@/types/TapeInfo';
 import { blobUrlToFile } from '@/components/Helper Functions/blobUrltoFile';
 
 type ModuleInfo = {
@@ -129,25 +129,27 @@ const Edit = () => {
   const handleProfilePictureChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const file = e.target.files[0];
-    const url = URL.createObjectURL(file);
-    setProfilePicUrl(url);
-    setTape((prevTape) => ({
-      ...prevTape,
-      profilePicture: {
-        ...prevTape.profilePicture,
-        url: url,
-      },
-      tapeInfoJSON: {
-        ...prevTape.tapeInfoJSON,
-        profilePicture: file.name,
-      },
-    }));
+    if (e.target.files) {
+      const file = e.target.files[0];
+      const url = URL.createObjectURL(file);
+      setProfilePicUrl(url);
+      setTape((prevTape: TapeWithImageFiles) => ({
+        ...prevTape,
+        profilePicture: {
+          ...prevTape.profilePicture,
+          url: url,
+        },
+        tapeInfoJSON: {
+          ...prevTape.tapeInfoJSON,
+          profilePicture: file.name,
+        },
+      }));
+    }
   };
 
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setTape((prevTape) => ({
+    setTape((prevTape: TapeWithImageFiles) => ({
       ...prevTape,
       [name]: value,
       tapeInfoJSON: {
@@ -179,11 +181,9 @@ const Edit = () => {
           };
           newImageFiles.push({
             ...imageFile,
-            imageFile: file,
+            file: file,
           });
         }
-
-        console.log('new image files', newImageFiles);
         setTape({
           ...tape,
           imageFiles: newImageFiles,
@@ -198,23 +198,29 @@ const Edit = () => {
     fetchInitialModules();
   }, []);
 
-  // Here's how `handleImageFileChange` would look like:
   const handleImageFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     index: number
   ) => {
+    // need to update initialModules
     try {
       const files = e.target.files;
       if (files && files.length > 0) {
-        setTape((prevTape) => {
+        const newImageFile = {
+          url: URL.createObjectURL(files[0]),
+          moduleId: index,
+          name: files[0].name,
+          alt: files[0].name,
+          file: files[0],
+        };
+
+        setInitialModules((prev) => ({
+          ...prev,
+          [index]: newImageFile,
+        }));
+
+        setTape((prevTape: TapeWithImageFiles) => {
           const updatedImageFiles = [...prevTape.imageFiles];
-          const newImageFile = {
-            url: URL.createObjectURL(files[0]),
-            moduleId: index,
-            name: files[0].name,
-            alt: files[0].name,
-            file: files[0],
-          };
           const newImageTapeInfo = {
             moduleId: index,
             name: files[0].name,
@@ -230,30 +236,33 @@ const Edit = () => {
             // add new file if it doesn't exist
             updatedImageFiles.push(newImageFile);
           }
+          if (prevTape.tapeInfoJSON) {
+            const updatedTapeInfoImageFiles = [
+              ...prevTape.tapeInfoJSON.imageFiles,
+            ];
 
-          const updatedTapeInfoImageFiles = [
-            ...prevTape.tapeInfoJSON.imageFiles,
-          ];
-          const existingTapeInfoFileIndex = updatedTapeInfoImageFiles.findIndex(
-            (file) => file.moduleId === index
-          );
-          if (existingTapeInfoFileIndex !== -1) {
-            // replace existing file in tapeInfoJSON if it exists
-            updatedTapeInfoImageFiles[existingTapeInfoFileIndex] =
-              newImageTapeInfo;
-          } else {
-            // add new file to tapeInfoJSON if it doesn't exist
-            updatedTapeInfoImageFiles.push(newImageTapeInfo);
+            const existingTapeInfoFileIndex =
+              updatedTapeInfoImageFiles.findIndex(
+                (file) => file.moduleId === index
+              );
+            if (existingTapeInfoFileIndex !== -1) {
+              // replace existing file in tapeInfoJSON if it exists
+              updatedTapeInfoImageFiles[existingTapeInfoFileIndex] =
+                newImageTapeInfo;
+            } else {
+              // add new file to tapeInfoJSON if it doesn't exist
+              updatedTapeInfoImageFiles.push(newImageTapeInfo);
+            }
+
+            return {
+              ...prevTape,
+              imageFiles: updatedImageFiles,
+              tapeInfoJSON: {
+                ...prevTape.tapeInfoJSON,
+                imageFiles: updatedTapeInfoImageFiles,
+              },
+            };
           }
-
-          return {
-            ...prevTape,
-            imageFiles: updatedImageFiles,
-            tapeInfoJSON: {
-              ...prevTape.tapeInfoJSON,
-              imageFiles: updatedTapeInfoImageFiles,
-            },
-          };
         });
       }
     } catch (error) {
@@ -323,7 +332,11 @@ const Edit = () => {
         >
           {initialModules[i] && initialModules[i].url ? (
             <Image
-              src={initialModules[i].url}
+              src={
+                initialModules[i] && initialModules[i].url
+                  ? initialModules[i].url
+                  : 'default-image-url'
+              }
               alt={`Module ${i}`}
               width={350}
               height={350}
@@ -348,7 +361,6 @@ const Edit = () => {
         </label>
       </div>
     );
-    console.log('initial modules', initialModules, [i]);
   }
 
   const onSubmit: SubmitHandler<SubmitValues> = async (data, e) => {
@@ -413,7 +425,7 @@ const Edit = () => {
 
         const akord = await AkordSignIn(data.email, data.password);
 
-        if (akord) {
+        if (akord && id) {
           await akord.vault.rename(id, tapeArtistName);
           console.log('rename complete');
 
@@ -505,12 +517,8 @@ const Edit = () => {
 
           // Upload audio files
           if (audioFiles && akord) {
-            console.log(
-              'audio files',
-              audioFiles[0].audioFile,
-              audioFiles[0].name
-            );
             for (const { audioFile, name } of audioFiles) {
+              console.log(audioFile);
               try {
                 const { stackId } = await akord.stack.create(
                   vaultId,
@@ -555,27 +563,27 @@ const Edit = () => {
             }
           }
 
-          // // Upload tapeInfo.json
-          // if (tapeInfoJSONUpload) {
-          //   const { stackId } = await akord.stack.create(
-          //     vaultId,
-          //     tapeInfoJSONUpload,
-          //     tapeInfoJSONUpload.name
-          //   );
-          //   const { transactionId } = await akord.stack.move(stackId, folderId);
-          //   completedUploads += 1;
-          //   setProgress({
-          //     percentage: Math.round(
-          //       (completedUploads / totalFilesToUpload) * 100
-          //     ),
-          //     state: `Uploaded tapeInfo.json`,
-          //   });
-          //   console.log(
-          //     `Uploaded file: ${tapeInfoJSONUpload.name}, Stack ID: ${stackId}`
-          //   );
-          // }
+          // Upload tapeInfo.json
+          if (tapeInfoJSONUpload) {
+            const { stackId } = await akord.stack.create(
+              vaultId,
+              tapeInfoJSONUpload,
+              tapeInfoJSONUpload.name
+            );
+            const { transactionId } = await akord.stack.move(stackId, folderId);
+            completedUploads += 1;
+            setProgress({
+              percentage: Math.round(
+                (completedUploads / totalFilesToUpload) * 100
+              ),
+              state: `Uploaded tapeInfo.json`,
+            });
+            console.log(
+              `Uploaded file: ${tapeInfoJSONUpload.name}, Stack ID: ${stackId}`
+            );
+          }
 
-          //   console.log('UPLOAD COMPLETE');
+          console.log('UPLOAD COMPLETE');
         }
       } catch (error) {
         setLoading(false);
@@ -592,11 +600,15 @@ const Edit = () => {
   };
   useEffect(() => {
     if (finishEdit) {
-      // router.push({
-      //   pathname: `/tape/${[id]}`,
-      // });
+      router.push({
+        pathname: `/tape/${[id]}`,
+      });
     }
   }, [finishEdit, router]);
+
+  useEffect(() => {
+    console.log(tape);
+  }, [tape]);
 
   return (
     <>

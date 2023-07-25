@@ -403,7 +403,7 @@ const Create = () => {
         });
         console.log(metadata);
         console.log('UPLOAD COMPLETE');
-        // return vaultId;
+        return vaultId;
       } catch (error) {
         setLoading(false);
         console.error(error);
