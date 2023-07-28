@@ -30,7 +30,7 @@ import { blobUrlToFile } from '@/components/Helper Functions/blobUrltoFile';
 
 type ModuleInfo = {
   file: File | null;
-  url: string | null;
+  url: string;
 };
 
 const loader = (
@@ -163,19 +163,38 @@ const Edit = () => {
     const fetchInitialModules = async () => {
       setLoading(true); // Start loading
       try {
-        // initializing initial modules
-        let newInitialModules: { [key: number]: any } = {};
-        // sorting all the image files by module id
+        // initializing initial files
+        let newInitialImageModules: { [key: number]: any } = {};
+        let newInitialAudioTracks: { [key: number]: any } = {};
+
+        // sorting all the image files and audio files
         const sortedImageFiles = [...imageFiles].sort(
           (a, b) => a.moduleId - b.moduleId
         );
+        const sortedAudioFiles = [...audioFiles].sort(
+          (a, b) => a.trackNumber - b.trackNumber
+        );
         // initializing newImageFiles array
         const newImageFiles = [];
+        const newAudioFiles = [];
+
+        //cycling through each imageFile in sortedImageFiles
+        for (let audioFile of sortedAudioFiles) {
+          const file = await blobUrlToFile(audioFile.url, audioFile.name);
+          newInitialAudioTracks[audioFile.trackNumber] = {
+            url: audioFile.url,
+            file: file,
+          };
+          newAudioFiles.push({
+            ...audioFile,
+            file: file,
+          });
+        }
 
         //cycling through each imageFile in sortedImageFiles
         for (let imageFile of sortedImageFiles) {
           const file = await blobUrlToFile(imageFile.url, imageFile.name);
-          newInitialModules[imageFile.moduleId] = {
+          newInitialImageModules[imageFile.moduleId] = {
             url: imageFile.url,
             file: file,
           };
@@ -184,12 +203,14 @@ const Edit = () => {
             file: file,
           });
         }
+
         setTape({
           ...tape,
           imageFiles: newImageFiles,
+          audioFiles: newAudioFiles,
         });
 
-        setInitialModules(newInitialModules);
+        setInitialModules(newInitialImageModules);
       } catch (error) {
         console.error('There was an error', error);
       }
@@ -600,9 +621,9 @@ const Edit = () => {
   };
   useEffect(() => {
     if (finishEdit) {
-      router.push({
-        pathname: `/tape/${[id]}`,
-      });
+      // router.push({
+      //   pathname: `/tape/${[id]}`,
+      // });
     }
   }, [finishEdit, router]);
 

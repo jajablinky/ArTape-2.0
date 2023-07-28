@@ -47,8 +47,6 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
     }
   };
 
-  // i need to account
-
   const handleAudioUpload = async (i: number, file: File) => {
     // create mode
     const getDuration = (file: File): Promise<number> => {
