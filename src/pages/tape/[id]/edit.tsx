@@ -319,6 +319,8 @@ const Edit = () => {
       continue;
     }
 
+    const imageModuleKey = `imageModule${i}` as keyof SubmitValues;
+
     // push all the image modules
     modules.push(
       <div
@@ -331,9 +333,11 @@ const Edit = () => {
           alignItems: 'center',
           cursor: 'pointer',
           position: 'relative',
-          border: errors[`imageModule${i}`]
-            ? '1px solid red'
-            : '1px solid var(--artape-primary-color)',
+          border:
+            errors[imageModuleKey] &&
+            Object.keys(errors).includes(imageModuleKey)
+              ? '1px solid red'
+              : '1px solid var(--artape-primary-color)',
         }}
         key={`imageModule${i}`}
       >
@@ -447,6 +451,11 @@ const Edit = () => {
         const akord = await AkordSignIn(data.email, data.password);
 
         if (akord && id) {
+          if (typeof id !== 'string') {
+            throw new Error(
+              `Expected id to be a string, but received ${typeof id}`
+            );
+          }
           await akord.vault.rename(id, tapeArtistName);
           console.log('rename complete');
 

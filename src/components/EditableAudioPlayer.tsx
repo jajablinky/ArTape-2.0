@@ -6,12 +6,12 @@ import Image from 'next/image';
 import UploadButton from './Images/UI/UploadButton';
 import CheckIcon from './Images/UI/CheckIcon';
 
-import { TapeWithFiles } from '@/types/TapeInfo';
+import { TapeWithAudioFiles } from '@/types/TapeInfo';
 import createNewTape from './Helper Functions/createNewTape';
 
 interface AudioPlayerProps {
-  setTape: (tape: TapeWithFiles | null) => void;
-  tape: TapeWithFiles | null;
+  setTape: (tape: TapeWithAudioFiles | null) => void;
+  tape: TapeWithAudioFiles | null;
   register: any;
   required: boolean;
 }
