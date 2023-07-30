@@ -191,7 +191,7 @@ const Create = () => {
 
   const onSubmit: SubmitHandler<SubmitValues> = async (data, e) => {
     setLoading(true);
-
+    console.log(tape);
     setProgress({ percentage: 5, state: 'Communicating with Akord' });
     console.log('submitting');
     let imageModules: any = [];
@@ -247,162 +247,166 @@ const Create = () => {
         });
 
         const akord = await AkordSignIn(data.email, data.password);
-        const { vaultId } = await akord.vault.create(data.tapeArtistName, {
-          tags: ['ArTape', 'Music'],
-        });
-        const { folderId } = await akord.folder.create(vaultId, '1.0.0');
-        console.log(`successfully created vault: ${vaultId}`);
-        setProgress({
-          percentage: 12,
-          state: `Successful Sign-in to Akord! and created vault ${vaultId}`,
-        });
 
-        // Upload Profile Pic
-        if (data.profilePicture[0]) {
-          const { stackId } = await akord.stack.create(
-            vaultId,
-            data.profilePicture[0],
-            data.profilePicture[0].name
-          );
-          const { transactionId } = await akord.stack.move(stackId, folderId);
-          completedUploads += 1;
-          setProgress({
-            percentage: Math.round(
-              (completedUploads / totalFilesToUpload) * 100
-            ),
-            state: `Uploaded Profile Picture!`,
+        if (akord) {
+          const { vaultId } = await akord.vault.create(data.tapeArtistName, {
+            tags: ['ArTape', 'Music'],
           });
-          console.log(
-            `Uploaded file: ${data.profilePicture[0].name}, Stack ID: ${stackId}`
-          );
-        }
+          const { folderId } = await akord.folder.create(vaultId, '1.0.0');
+          console.log(`successfully created vault: ${vaultId}`);
+          setProgress({
+            percentage: 12,
+            state: `Successful Sign-in to Akord! and created vault ${vaultId}`,
+          });
 
-        if (data.memento) {
-          const mementoSvgContent = getMementoSvgContent(data.memento, color);
-          if (mementoSvgContent) {
-            const mementoSvgFile = new File(
-              [mementoSvgContent],
-              `${data.memento}.svg`,
-              { type: 'text/html' }
-            );
-            const { stackId: mementoStackId } = await akord.stack.create(
-              vaultId,
-              mementoSvgFile,
-              mementoSvgFile.name
-            );
-            await akord.stack.move(mementoStackId, folderId);
-            console.log(
-              `Uploaded memento: ${mementoSvgFile.name}, Stack ID: ${mementoStackId}`
-            );
-          }
-        }
-
-        // Create operation to upload album picture for each audio file making sure there is no duplicates
-        // Upload audio files
-        if (tape?.audioFiles) {
-          for (const { audioFile } of tape.audioFiles) {
-            try {
-              if (audioFile === null) {
-                continue; // if audioFile is null, we skip this iteration
-              }
-              const { stackId } = await akord.stack.create(
-                vaultId,
-                audioFile,
-                audioFile.name
-              );
-              await akord.stack.move(stackId, folderId);
-              completedUploads += 1;
-              setProgress({
-                percentage: Math.round(
-                  (completedUploads / totalFilesToUpload) * 100
-                ),
-                state: `Uploaded audio file: ${audioFile.name}`,
-              });
-              console.log(
-                `Uploaded file: ${audioFile.name}, Stack ID: ${stackId}`
-              );
-            } catch (error) {
-              console.log(error);
-              setLoading(false);
-              setProgress({ percentage: 0, state: 'initial' });
-            }
-          }
-        }
-
-        // Upload image files
-        if (imageUploadModules) {
-          for (const image of imageUploadModules) {
+          // Upload Profile Pic
+          if (data.profilePicture[0]) {
             const { stackId } = await akord.stack.create(
               vaultId,
-              image.url,
-              image.name
+              data.profilePicture[0],
+              data.profilePicture[0].name
             );
-            await akord.stack.move(stackId, folderId);
-
+            const { transactionId } = await akord.stack.move(stackId, folderId);
             completedUploads += 1;
             setProgress({
               percentage: Math.round(
                 (completedUploads / totalFilesToUpload) * 100
               ),
-              state: `Uploaded image file: ${image.name}`,
+              state: `Uploaded Profile Picture!`,
             });
-            console.log(`Uploaded file: ${image.name}, Stack ID: ${stackId}`);
+            console.log(
+              `Uploaded file: ${data.profilePicture[0].name}, Stack ID: ${stackId}`
+            );
           }
-        }
 
-        // Upload tapeInfo.json
-        if (tapeInfoJSONUpload) {
-          const { stackId } = await akord.stack.create(
-            vaultId,
-            tapeInfoJSONUpload,
-            tapeInfoJSONUpload.name
-          );
-          const { transactionId } = await akord.stack.move(stackId, folderId);
-          completedUploads += 1;
-          setProgress({
-            percentage: Math.round(
-              (completedUploads / totalFilesToUpload) * 100
-            ),
-            state: `Uploaded tapeInfo.json`,
+          if (data.memento) {
+            const mementoSvgContent = getMementoSvgContent(data.memento, color);
+            if (mementoSvgContent) {
+              const mementoSvgFile = new File(
+                [mementoSvgContent],
+                `${data.memento}.svg`,
+                { type: 'text/html' }
+              );
+              const { stackId: mementoStackId } = await akord.stack.create(
+                vaultId,
+                mementoSvgFile,
+                mementoSvgFile.name
+              );
+              await akord.stack.move(mementoStackId, folderId);
+              console.log(
+                `Uploaded memento: ${mementoSvgFile.name}, Stack ID: ${mementoStackId}`
+              );
+            }
+          }
+
+          // Create operation to upload album picture for each audio file making sure there is no duplicates
+          // Upload audio files
+          if (tape?.audioFiles) {
+            for (const { audioFile } of tape.audioFiles) {
+              try {
+                if (audioFile === null) {
+                  continue; // if audioFile is null, we skip this iteration
+                }
+                const { stackId } = await akord.stack.create(
+                  vaultId,
+                  audioFile,
+                  audioFile.name
+                );
+                await akord.stack.move(stackId, folderId);
+                completedUploads += 1;
+                setProgress({
+                  percentage: Math.round(
+                    (completedUploads / totalFilesToUpload) * 100
+                  ),
+                  state: `Uploaded audio file: ${audioFile.name}`,
+                });
+                console.log(
+                  `Uploaded file: ${audioFile.name}, Stack ID: ${stackId}`
+                );
+              } catch (error) {
+                console.log(error);
+                setLoading(false);
+                setProgress({ percentage: 0, state: 'initial' });
+              }
+            }
+          }
+
+          // Upload image files
+          if (imageUploadModules) {
+            for (const image of imageUploadModules) {
+              const { stackId } = await akord.stack.create(
+                vaultId,
+                image.url,
+                image.name
+              );
+              await akord.stack.move(stackId, folderId);
+
+              completedUploads += 1;
+              setProgress({
+                percentage: Math.round(
+                  (completedUploads / totalFilesToUpload) * 100
+                ),
+                state: `Uploaded image file: ${image.name}`,
+              });
+              console.log(`Uploaded file: ${image.name}, Stack ID: ${stackId}`);
+            }
+          }
+
+          // Upload tapeInfo.json
+          if (tapeInfoJSONUpload) {
+            const { stackId } = await akord.stack.create(
+              vaultId,
+              tapeInfoJSONUpload,
+              tapeInfoJSONUpload.name
+            );
+            const { transactionId } = await akord.stack.move(stackId, folderId);
+            completedUploads += 1;
+            setProgress({
+              percentage: Math.round(
+                (completedUploads / totalFilesToUpload) * 100
+              ),
+              state: `Uploaded tapeInfo.json`,
+            });
+            console.log(
+              `Uploaded file: ${tapeInfoJSONUpload.name}, Stack ID: ${stackId}`
+            );
+          }
+
+          // reformatting imageFiles and audioFiles to fit context when mapped per vault id at different page
+          const imageFiles = imageUploadModules.map((imageModule: any) => {
+            return {
+              name: imageModule.name,
+              url: URL.createObjectURL(imageModule.url),
+              moduleId: imageModule.moduleId,
+            };
           });
-          console.log(
-            `Uploaded file: ${tapeInfoJSONUpload.name}, Stack ID: ${stackId}`
-          );
-        }
 
-        // reformatting imageFiles and audioFiles to fit context when mapped per vault id at different page
-        const imageFiles = imageUploadModules.map((imageModule: any) => {
-          return {
-            name: imageModule.name,
-            url: URL.createObjectURL(imageModule.url),
-            moduleId: imageModule.moduleId,
+          const profilePicture = {
+            name: data.profilePicture[0].name,
+            url: URL.createObjectURL(data.profilePicture[0]),
           };
-        });
 
-        const profilePicture = {
-          name: data.profilePicture[0].name,
-          url: URL.createObjectURL(data.profilePicture[0]),
-        };
+          const tapeDescription = metadata?.tapeDescription;
+          const tapeArtistName = metadata?.tapeArtistName;
+          const memento = metadata?.memento;
+          const type = metadata?.type;
 
-        const tapeDescription = metadata?.tapeDescription;
-        const tapeArtistName = metadata?.tapeArtistName;
-        const memento = metadata?.memento;
-        const type = metadata?.type;
-
-        setTape({
-          ...tape,
-          profilePicture,
-          imageFiles,
-          type,
-          tapeDescription,
-          tapeArtistName,
-          memento,
-          color,
-          tapeInfoJSON: metadata,
-          audioFiles: tape?.audioFiles || [],
-        });
-        console.log('UPLOAD COMPLETE');
-        return vaultId;
+          setTape({
+            ...tape,
+            profilePicture,
+            imageFiles,
+            type,
+            tapeDescription,
+            tapeArtistName,
+            memento,
+            color,
+            tapeInfoJSON: metadata,
+            audioFiles: tape?.audioFiles || [],
+          });
+          console.log(metadata);
+          console.log('UPLOAD COMPLETE');
+          return vaultId;
+        }
       } catch (error) {
         setLoading(false);
         console.error(error);
@@ -517,7 +521,9 @@ const Create = () => {
                       Pineapple
                     </label>
                     <input
-                      {...register('memento')}
+                      {...register('memento', {
+                        required: true,
+                      })}
                       className={styles.radioButton}
                       name="memento"
                       id="one"
@@ -537,7 +543,9 @@ const Create = () => {
                     </label>
                     <input
                       className={styles.radioButton}
-                      {...register('memento')}
+                      {...register('memento', {
+                        required: true,
+                      })}
                       value="Loud"
                       name="memento"
                       id="two"
@@ -556,7 +564,9 @@ const Create = () => {
                     </label>
                     <input
                       className={styles.radioButton}
-                      {...register('memento')}
+                      {...register('memento', {
+                        required: true,
+                      })}
                       name="memento"
                       value="Minimal"
                       id="three"
@@ -575,7 +585,9 @@ const Create = () => {
                     </label>
                     <input
                       className={styles.radioButton}
-                      {...register('memento')}
+                      {...register('memento', {
+                        required: true,
+                      })}
                       value="Tape"
                       name="memento"
                       id="four"

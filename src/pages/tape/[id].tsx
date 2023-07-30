@@ -48,14 +48,19 @@ const Tape = () => {
     profilePicture,
   } = tape;
 
+  interface Image {
+    moduleId: number | string | null;
+  }
+
   useEffect(() => {
     if (imageFiles && imageFiles.length > 0) {
-      const filteredImageFiles = imageFiles.filter((image) => {
-        return (
-          image.moduleId !== 1 &&
-          image.moduleId !== null &&
-          typeof image.moduleId !== 'string'
-        );
+      const filteredImageFiles = imageFiles.filter((image: Image) => {
+        if (image)
+          return (
+            image.moduleId !== 1 &&
+            image.moduleId !== null &&
+            typeof image.moduleId !== 'string'
+          );
       });
       const sortedImages = [...filteredImageFiles].sort(
         (a, b) => a.moduleId - b.moduleId
@@ -66,7 +71,7 @@ const Tape = () => {
 
   const renderFirstImage = (targetModuleId: number) => {
     const targetImage = imageFiles.find(
-      (image) => image.moduleId === targetModuleId
+      (image: Image) => image.moduleId === targetModuleId
     );
 
     if (targetImage) {

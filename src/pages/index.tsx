@@ -61,38 +61,45 @@ export default function Home() {
   } = useForm<VaultValues>();
   const onSubmit: SubmitHandler<VaultValues> = async (data) => {
     //
-    setLoading(true);
-    const akord = await AkordSignIn(data.email, data.password);
-    setAkord(akord);
+    try {
+      setLoading(true);
+      const akord = await AkordSignIn(data.email, data.password);
+      setAkord(akord);
 
-    setProgress({
-      percentage: 20,
-      state: `Successful Sign-in, welcome ${data.email}`,
-    });
-
-    // Display any ArTapes containing the correct tag
-    const vaults = await akord.vault.listAll({
-      tags: {
-        values: ['ArTape'],
-        searchCriteria: 'CONTAINS_SOME',
-      },
-    });
-    const tapeInfos = [];
-
-    for (let i = 0; i < vaults.length; i++) {
-      const vaultId = vaults[i].id;
-
-      tapeInfos.push({
-        tapeName: vaults[i].name,
-        vaultId,
+      setProgress({
+        percentage: 20,
+        state: `Successful Sign-in, welcome ${data.email}`,
       });
+
+      // Display any ArTapes containing the correct tag
+      if (akord) {
+        const vaults = await akord.vault.listAll({
+          tags: {
+            values: ['ArTape'],
+            searchCriteria: 'CONTAINS_SOME',
+          },
+        });
+        const tapeInfos = [];
+
+        for (let i = 0; i < vaults.length; i++) {
+          const vaultId = vaults[i].id;
+
+          tapeInfos.push({
+            tapeName: vaults[i].name,
+            vaultId,
+          });
+        }
+
+        // display for user selection which vault to display
+        setTapeInfoOptions(tapeInfos);
+        setIsAuthenticated(true);
+
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('there was an error try signing in again!', error);
+      setLoading(false);
     }
-
-    // display for user selection which vault to display
-    setTapeInfoOptions(tapeInfos);
-    setIsAuthenticated(true);
-
-    setLoading(false);
   };
 
   const handleVaultSelection = async (event: FormEvent<HTMLFormElement>) => {
@@ -222,6 +229,10 @@ export default function Home() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    console.log(tape);
+  }, [tape]);
   return (
     <>
       <Head>

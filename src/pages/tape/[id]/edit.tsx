@@ -25,12 +25,12 @@ import getNextVersion from '@/components/Helper Functions/getNextVersion';
 import EditModeEditableAudioPlayer from '@/components/EditModeEditableAudioPlayer';
 import { SubmitValues } from '@/types/SubmitValues';
 import getMementoSvgContent from '@/components/Helper Functions/getMementoSvgContent';
-import { TapeWithFiles } from '@/types/TapeInfo';
+import { TapeWithAudioFiles, TapeWithImageFiles } from '@/types/TapeInfo';
 import { blobUrlToFile } from '@/components/Helper Functions/blobUrltoFile';
 
 type ModuleInfo = {
   file: File | null;
-  url: string | null;
+  url: string;
 };
 
 const loader = (
@@ -116,7 +116,7 @@ const Edit = () => {
   }, [watchedProfilePic]);
 
   const handleColorChange = (newColor: string) => {
-    setTape((prevTape: TapeWithFiles) => ({
+    setTape((prevTape: TapeWithAudioFiles) => ({
       ...prevTape,
       color: newColor,
       tapeInfoJSON: {
@@ -129,25 +129,27 @@ const Edit = () => {
   const handleProfilePictureChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const file = e.target.files[0];
-    const url = URL.createObjectURL(file);
-    setProfilePicUrl(url);
-    setTape((prevTape) => ({
-      ...prevTape,
-      profilePicture: {
-        ...prevTape.profilePicture,
-        url: url,
-      },
-      tapeInfoJSON: {
-        ...prevTape.tapeInfoJSON,
-        profilePicture: file.name,
-      },
-    }));
+    if (e.target.files) {
+      const file = e.target.files[0];
+      const url = URL.createObjectURL(file);
+      setProfilePicUrl(url);
+      setTape((prevTape: TapeWithImageFiles) => ({
+        ...prevTape,
+        profilePicture: {
+          ...prevTape.profilePicture,
+          url: url,
+        },
+        tapeInfoJSON: {
+          ...prevTape.tapeInfoJSON,
+          profilePicture: file.name,
+        },
+      }));
+    }
   };
 
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setTape((prevTape) => ({
+    setTape((prevTape: TapeWithImageFiles) => ({
       ...prevTape,
       [name]: value,
       tapeInfoJSON: {
@@ -157,84 +159,135 @@ const Edit = () => {
     }));
   };
 
-  // useEffect that updates `initialModules` from `imageFiles`
   useEffect(() => {
     const fetchInitialModules = async () => {
+      setLoading(true); // Start loading
       try {
-        let initialModules: { [key: number]: any } = {};
+        // initializing initial files
+        let newInitialImageModules: { [key: number]: any } = {};
+        let newInitialAudioTracks: { [key: number]: any } = {};
+
+        // sorting all the image files and audio files
         const sortedImageFiles = [...imageFiles].sort(
           (a, b) => a.moduleId - b.moduleId
         );
+        const sortedAudioFiles = [...audioFiles].sort(
+          (a, b) => a.trackNumber - b.trackNumber
+        );
+        // initializing newImageFiles array
+        const newImageFiles = [];
+        const newAudioFiles = [];
 
+        //cycling through each imageFile in sortedImageFiles
+        for (let audioFile of sortedAudioFiles) {
+          const file = await blobUrlToFile(audioFile.url, audioFile.name);
+          newInitialAudioTracks[audioFile.trackNumber] = {
+            url: audioFile.url,
+            file: file,
+          };
+          newAudioFiles.push({
+            ...audioFile,
+            file: file,
+          });
+        }
+
+        //cycling through each imageFile in sortedImageFiles
         for (let imageFile of sortedImageFiles) {
           const file = await blobUrlToFile(imageFile.url, imageFile.name);
-          initialModules[imageFile.moduleId] = {
+          newInitialImageModules[imageFile.moduleId] = {
             url: imageFile.url,
             file: file,
           };
+          newImageFiles.push({
+            ...imageFile,
+            file: file,
+          });
         }
 
-        setInitialModules(initialModules);
+        setTape({
+          ...tape,
+          imageFiles: newImageFiles,
+          audioFiles: newAudioFiles,
+        });
+
+        setInitialModules(newInitialImageModules);
       } catch (error) {
         console.error('There was an error', error);
       }
+      setLoading(false); // End loading
     };
     fetchInitialModules();
-  }, [imageFiles]);
+  }, []);
 
-  // Here's how `handleImageFileChange` would look like:
   const handleImageFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     index: number
   ) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      setTape((prevTape) => {
-        const updatedImageFiles = [...prevTape.imageFiles];
+    // need to update initialModules
+    try {
+      const files = e.target.files;
+      if (files && files.length > 0) {
         const newImageFile = {
           url: URL.createObjectURL(files[0]),
           moduleId: index,
           name: files[0].name,
           alt: files[0].name,
+          file: files[0],
         };
-        const newImageTapeInfo = {
-          moduleId: index,
-          name: files[0].name,
-          alt: files[0].name,
-        };
-        const existingFileIndex = updatedImageFiles.findIndex(
-          (file) => file.moduleId === index
-        );
-        if (existingFileIndex !== -1) {
-          // replace existing file if it exists
-          updatedImageFiles[existingFileIndex] = newImageFile;
-        } else {
-          // add new file if it doesn't exist
-          updatedImageFiles.push(newImageFile);
-        }
 
-        const updatedTapeInfoImageFiles = [...prevTape.tapeInfoJSON.imageFiles];
-        const existingTapeInfoFileIndex = updatedTapeInfoImageFiles.findIndex(
-          (file) => file.moduleId === index
-        );
-        if (existingTapeInfoFileIndex !== -1) {
-          // replace existing file in tapeInfoJSON if it exists
-          updatedTapeInfoImageFiles[existingTapeInfoFileIndex] =
-            newImageTapeInfo;
-        } else {
-          // add new file to tapeInfoJSON if it doesn't exist
-          updatedTapeInfoImageFiles.push(newImageTapeInfo);
-        }
+        setInitialModules((prev) => ({
+          ...prev,
+          [index]: newImageFile,
+        }));
 
-        return {
-          ...prevTape,
-          imageFiles: updatedImageFiles,
-          tapeInfoJSON: {
-            ...prevTape.tapeInfoJSON,
-            imageFiles: updatedTapeInfoImageFiles,
-          },
-        };
-      });
+        setTape((prevTape: TapeWithImageFiles) => {
+          const updatedImageFiles = [...prevTape.imageFiles];
+          const newImageTapeInfo = {
+            moduleId: index,
+            name: files[0].name,
+            alt: files[0].name,
+          };
+          const existingFileIndex = updatedImageFiles.findIndex(
+            (file) => file.moduleId === index
+          );
+          if (existingFileIndex !== -1) {
+            // replace existing file if it exists
+            updatedImageFiles[existingFileIndex] = newImageFile;
+          } else {
+            // add new file if it doesn't exist
+            updatedImageFiles.push(newImageFile);
+          }
+          if (prevTape.tapeInfoJSON) {
+            const updatedTapeInfoImageFiles = [
+              ...prevTape.tapeInfoJSON.imageFiles,
+            ];
+
+            const existingTapeInfoFileIndex =
+              updatedTapeInfoImageFiles.findIndex(
+                (file) => file.moduleId === index
+              );
+            if (existingTapeInfoFileIndex !== -1) {
+              // replace existing file in tapeInfoJSON if it exists
+              updatedTapeInfoImageFiles[existingTapeInfoFileIndex] =
+                newImageTapeInfo;
+            } else {
+              // add new file to tapeInfoJSON if it doesn't exist
+              updatedTapeInfoImageFiles.push(newImageTapeInfo);
+            }
+
+            return {
+              ...prevTape,
+              imageFiles: updatedImageFiles,
+              tapeInfoJSON: {
+                ...prevTape.tapeInfoJSON,
+                imageFiles: updatedTapeInfoImageFiles,
+              },
+            };
+          }
+        });
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -266,7 +319,9 @@ const Edit = () => {
       continue;
     }
 
-    //push all the image modules
+    const imageModuleKey = `imageModule${i}` as keyof SubmitValues;
+
+    // push all the image modules
     modules.push(
       <div
         className={
@@ -278,9 +333,11 @@ const Edit = () => {
           alignItems: 'center',
           cursor: 'pointer',
           position: 'relative',
-          border: errors[`imageModule${i}`]
-            ? '1px solid red'
-            : '1px solid var(--artape-primary-color)',
+          border:
+            errors[imageModuleKey] &&
+            Object.keys(errors).includes(imageModuleKey)
+              ? '1px solid red'
+              : '1px solid var(--artape-primary-color)',
         }}
         key={`imageModule${i}`}
       >
@@ -300,7 +357,11 @@ const Edit = () => {
         >
           {initialModules[i] && initialModules[i].url ? (
             <Image
-              src={initialModules[i].url}
+              src={
+                initialModules[i] && initialModules[i].url
+                  ? initialModules[i].url
+                  : 'default-image-url'
+              }
               alt={`Module ${i}`}
               width={350}
               height={350}
@@ -327,13 +388,10 @@ const Edit = () => {
     );
   }
 
-  useEffect(() => {
-    console.log('Updated tape context: ', tape);
-  }, [tape]);
-
   const onSubmit: SubmitHandler<SubmitValues> = async (data, e) => {
     setLoading(true);
     setProgress({ percentage: 5, state: 'Communicating with Akord' });
+
     console.log('submitting');
     let imageModules: any = [];
     let imageUploadModules: any = [];
@@ -390,189 +448,173 @@ const Edit = () => {
           type: 'application/json',
         });
 
-        // const akord = await AkordSignIn(data.email, data.password);
+        const akord = await AkordSignIn(data.email, data.password);
 
-        // await akord.vault.rename(id, tapeArtistName);
-        // console.log('rename complete');
+        if (akord && id) {
+          if (typeof id !== 'string') {
+            throw new Error(
+              `Expected id to be a string, but received ${typeof id}`
+            );
+          }
+          await akord.vault.rename(id, tapeArtistName);
+          console.log('rename complete');
 
-        // // get all the folders in akord vault and sort them
-        // // Find the most recent folder's id
-        // const folders = await akord.folder.listAll(id);
-        // const { name } = folders.reduce(
-        //   (highest, currentFolder) => {
-        //     const [highestMajor, highestMinor, highestlowlowest] = highest.name
-        //       .split('.')
-        //       .map(Number);
-        //     const [currentMajor, currentMinor, currentlowlowest] =
-        //       currentFolder.name.split('.').map(Number);
+          // get all the folders in akord vault and sort them
+          // Find the most recent folder's id
+          const folders = await akord.folder.listAll(id);
+          const { name } = folders.reduce(
+            (highest, currentFolder) => {
+              const [highestMajor, highestMinor, highestlowlowest] =
+                highest.name.split('.').map(Number);
+              const [currentMajor, currentMinor, currentlowlowest] =
+                currentFolder.name.split('.').map(Number);
 
-        //     if (currentMajor > highestMajor) return currentFolder;
-        //     if (currentMajor === highestMajor && currentMinor > highestMinor)
-        //       return currentFolder;
-        //     if (
-        //       currentMajor === highestMajor &&
-        //       currentMinor === highestMinor &&
-        //       currentlowlowest > highestlowlowest
-        //     )
-        //       return currentFolder;
+              if (currentMajor > highestMajor) return currentFolder;
+              if (currentMajor === highestMajor && currentMinor > highestMinor)
+                return currentFolder;
+              if (
+                currentMajor === highestMajor &&
+                currentMinor === highestMinor &&
+                currentlowlowest > highestlowlowest
+              )
+                return currentFolder;
 
-        //     return highest;
-        //   },
-        //   { name: '0.0.0', id: '' }
-        // );
+              return highest;
+            },
+            { name: '0.0.0', id: '' }
+          );
 
-        // const versionToCreate = getNextVersion(name);
+          const versionToCreate = getNextVersion(name);
 
-        // const { folderId } = await akord.folder.create(id, versionToCreate);
-        // console.log(`successfully created folder: ${folderId}`);
-        // setProgress({
-        //   percentage: Math.round((completedUploads / totalFilesToUpload) * 100),
-        //   state: `Successful Sign-in to Akord! and renamed vault ${vaultId}`,
-        // });
-        // setVaultId(id);
+          const { folderId } = await akord.folder.create(id, versionToCreate);
+          console.log(`successfully created folder: ${folderId}`);
+          setProgress({
+            percentage: Math.round(
+              (completedUploads / totalFilesToUpload) * 100
+            ),
+            state: `Successful Sign-in to Akord! and renamed vault ${vaultId}`,
+          });
+          setVaultId(id);
 
-        // // Upload Profile Pic
-        // if (profilePicture) {
-        //   console.log('uploading profile pic');
-        //   // Fetch the blob data from the URL
-        //   const response = await fetch(profilePicture.url);
-        //   const blob = await response.blob();
+          // Upload Profile Pic
+          if (profilePicture && akord) {
+            console.log('uploading profile pic');
+            // Fetch the blob data from the URL
+            const response = await fetch(profilePicture.url);
+            const blob = await response.blob();
 
-        //   // Create a new File instance
-        //   const file = new File([blob], profilePicture.name, {
-        //     type: blob.type,
-        //   });
+            // Create a new File instance
+            const file = new File([blob], profilePicture.name, {
+              type: blob.type,
+            });
 
-        //   const { stackId } = await akord.stack.create(id, file, file.name);
-        //   await akord.stack.move(stackId, folderId);
-        //   completedUploads += 1;
-        //   setProgress({
-        //     percentage: Math.round(
-        //       (completedUploads / totalFilesToUpload) * 100
-        //     ),
-        //     state: `Uploaded Profile Picture!`,
-        //   });
-        //   console.log(`Uploaded file: ${file.name}, Stack ID: ${stackId}`);
-        // }
+            const { stackId } = await akord.stack.create(id, file, file.name);
+            await akord.stack.move(stackId, folderId);
+            completedUploads += 1;
+            setProgress({
+              percentage: Math.round(
+                (completedUploads / totalFilesToUpload) * 100
+              ),
+              state: `Uploaded Profile Picture!`,
+            });
+            console.log(`Uploaded file: ${file.name}, Stack ID: ${stackId}`);
+          }
 
-        // //edit and upload memento
-        // if (memento || tapeInfoJSON) {
-        //   const mementoSvgContent = getMementoSvgContent(
-        //     selectedMemento,
-        //     color
-        //   );
-        //   if (mementoSvgContent) {
-        //     const mementoSvgFile = new File(
-        //       [mementoSvgContent],
-        //       `${selectedMemento}.svg`,
-        //       { type: 'text/html' }
-        //     );
-        //     const { stackId: mementoStackId } = await akord.stack.create(
-        //       id,
-        //       mementoSvgFile,
-        //       mementoSvgFile.name
-        //     );
-        //     await akord.stack.move(mementoStackId, folderId);
-        //     console.log(
-        //       `Uploaded memento: ${mementoSvgFile.name}, Stack ID: ${mementoStackId}`
-        //     );
-        //   }
-        // }
+          //edit and upload memento
+          if (memento || tapeInfoJSON) {
+            const mementoSvgContent = getMementoSvgContent(
+              selectedMemento,
+              color
+            );
+            if (mementoSvgContent && akord) {
+              const mementoSvgFile = new File(
+                [mementoSvgContent],
+                `${selectedMemento}.svg`,
+                { type: 'text/html' }
+              );
+              const { stackId: mementoStackId } = await akord.stack.create(
+                id,
+                mementoSvgFile,
+                mementoSvgFile.name
+              );
+              setTape({ ...tape, memento: memento });
+              await akord.stack.move(mementoStackId, folderId);
+              console.log(
+                `Uploaded memento: ${mementoSvgFile.name}, Stack ID: ${mementoStackId}`
+              );
+            }
+          }
 
-        // EVERYTHING WORKS UP TO HERE //
+          // Upload audio files
+          if (audioFiles && akord) {
+            for (const { audioFile, name } of audioFiles) {
+              console.log(audioFile);
+              try {
+                const { stackId } = await akord.stack.create(
+                  vaultId,
+                  audioFile,
+                  name
+                );
+                await akord.stack.move(stackId, folderId);
+                completedUploads += 1;
+                setProgress({
+                  percentage: Math.round(
+                    (completedUploads / totalFilesToUpload) * 100
+                  ),
+                  state: `Uploaded audio file: ${name}`,
+                });
+                console.log(`Uploaded file: ${name}, Stack ID: ${stackId}`);
+              } catch (error) {
+                console.log(error);
+                setLoading(false);
+                setProgress({ percentage: 0, state: 'initial' });
+              }
+            }
+          }
 
-        //   // Upload audio files
-        //   if (audioFiles) {
-        //     for (const { audioFile, name } of audioFiles) {
-        //       try {
-        //         console.log(audioFile);
-        //         const { stackId } = await akord.stack.create(
-        //           vaultId,
-        //           audioFile,
-        //           name
-        //         );
-        //         await akord.stack.move(stackId, folderId);
-        //         completedUploads += 1;
-        //         setProgress({
-        //           percentage: Math.round(
-        //             (completedUploads / totalFilesToUpload) * 100
-        //           ),
-        //           state: `Uploaded audio file: ${name}`,
-        //         });
-        //         console.log(`Uploaded file: ${name}, Stack ID: ${stackId}`);
-        //       } catch (error) {
-        //         console.log(error);
-        //         setLoading(false);
-        //         setProgress({ percentage: 0, state: 'initial' });
-        //       }
-        //     }
-        //   }
-        //   // Upload image files
-        //   if (imageUploadModules) {
-        //     for (const image of imageUploadModules) {
-        //       const { stackId } = await akord.stack.create(
-        //         vaultId,
-        //         image.url,
-        //         image.name
-        //       );
-        //       const { transactionId } = await akord.stack.move(stackId, folderId);
+          // Upload image files
+          if (imageFiles && akord) {
+            for (const image of imageFiles) {
+              const { stackId } = await akord.stack.create(
+                vaultId,
+                image.file,
+                image.name
+              );
+              await akord.stack.move(stackId, folderId);
 
-        //       completedUploads += 1;
-        //       setProgress({
-        //         percentage: Math.round(
-        //           (completedUploads / totalFilesToUpload) * 100
-        //         ),
-        //         state: `Uploaded image file: ${image.name}`,
-        //       });
-        //       console.log(`Uploaded file: ${image.name}, Stack ID: ${stackId}`);
-        //     }
-        //   }
+              completedUploads += 1;
+              setProgress({
+                percentage: Math.round(
+                  (completedUploads / totalFilesToUpload) * 100
+                ),
+                state: `Uploaded image file: ${image.name}`,
+              });
+              console.log(`Uploaded file: ${image.name}, Stack ID: ${stackId}`);
+            }
+          }
 
-        //   // Upload tapeInfo.json
-        //   if (tapeInfoJSONUpload) {
-        //     const { stackId } = await akord.stack.create(
-        //       vaultId,
-        //       tapeInfoJSONUpload,
-        //       tapeInfoJSONUpload.name
-        //     );
-        //     const { transactionId } = await akord.stack.move(stackId, folderId);
-        //     completedUploads += 1;
-        //     setProgress({
-        //       percentage: Math.round(
-        //         (completedUploads / totalFilesToUpload) * 100
-        //       ),
-        //       state: `Uploaded tapeInfo.json`,
-        //     });
-        //     console.log(
-        //       `Uploaded file: ${tapeInfoJSONUpload.name}, Stack ID: ${stackId}`
-        //     );
-        //   }
+          // Upload tapeInfo.json
+          if (tapeInfoJSONUpload) {
+            const { stackId } = await akord.stack.create(
+              vaultId,
+              tapeInfoJSONUpload,
+              tapeInfoJSONUpload.name
+            );
+            const { transactionId } = await akord.stack.move(stackId, folderId);
+            completedUploads += 1;
+            setProgress({
+              percentage: Math.round(
+                (completedUploads / totalFilesToUpload) * 100
+              ),
+              state: `Uploaded tapeInfo.json`,
+            });
+            console.log(
+              `Uploaded file: ${tapeInfoJSONUpload.name}, Stack ID: ${stackId}`
+            );
+          }
 
-        //  // reformatting imageFiles and audioFiles to fit context when mapped per vault id at different page
-        //   const imageFiles = imageUploadModules.map((imageModule: any) => {
-        //     return {
-        //       name: imageModule.name,
-        //       url: URL.createObjectURL(imageModule.url),
-        //       moduleId: imageModule.moduleId,
-        //     };
-        //   });
-        //   const audioFiles = audioStateFiles.audio.map((audioFile: any) => {
-        //     return {
-        //       name: audioFile.name,
-        //       url: URL.createObjectURL(audioFile.audioFile),
-        //     };
-        //   });
-
-        //   const profilePicture = {
-        //     name: tape.profilePicture.name,
-        //     url: URL.createObjectURL(data.profilePicture[0]),
-        //   };
-
-        //   const albumPicture = {
-        //     name: audioStateFiles.audio[0].albumPicture.name,
-        //     url: URL.createObjectURL(audioStateFiles.audio[0].albumPicture),
-        //   };
-        //   console.log('UPLOAD COMPLETE');
+          console.log('UPLOAD COMPLETE');
+        }
       } catch (error) {
         setLoading(false);
         console.error(error);
@@ -593,6 +635,10 @@ const Edit = () => {
       // });
     }
   }, [finishEdit, router]);
+
+  useEffect(() => {
+    console.log(tape);
+  }, [tape]);
 
   return (
     <>

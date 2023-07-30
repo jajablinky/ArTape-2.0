@@ -6,12 +6,12 @@ import Image from 'next/image';
 import UploadButton from './Images/UI/UploadButton';
 import CheckIcon from './Images/UI/CheckIcon';
 
-import { TapeWithFiles } from '@/types/TapeInfo';
+import { TapeWithAudioFiles } from '@/types/TapeInfo';
 import createNewTape from './Helper Functions/createNewTape';
 
 interface AudioPlayerProps {
-  setTape: (tape: TapeWithFiles | null) => void;
-  tape: TapeWithFiles | null;
+  setTape: (tape: TapeWithAudioFiles | null) => void;
+  tape: TapeWithAudioFiles | null;
   register: any;
   required: boolean;
 }
@@ -47,8 +47,6 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
     }
   };
 
-  // i need to account
-
   const handleAudioUpload = async (i: number, file: File) => {
     // create mode
     const getDuration = (file: File): Promise<number> => {
@@ -78,12 +76,14 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
           albumPicture: '',
           albumPictureFile: null,
           albumPictureUrl: '',
+          fileName: file.name,
 
           // other properties will be undefined
         };
       } else {
         // if there's an existing object at the given index
         newTape.audioFiles[i - 1].audioFile = file;
+        newTape.audioFiles[i - 1].fileName = file.name;
         newTape.audioFiles[i - 1].audioUrl = URL.createObjectURL(file);
         newTape.audioFiles[i - 1].duration = duration;
       }
@@ -102,6 +102,7 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
         albumPicture: '',
         albumPictureFile: null,
         albumPictureUrl: '',
+        fileName: file.name,
       };
 
       setTape(newTape);
@@ -113,10 +114,9 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
     const newSongNames = [...songNames];
     newSongNames[i - 1] = e.target.value;
     setSongNames(newSongNames);
-    console.log('change song name');
+
     if (tape !== null) {
       const newTape = { ...tape };
-      console.log('new tape', newTape);
       if (!newTape.audioFiles[i - 1]) {
         // if there's no object at the given index
         newTape.audioFiles[i - 1] = {
@@ -130,12 +130,11 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
           albumPicture: '',
           albumPictureFile: null,
           albumPictureUrl: '',
+          fileName: '',
         };
-        console.log('new tape song name');
       } else {
         // if there's an existing object at the given index
         newTape.audioFiles[i - 1].name = e.target.value;
-        console.log('existing tape song name');
       }
       setTape(newTape);
     } else {
@@ -150,6 +149,7 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
         albumPicture: '',
         albumPictureFile: null,
         albumPictureUrl: '',
+        fileName: '',
       };
 
       setTape(newTape);
@@ -176,6 +176,7 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
           albumPicture: '',
           albumPictureFile: null,
           albumPictureUrl: '',
+          fileName: '',
         };
       } else {
         // if there's an existing object at the given index
@@ -194,6 +195,7 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
         albumPicture: '',
         albumPictureFile: null,
         albumPictureUrl: '',
+        fileName: '',
       };
 
       setTape(newTape);
@@ -224,6 +226,7 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
           albumPicture: picture.name,
           albumPictureFile: picture,
           albumPictureUrl: url,
+          fileName: '',
         };
       } else {
         // if there's an existing object at the given index
@@ -245,6 +248,7 @@ const EditableAudioPlayer: React.FC<AudioPlayerProps> = ({
         albumPicture: picture.name,
         albumPictureFile: picture,
         albumPictureUrl: url,
+        fileName: '',
       };
 
       setTape(newTape);
