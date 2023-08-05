@@ -448,7 +448,7 @@ const Edit = () => {
           type: 'application/json',
         });
 
-        const akord = await AkordSignIn(data.email, data.password);
+        const akord = await AkordSignIn(data.email, data.password, setLoading);
 
         if (akord && id) {
           if (typeof id !== 'string') {

@@ -15,7 +15,7 @@
 }
 
 body {
-  --artape-white: beige;
+  --artape-white: #ffffff;
   background-color: var(--artape-white);
   display: flex;
   margin: 0 auto;
