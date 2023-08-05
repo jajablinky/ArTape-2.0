@@ -1,6 +1,7 @@
 export type TapeInfo = {
     tapeName: string;
     vaultId: string;
+    color: string;
   };
 
 export interface TapeInfoJSON {

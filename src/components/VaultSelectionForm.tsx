@@ -1,5 +1,6 @@
 import { VaultSelectionFormProps } from '@/types/VaultSelectionFormProps';
 import Loader from './Loader';
+import styles from '@/styles/Home.module.css';
 
 const VaultSelectionForm = ({
   tapeInfoOptions,
@@ -22,6 +23,7 @@ const VaultSelectionForm = ({
         {tapeInfoOptions.map((tapeInfo) => (
           <label
             key={tapeInfo.vaultId}
+            className={styles.vaultSelection}
             style={{
               display: 'flex',
               flexDirection: 'column',
@@ -35,6 +37,7 @@ const VaultSelectionForm = ({
               name="vault"
               value={tapeInfo.vaultId}
               onChange={() => setSelectedTapeInfo(tapeInfo)}
+              style={{ backgroundColor: tapeInfo.color }}
             />
             {tapeInfo.tapeName}
           </label>
@@ -43,9 +46,15 @@ const VaultSelectionForm = ({
       <button
         type="submit"
         style={{
-          background: 'transparent',
+          background: 'var(--artape-white)',
           border: '1px solid var(--artape-black)',
           fontSize: '12px',
+          position: 'fixed',
+          bottom: '20px',
+          left: '0',
+          right: '0',
+          width: '500px',
+          margin: 'auto',
         }}
       >
         {loading ? <Loader /> : 'Load Vault'}

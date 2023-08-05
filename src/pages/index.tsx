@@ -25,6 +25,7 @@ import ArTapeFontLogo from '@/components/Images/Logos/ArTapeFontLogo';
 import Tape from './tape/[id]';
 import getTapeInfoJSON from '@/components/Helper Functions/getTapeInfoJSON';
 import processItem from '@/components/Helper Functions/processItem';
+import { extractColorFromTags } from '@/components/Helper Functions/extractColorFromTags';
 
 export default function Home() {
   /* -- State  -- */
@@ -79,15 +80,25 @@ export default function Home() {
             searchCriteria: 'CONTAINS_SOME',
           },
         });
+        console.log(vaults);
+
         const tapeInfos = [];
+
+        // including color- and using the hex code after it
 
         for (let i = 0; i < vaults.length; i++) {
           const vaultId = vaults[i].id;
+          const tags = vaults[i].tags;
+          const tapeName = vaults[i].name;
+          const color = extractColorFromTags(tags);
 
-          tapeInfos.push({
-            tapeName: vaults[i].name,
-            vaultId,
-          });
+          if (tapeName && vaultId && color) {
+            tapeInfos.push({
+              tapeName,
+              vaultId,
+              color,
+            });
+          }
         }
 
         // display for user selection which vault to display
@@ -109,8 +120,6 @@ export default function Home() {
       setLoading(true);
       const { vaultId } = selectedTapeInfo;
       if (akord) {
-        console.log('akord');
-
         // Type guard to make sure that folders must contain an object with name
         type NamedNode = NodeLike & { name: string };
 
