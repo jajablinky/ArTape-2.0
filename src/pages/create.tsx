@@ -250,7 +250,7 @@ const Create = () => {
 
         if (akord) {
           const { vaultId } = await akord.vault.create(data.tapeArtistName, {
-            tags: ['ArTape', 'Music', color],
+            tags: ['ArTape', 'Music', `color-${color}`],
           });
           const { folderId } = await akord.folder.create(vaultId, '1.0.0');
           console.log(`successfully created vault: ${vaultId}`);

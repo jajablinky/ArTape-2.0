@@ -6,6 +6,30 @@
   padding-bottom: 128px;
 }
 
+.vaultSelection input[type='radio'] {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+  width: 8em;
+  height: 8em;
+  border: 0.15em solid;
+  display: grid;
+  place-content: center;
+  cursor: pointer;
+  transition: all 150ms;
+  background-color: var(--artape-primary-color);
+}
+
+.vaultSelection input[type='radio']:hover {
+  transform: scale(1.02);
+  opacity: 50%;
+}
+
+.vaultSelection input[type='radio']:checked {
+  transform: scale(1.1);
+  border: 1px solid var(--artape-primary-color);
+}
+
 .profileName {
   margin-top: 0px;
 }
