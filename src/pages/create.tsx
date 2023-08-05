@@ -246,7 +246,7 @@ const Create = () => {
           type: 'application/json',
         });
 
-        const akord = await AkordSignIn(data.email, data.password);
+        const akord = await AkordSignIn(data.email, data.password, setLoading);
 
         if (akord) {
           const { vaultId } = await akord.vault.create(data.tapeArtistName, {

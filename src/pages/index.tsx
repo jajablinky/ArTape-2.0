@@ -64,7 +64,7 @@ export default function Home() {
     //
     try {
       setLoading(true);
-      const akord = await AkordSignIn(data.email, data.password);
+      const akord = await AkordSignIn(data.email, data.password, setLoading);
       setAkord(akord);
 
       setProgress({
