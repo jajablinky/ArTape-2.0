@@ -15,12 +15,10 @@
 }
 
 body {
+  margin: 0;
   --artape-white: #ffffff;
   background-color: var(--artape-white);
   display: flex;
-  margin: 0 auto;
-  align-items: center;
-  justify-content: center;
   min-width: 320px;
   min-height: 100vh;
 }

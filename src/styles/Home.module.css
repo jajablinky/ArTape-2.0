@@ -2,8 +2,11 @@
   max-width: 1280px;
   --artape-primary-color: #0022ff;
   --artape-black: #242424;
-  padding-top: 128px;
-  padding-bottom: 128px;
+}
+
+.fullContainer {
+  display: flex;
+  flex-direction: row;
 }
 
 .vaultSelection input[type='radio'] {
