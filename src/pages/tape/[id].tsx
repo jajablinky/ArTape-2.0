@@ -12,15 +12,22 @@ import CassetteMemento from '@/components/Images/Mementos/CassetteMemento';
 import EditButton from '@/components/Images/UI/EditButton';
 import { ImageFileWithUrls } from '@/types/TapeInfo';
 import NavSidebar from '@/components/NavSidebar';
+import { profile } from 'console';
+import LoadingOverlay from '@/components/LoadingOverlay';
 
 const Tape = () => {
   const [sortedImageFiles, setSortedImagesFiles] = useState<
     ImageFileWithUrls[]
   >([]);
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState({
+    percentage: 0,
+    state: 'Communicating with Akord',
+  });
 
   const router = useRouter();
   const { id } = router.query;
-  const { tape } = useTape();
+  const { tape, setTape } = useTape();
 
   if (!tape) {
     return <div>No tape data available</div>;
@@ -47,6 +54,11 @@ const Tape = () => {
     type,
     imageFiles,
     profilePicture,
+    profileAvatar,
+    profileEmail,
+    profileName,
+    tapeInfoOptions,
+    akord,
   } = tape;
 
   interface Image {
@@ -108,121 +120,137 @@ const Tape = () => {
           } as React.CSSProperties
         }
       >
+        {loading ? <LoadingOverlay progress={progress} /> : null}
         <div className={styles.fullContainer}>
-          <NavSidebar />
+          <NavSidebar
+            profileAvatar={profileAvatar}
+            profileEmail={profileEmail}
+            profileName={profileName}
+            tapes={tapeInfoOptions}
+            akord={akord}
+            setLoading={setLoading}
+            setTape={setTape}
+            tape={tape}
+            router={router}
+            setProgress={setProgress}
+          />
           <div className={styles.mainContainer}>
-            <div
-              className={styles.artistHeader}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
+            <div className={styles.scrollableContainer}>
               <div
-                className={styles.artistHeaderLeft}
+                className={styles.artistHeader}
                 style={{
                   display: 'flex',
+                  justifyContent: 'space-between',
                   alignItems: 'center',
-                  marginBottom: '20px',
                 }}
               >
                 <div
-                  className={styles.profilePicture}
+                  className={styles.artistHeaderLeft}
                   style={{
-                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginBottom: '20px',
                   }}
                 >
-                  <Image
-                    width={100}
-                    height={100}
-                    alt={profilePicture.name}
-                    src={profilePicture.url}
+                  <div
+                    className={styles.profilePicture}
                     style={{
                       borderRadius: '12px',
-                      objectFit: 'cover',
-                    }}
-                  />
-                </div>
-                <div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      gap: '12px',
                     }}
                   >
-                    <h1>
-                      <b>{tapeArtistName}</b>
-                      <span style={{ fontWeight: 'normal' }}>'s Tape</span>
-                    </h1>
-                    <div className={styles.memento}>{mementoGenerator()}</div>
+                    <Image
+                      width={100}
+                      height={100}
+                      alt={profilePicture.name}
+                      src={profilePicture.url}
+                      style={{
+                        borderRadius: '12px',
+                        objectFit: 'cover',
+                      }}
+                    />
                   </div>
+                  <div>
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        gap: '12px',
+                      }}
+                    >
+                      <h1>
+                        <b>{tapeArtistName}</b>
+                        <span style={{ fontWeight: 'normal' }}>'s Tape</span>
+                      </h1>
+                      <div className={styles.memento}>{mementoGenerator()}</div>
+                    </div>
 
-                  <p style={{ fontSize: '28px', fontWeight: 'lighter' }}>
-                    {type}
-                  </p>
-                  <p
-                    style={{
-                      fontSize: '20px',
-                      fontWeight: 'lighter',
-                      color: '#656565',
-                    }}
-                  >
-                    {tapeDescription}
-                  </p>
+                    <p style={{ fontSize: '28px', fontWeight: 'lighter' }}>
+                      {type}
+                    </p>
+                    <p
+                      style={{
+                        fontSize: '20px',
+                        fontWeight: 'lighter',
+                        color: '#656565',
+                      }}
+                    >
+                      {tapeDescription}
+                    </p>
+                  </div>
+                </div>
+                <div
+                  className={styles.artistHeaderRight}
+                  onClick={handleEditClick}
+                >
+                  <EditButton color={color} />
                 </div>
               </div>
-              <div
-                className={styles.artistHeaderRight}
-                onClick={handleEditClick}
-              >
-                <EditButton color={color} />
-              </div>
-            </div>
 
-            <div className={styles.gridProfile}>
-              <div className={styles.profileModule}>{renderFirstImage(1)}</div>
-              <div
-                className={styles.profileModuleRectangle}
-                style={{
-                  backgroundColor: 'var(--artape-primary-color)',
-                  overflow: 'auto',
-                }}
-              >
-                <AudioPlayer audioFiles={audioFiles} color={color} />
+              <div className={styles.gridProfile}>
+                <div className={styles.profileModule}>
+                  {renderFirstImage(1)}
+                </div>
+                <div
+                  className={styles.profileModuleRectangle}
+                  style={{
+                    backgroundColor: 'var(--artape-primary-color)',
+                    overflow: 'auto',
+                  }}
+                >
+                  <AudioPlayer audioFiles={audioFiles} color={color} />
+                </div>
+                {sortedImageFiles &&
+                  sortedImageFiles.map((image) => {
+                    if (image.url) {
+                      return image.moduleId === 6 ? (
+                        <div
+                          className={styles.profileModuleRectangle}
+                          key={image.name}
+                        >
+                          <Image
+                            className={image.name}
+                            src={image.url}
+                            alt={image.name}
+                            height={350}
+                            width={350}
+                            style={{ objectFit: 'cover' }}
+                          />
+                        </div>
+                      ) : (
+                        <div className={styles.profileModule} key={image.name}>
+                          <Image
+                            className={image.name}
+                            src={image.url}
+                            alt={image.name}
+                            height={350}
+                            width={350}
+                            style={{ objectFit: 'cover' }}
+                          />
+                        </div>
+                      );
+                    }
+                  })}
               </div>
-              {sortedImageFiles &&
-                sortedImageFiles.map((image) => {
-                  if (image.url) {
-                    return image.moduleId === 6 ? (
-                      <div
-                        className={styles.profileModuleRectangle}
-                        key={image.name}
-                      >
-                        <Image
-                          className={image.name}
-                          src={image.url}
-                          alt={image.name}
-                          height={350}
-                          width={350}
-                          style={{ objectFit: 'cover' }}
-                        />
-                      </div>
-                    ) : (
-                      <div className={styles.profileModule} key={image.name}>
-                        <Image
-                          className={image.name}
-                          src={image.url}
-                          alt={image.name}
-                          height={350}
-                          width={350}
-                          style={{ objectFit: 'cover' }}
-                        />
-                      </div>
-                    );
-                  }
-                })}
             </div>
           </div>
         </div>

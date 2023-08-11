@@ -164,6 +164,11 @@ export default function Home() {
           type: '',
         };
 
+        const profile = await akord.profile.get();
+        const profileEmail = profile.email;
+        const profileName = profile.name;
+        const profileAvatar = profile.avatar;
+
         const albumPictures: { [name: string]: string } = {};
 
         const tapeInfoPromises: Promise<TapeInfoJSON | null>[] = [];
@@ -218,6 +223,11 @@ export default function Home() {
         console.log('collected images');
 
         setTape({
+          akord,
+          tapeInfoOptions,
+          profileAvatar,
+          profileEmail,
+          profileName,
           audioFiles,
           color: tapeInfoJSON?.color,
           imageFiles,
