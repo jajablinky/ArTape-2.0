@@ -26,6 +26,7 @@ import createMetadataJSON from '@/components/Helper Functions/createMetadataJSON
 import { SubmitValues } from '@/types/SubmitValues';
 import AkordSignIn from '@/components/Helper Functions/AkordSignIn';
 import getMementoSvgContent from '@/components/Helper Functions/getMementoSvgContent';
+import { extractColorFromTags } from '@/components/Helper Functions/extractColorFromTags';
 
 /* Types */
 
@@ -249,6 +250,10 @@ const Create = () => {
         const akord = await AkordSignIn(data.email, data.password, setLoading);
 
         if (akord) {
+          const profile = await akord.profile.get();
+          const profileEmail = profile.email;
+          const profileName = profile.name;
+          const profileAvatar = profile.avatar;
           const { vaultId } = await akord.vault.create(data.tapeArtistName, {
             tags: ['ArTape', 'Music', `color-${color}`],
           });
@@ -391,8 +396,36 @@ const Create = () => {
           const memento = metadata?.memento;
           const type = metadata?.type;
 
+          const tapeInfoOptions = [];
+
+          // grab vaults and store tape informations in context for sidebar navigation in next page
+          const vaults = await akord.vault.listAll({
+            tags: {
+              values: ['ArTape'],
+              searchCriteria: 'CONTAINS_SOME',
+            },
+          });
+          for (let i = 0; i < vaults.length; i++) {
+            const vaultId = vaults[i].id;
+            const tags = vaults[i].tags;
+            const tapeName = vaults[i].name;
+            const color = extractColorFromTags(tags);
+
+            if (tapeName && vaultId && color) {
+              tapeInfoOptions.push({
+                tapeName,
+                vaultId,
+                color,
+              });
+            }
+          }
+
           setTape({
             ...tape,
+            tapeInfoOptions,
+            profileAvatar,
+            profileEmail,
+            profileName,
             profilePicture,
             imageFiles,
             type,

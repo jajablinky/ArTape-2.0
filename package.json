@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@akord/akord-js": "4.16.1",
-    "@next/font": "13.4.12",
     "@rive-app/react-canvas": "^3.0.55",
     "@shopify/draggable": "^1.0.0-beta.8",
     "@types/node": "^20.4.4",

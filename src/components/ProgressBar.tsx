@@ -5,7 +5,10 @@ function ProgressBar({ progress }) {
   return (
     <div className={styles.progressContainer}>
       <div className={styles.progressBar}>
-        <div className={styles.progressBarFill} style={{ width: `${progress.percentage}%` }}></div>
+        <div
+          className={styles.progressBarFill}
+          style={{ width: `${progress.percentage}%` }}
+        ></div>
       </div>
       <div className={styles.progressBarLabel}>
         {progress.state} {progress.percentage}%

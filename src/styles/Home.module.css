@@ -1,9 +1,33 @@
 .main {
-  max-width: 1280px;
+  display: flex;
   --artape-primary-color: #0022ff;
   --artape-black: #242424;
-  padding-top: 128px;
-  padding-bottom: 128px;
+  height: 100vh;
+}
+
+.fullContainer {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+}
+
+.mainContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0;
+  height: 100%;
+  width: 100%;
+  padding-top: 24px;
+  padding-right: 24px;
+}
+
+.scrollableContainer {
+  flex: 1 1 0%;
+  position: absolute;
+  width: calc(100% - 315px);
+  height: 100%;
+  overflow-y: auto;
 }
 
 .vaultSelection input[type='radio'] {
