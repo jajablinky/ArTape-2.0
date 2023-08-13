@@ -268,11 +268,14 @@ export default function Home() {
             flexDirection: 'column',
             gap: '64px',
             alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
           }}
         >
           <div
             style={{
               display: 'flex',
+
               flexDirection: 'column',
               alignItems: 'center',
               gap: '24px',

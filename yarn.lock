@@ -1583,13 +1583,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/font@npm:13.4.12":
-  version: 13.4.12
-  resolution: "@next/font@npm:13.4.12"
-  checksum: 6d0c8207032bbb57f3c343ae493bd516f00cb25d66cfafaff8d37c36180417c6710619f779ae5980f42352172a67feee998b25023caa1eb11569676d05e10b99
-  languageName: node
-  linkType: hard
-
 "@next/swc-darwin-arm64@npm:13.4.12":
   version: 13.4.12
   resolution: "@next/swc-darwin-arm64@npm:13.4.12"
@@ -1989,7 +1982,6 @@ __metadata:
   resolution: "artape-2@workspace:."
   dependencies:
     "@akord/akord-js": 4.16.1
-    "@next/font": 13.4.12
     "@rive-app/react-canvas": ^3.0.55
     "@shopify/draggable": ^1.0.0-beta.8
     "@svgr/webpack": ^8.0.1
