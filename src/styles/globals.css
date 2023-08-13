@@ -20,7 +20,6 @@ body {
   background-color: var(--artape-white);
   display: flex;
   align-items: center;
-  justify-content: center;
   min-width: 320px;
   min-height: 100vh;
 }
