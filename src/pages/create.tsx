@@ -249,6 +249,10 @@ const Create = () => {
         const akord = await AkordSignIn(data.email, data.password, setLoading);
 
         if (akord) {
+          const profile = await akord.profile.get();
+          const profileEmail = profile.email;
+          const profileName = profile.name;
+          const profileAvatar = profile.avatar;
           const { vaultId } = await akord.vault.create(data.tapeArtistName, {
             tags: ['ArTape', 'Music', `color-${color}`],
           });
@@ -393,6 +397,9 @@ const Create = () => {
 
           setTape({
             ...tape,
+            profileAvatar,
+            profileEmail,
+            profileName,
             profilePicture,
             imageFiles,
             type,
