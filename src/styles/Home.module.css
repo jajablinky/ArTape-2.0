@@ -16,18 +16,15 @@
   display: flex;
   flex-direction: column;
   flex: 1 0;
-  height: 100%;
   width: 100%;
-  padding-top: 24px;
-  padding-right: 24px;
+  align-items: center;
 }
 
 .scrollableContainer {
   flex: 1 1 0%;
-  position: absolute;
-  width: calc(100% - 315px);
   height: 100%;
   overflow-y: auto;
+  padding: 24px;
 }
 
 .vaultSelection input[type='radio'] {
@@ -128,7 +125,7 @@
 .gridProfile {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-gap: 30px;
+  gap: 12px;
 }
 
 .aboveGrid {
@@ -162,8 +159,7 @@
   background: (var(--artape-black));
   object-position: center;
   object-fit: contain;
-  width: 350px;
-  height: 350px;
+  aspect-ratio: 1/ 1;
   border-radius: 37px;
   text-align: center;
   color: var(--artape-black);
@@ -177,11 +173,10 @@
 }
 
 .profileModuleRectangle {
-  grid-column: span 2; /* Add this line to span two columns */
+  aspect-ratio: 2 / 1;
+  grid-column: span 2;
   position: relative;
   object-fit: cover;
-  width: 100%;
-  height: 350px;
   border-radius: 37px;
   text-align: center;
   color: var(--artape-black);
