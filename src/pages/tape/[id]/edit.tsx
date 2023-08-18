@@ -943,7 +943,7 @@ const Edit = () => {
                     </div>
                   </div>
 
-                  <p style={{ fontWeight: 'lighter' }}>
+                  <p className={styles.tapeType}>
                     <input
                       {...register('type')}
                       type="text"
@@ -956,12 +956,7 @@ const Edit = () => {
                       }}
                     />
                   </p>
-                  <p
-                    style={{
-                      fontWeight: 'lighter',
-                      color: '#656565',
-                    }}
-                  >
+                  <p className={styles.tapeDescription}>
                     <input
                       {...register('tapeDescription', {})}
                       type="text"

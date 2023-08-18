@@ -174,54 +174,60 @@ const NavSidebar = ({
 
   return (
     <>
-      <div className={styles.sidebarContainer}>
-        <div className={styles.top}>
-          <div className={styles.profileMainHeader}>
-            <div className={styles.profilePhoto}>
-              <Image
-                className={styles.imageProfilePhoto}
-                src={profileAvatarURL}
-                alt={'profile-avatar'}
-                width={59}
-                height={59}
-              />
-            </div>
-            <div className={styles.profileTextContent}>
-              <h2>{profileName}</h2>
-              <span>{profileEmail}</span>
-            </div>
-          </div>
-
-          <div className={styles.profileStats}>
-            {tapes.length > 1 ? (
-              <div className={styles.vaultNumberStats}>
-                {tapes.length} Tapes
+      <div className={styles.hideSidebar}>
+        <div className={styles.sidebarContainer}>
+          <div className={styles.top}>
+            <div className={styles.profileMainHeader}>
+              <div className={styles.profilePhoto}>
+                <Image
+                  className={styles.imageProfilePhoto}
+                  src={profileAvatarURL}
+                  alt={'profile-avatar'}
+                  width={59}
+                  height={59}
+                />
               </div>
-            ) : (
-              <div className={styles.vaultNumberStats}>{tapes.length} Tape</div>
-            )}
-            <div className={styles.linkToAkord}>
-              <Link href={'https://v2.akord.com/login'}>
-                Go See Akord Account
-              </Link>
-            </div>
-          </div>
-          <div className={styles.artapeSelectionHeader}>Artape Collection:</div>
-
-          {tapes.map((tape: any, i: number) => {
-            return (
-              <div
-                className={styles.artape}
-                style={{ background: tape.color }}
-                onClick={() => handleVaultSelection(i)}
-                key={tape.name}
-              >
-                <div className={styles.artapeName}>{tape.tapeName}</div>
+              <div className={styles.profileTextContent}>
+                <h2>{profileName}</h2>
+                <span>{profileEmail}</span>
               </div>
-            );
-          })}
+            </div>
+
+            <div className={styles.profileStats}>
+              {tapes.length > 1 ? (
+                <div className={styles.vaultNumberStats}>
+                  {tapes.length} Tapes
+                </div>
+              ) : (
+                <div className={styles.vaultNumberStats}>
+                  {tapes.length} Tape
+                </div>
+              )}
+              <div className={styles.linkToAkord}>
+                <Link href={'https://v2.akord.com/login'}>
+                  Go See Akord Account
+                </Link>
+              </div>
+            </div>
+            <div className={styles.artapeSelectionHeader}>
+              Artape Collection:
+            </div>
+
+            {tapes.map((tape: any, i: number) => {
+              return (
+                <div
+                  className={styles.artape}
+                  style={{ background: tape.color }}
+                  onClick={() => handleVaultSelection(i)}
+                  key={tape.name}
+                >
+                  <div className={styles.artapeName}>{tape.tapeName}</div>
+                </div>
+              );
+            })}
+          </div>
+          <div className={styles.bottom}></div>
         </div>
-        <div className={styles.bottom}></div>
       </div>
     </>
   );
