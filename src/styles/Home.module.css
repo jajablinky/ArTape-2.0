@@ -16,18 +16,15 @@
   display: flex;
   flex-direction: column;
   flex: 1 0;
-  height: 100%;
   width: 100%;
-  padding-top: 24px;
-  padding-right: 24px;
+  align-items: center;
 }
 
 .scrollableContainer {
   flex: 1 1 0%;
-  position: absolute;
-  width: calc(100% - 315px);
   height: 100%;
   overflow-y: auto;
+  padding: 24px;
 }
 
 .vaultSelection input[type='radio'] {
@@ -128,7 +125,7 @@
 .gridProfile {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-gap: 30px;
+  gap: 12px;
 }
 
 .aboveGrid {
@@ -141,10 +138,6 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-.memento {
-  width: 100px;
 }
 
 .profileColorForm {
@@ -160,10 +153,7 @@
 .profileModule {
   position: relative;
   background: (var(--artape-black));
-  object-position: center;
-  object-fit: contain;
-  width: 350px;
-  height: 350px;
+  aspect-ratio: 1/ 1;
   border-radius: 37px;
   text-align: center;
   color: var(--artape-black);
@@ -177,11 +167,10 @@
 }
 
 .profileModuleRectangle {
-  grid-column: span 2; /* Add this line to span two columns */
+  aspect-ratio: 2 / 1;
+  grid-column: span 2;
   position: relative;
   object-fit: cover;
-  width: 100%;
-  height: 350px;
   border-radius: 37px;
   text-align: center;
   color: var(--artape-black);
@@ -225,4 +214,59 @@
 .error {
   color: red;
   font-size: 16px;
+}
+
+.tapeDescription {
+  font-size: 20px;
+  font-weight: 'lighter';
+  color: #656565;
+}
+
+.tapeType {
+  font-size: 28px;
+  font-weight: lighter;
+}
+
+.objectFit {
+  object-fit: cover;
+}
+
+.artistHeaderRight {
+  display: none;
+}
+
+@media (max-width: 1100px) {
+  .tapeDescription {
+    font-size: 12px;
+  }
+  .tapeType {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 700px) {
+  .profileModule {
+    border-radius: 18px;
+  }
+  .profileModuleRectangle {
+    border-radius: 18px;
+  }
+  .objectFit {
+    width: 200px;
+    height: 200px;
+  }
+}
+
+@media (max-width: 550px) {
+  /* .artistHeaderRight {
+    display: none;
+  } */
+  .profilePicture {
+    height: 75px;
+    width: 75px;
+  }
+  .profilePicture img {
+    height: 75px;
+    width: 75px;
+  }
 }

@@ -138,3 +138,9 @@
   line-height: normal;
   color: var(--artape-white);
 }
+
+@media (max-width: 1000px) {
+  .hideSidebar {
+    display: none;
+  }
+}

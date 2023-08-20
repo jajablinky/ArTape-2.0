@@ -317,7 +317,7 @@ export default function Home() {
                   }}
                   onClick={() => setShowVaultIdForm(true)}
                 >
-                  Sign In
+                  View My Tapes
                 </button>
                 <Link href="/create">
                   <button

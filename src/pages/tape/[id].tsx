@@ -90,7 +90,7 @@ const Tape = () => {
     if (targetImage) {
       return (
         <Image
-          className={targetImage.name}
+          className={`${targetImage.name} ${styles.objectFit}`}
           src={targetImage.url || ''}
           alt={targetImage.name}
           height={350}
@@ -184,18 +184,8 @@ const Tape = () => {
                       <div className={styles.memento}>{mementoGenerator()}</div>
                     </div>
 
-                    <p style={{ fontSize: '28px', fontWeight: 'lighter' }}>
-                      {type}
-                    </p>
-                    <p
-                      style={{
-                        fontSize: '20px',
-                        fontWeight: 'lighter',
-                        color: '#656565',
-                      }}
-                    >
-                      {tapeDescription}
-                    </p>
+                    <p className={styles.tapeType}>{type}</p>
+                    <p className={styles.tapeDescription}>{tapeDescription}</p>
                   </div>
                 </div>
                 <div
@@ -228,23 +218,21 @@ const Tape = () => {
                           key={image.name}
                         >
                           <Image
-                            className={image.name}
+                            className={`${image.name} ${styles.objectFit}`}
                             src={image.url}
                             alt={image.name}
                             height={350}
                             width={350}
-                            style={{ objectFit: 'cover' }}
                           />
                         </div>
                       ) : (
                         <div className={styles.profileModule} key={image.name}>
                           <Image
-                            className={image.name}
+                            className={`${image.name} ${styles.objectFit}`}
                             src={image.url}
                             alt={image.name}
                             height={350}
                             width={350}
-                            style={{ objectFit: 'cover' }}
                           />
                         </div>
                       );
