@@ -27,6 +27,7 @@ import { SubmitValues } from '@/types/SubmitValues';
 import AkordSignIn from '@/components/Helper Functions/AkordSignIn';
 import getMementoSvgContent from '@/components/Helper Functions/getMementoSvgContent';
 import { extractColorFromTags } from '@/components/Helper Functions/extractColorFromTags';
+import Link from 'next/link';
 
 /* Types */
 
@@ -422,6 +423,7 @@ const Create = () => {
 
           setTape({
             ...tape,
+            akord,
             tapeInfoOptions,
             profileAvatar,
             profileEmail,
@@ -462,6 +464,7 @@ const Create = () => {
         style={
           {
             '--artape-primary-color': color,
+            justifyContent: 'center',
           } as React.CSSProperties
         }
       >
@@ -485,6 +488,14 @@ const Create = () => {
                   gap: '24px',
                 }}
               >
+                <div className={styles.linkToAkord}>
+                  Don't have Akord account?{' '}
+                  <Link
+                    href={'https://v2.akord.com/https://v2.akord.com/signup'}
+                  >
+                    Sign Up for Akord!
+                  </Link>
+                </div>
                 <p style={{ fontSize: '18px' }}>
                   Sign in with Existing Akord Account
                 </p>
