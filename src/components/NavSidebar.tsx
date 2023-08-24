@@ -193,26 +193,6 @@ const NavSidebar = ({
               </div>
             </div>
 
-            <div className={styles.profileStats}>
-              {tapes.length > 1 ? (
-                <div className={styles.vaultNumberStats}>
-                  {tapes.length} Tapes
-                </div>
-              ) : (
-                <div className={styles.vaultNumberStats}>
-                  {tapes.length} Tape
-                </div>
-              )}
-              <div className={styles.linkToAkord}>
-                <Link href={'https://v2.akord.com/login'}>
-                  Go See Akord Account
-                </Link>
-              </div>
-            </div>
-            <div className={styles.artapeSelectionHeader}>
-              Artape Collection:
-            </div>
-
             {tapes.map((tape: any, i: number) => {
               return (
                 <div
