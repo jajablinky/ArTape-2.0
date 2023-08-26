@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import styles from '@/styles/sidebar.module.css';
 import Image from 'next/image';
-import Link from 'next/link';
 import { NodeLike } from '@akord/akord-js';
 import {
   AudioFileWithUrls,
@@ -10,7 +9,9 @@ import {
 } from '@/types/TapeInfo';
 import getTapeInfoJSON from './Helper Functions/getTapeInfoJSON';
 import processItem from './Helper Functions/processItem';
-import SidebarHide from './Images/UI/sidebarHide';
+import SidebarHide from './Images/UI/SidebarHide';
+
+//
 
 const NavSidebar = ({
   profileAvatar,
