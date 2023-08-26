@@ -11,6 +11,8 @@ import getTapeInfoJSON from './Helper Functions/getTapeInfoJSON';
 import processItem from './Helper Functions/processItem';
 import SidebarHide from './Images/UI/SidebarHide';
 
+//
+
 const NavSidebar = ({
   profileAvatar,
   profileName,
