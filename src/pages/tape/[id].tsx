@@ -93,9 +93,8 @@ const Tape = () => {
           className={`${targetImage.name} ${styles.objectFit}`}
           src={targetImage.url || ''}
           alt={targetImage.name}
-          height={350}
-          width={350}
-          style={{ objectFit: 'cover' }}
+          height={400}
+          width={400}
         />
       );
     } else {
@@ -162,7 +161,7 @@ const Tape = () => {
                             src={image.url}
                             alt={image.name}
                             height={350}
-                            width={350}
+                            width={700}
                           />
                         </div>
                       ) : (
@@ -171,8 +170,8 @@ const Tape = () => {
                             className={`${image.name} ${styles.objectFit}`}
                             src={image.url}
                             alt={image.name}
-                            height={350}
-                            width={350}
+                            height={400}
+                            width={400}
                           />
                         </div>
                       );

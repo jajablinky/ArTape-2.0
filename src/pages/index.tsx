@@ -310,9 +310,8 @@ export default function Home() {
               <>
                 <button
                   style={{
-                    border: '1px solid var(--artape-black)',
-                    background: 'transparent',
-                    color: 'var(--artape-black)',
+                    background: 'var(--artape-black)',
+                    color: 'var(--artape-white)',
                     fontSize: '12px',
                   }}
                   onClick={() => setShowVaultIdForm(true)}

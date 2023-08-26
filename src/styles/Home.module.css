@@ -154,7 +154,6 @@
   position: relative;
   background: (var(--artape-black));
   aspect-ratio: 1/ 1;
-
   text-align: center;
   color: var(--artape-black);
   border: 1px solid var(--artape-primary-color);
@@ -170,8 +169,6 @@
   aspect-ratio: 2 / 1;
   grid-column: span 2;
   position: relative;
-  object-fit: cover;
-
   text-align: center;
   color: var(--artape-black);
   border: 1px solid var(--artape-primary-color);
