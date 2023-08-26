@@ -9,7 +9,7 @@ import {
 } from '@/types/TapeInfo';
 import getTapeInfoJSON from './Helper Functions/getTapeInfoJSON';
 import processItem from './Helper Functions/processItem';
-import SidebarHide from './Images/UI/sidebarHide';
+import SidebarHide from './Images/UI/SidebarHide';
 
 const NavSidebar = ({
   profileAvatar,
