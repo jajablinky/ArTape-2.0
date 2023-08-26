@@ -1,6 +1,6 @@
 .main {
   display: flex;
-  --artape-primary-color: #0022ff;
+  --artape-primary-color: #ff9500;
   --artape-black: #242424;
   height: 100vh;
 }
