@@ -38,7 +38,6 @@ p {
 }
 
 button {
-  border-radius: 50px;
   border: 1px solid var(--artape-black);
   padding: 1em 100px;
   font-size: 1em;

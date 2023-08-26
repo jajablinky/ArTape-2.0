@@ -10,6 +10,7 @@ import {
 } from '@/types/TapeInfo';
 import getTapeInfoJSON from './Helper Functions/getTapeInfoJSON';
 import processItem from './Helper Functions/processItem';
+import SidebarHide from './Images/UI/sidebarHide';
 
 const NavSidebar = ({
   profileAvatar,
@@ -24,6 +25,25 @@ const NavSidebar = ({
   setProgress,
 }) => {
   const [profileAvatarURL, setProfileAvatarURL] = useState('');
+  const [sidebarMini, setSidebarMini] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 1000) {
+        setSidebarMini(true);
+      } else {
+        setSidebarMini(false);
+      }
+    };
+
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const handleProfilePhoto = async () => {
     let buffer = profileAvatar;
@@ -174,8 +194,19 @@ const NavSidebar = ({
 
   return (
     <>
-      <div className={styles.hideSidebar}>
-        <div className={styles.sidebarContainer}>
+      <div
+        className={styles.sidebarContainer}
+        style={{ width: sidebarMini ? '80px' : '315px' }}
+      >
+        <button
+          className={styles.sidebarHideButton}
+          style={{ transform: sidebarMini ? 'rotate(180deg)' : 'none' }}
+          onClick={() => setSidebarMini((prev) => !prev)}
+        >
+          <SidebarHide color={'var(--artape-black)'} />
+        </button>
+
+        <div className={sidebarMini ? styles.bigSidebarHide : ''}>
           <div className={styles.top}>
             <div className={styles.profileMainHeader}>
               <div className={styles.profilePhoto}>
@@ -191,26 +222,6 @@ const NavSidebar = ({
                 <h2>{profileName}</h2>
                 <span>{profileEmail}</span>
               </div>
-            </div>
-
-            <div className={styles.profileStats}>
-              {tapes.length > 1 ? (
-                <div className={styles.vaultNumberStats}>
-                  {tapes.length} Tapes
-                </div>
-              ) : (
-                <div className={styles.vaultNumberStats}>
-                  {tapes.length} Tape
-                </div>
-              )}
-              <div className={styles.linkToAkord}>
-                <Link href={'https://v2.akord.com/login'}>
-                  Go See Akord Account
-                </Link>
-              </div>
-            </div>
-            <div className={styles.artapeSelectionHeader}>
-              Artape Collection:
             </div>
 
             {tapes.map((tape: any, i: number) => {
