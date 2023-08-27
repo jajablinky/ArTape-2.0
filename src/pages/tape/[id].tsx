@@ -14,6 +14,7 @@ import { ImageFileWithUrls } from '@/types/TapeInfo';
 import NavSidebar from '@/components/NavSidebar';
 import { profile } from 'console';
 import LoadingOverlay from '@/components/LoadingOverlay';
+import FadeInAndOut from '@/components/FadeInAndOut';
 
 const Tape = () => {
   const [sortedImageFiles, setSortedImagesFiles] = useState<
@@ -120,67 +121,74 @@ const Tape = () => {
         }
       >
         {loading ? <LoadingOverlay progress={progress} /> : null}
-        <div className={styles.fullContainer}>
-          <NavSidebar
-            profileAvatar={profileAvatar}
-            profileEmail={profileEmail}
-            profileName={profileName}
-            tapes={tapeInfoOptions}
-            akord={akord}
-            setLoading={setLoading}
-            setTape={setTape}
-            tape={tape}
-            router={router}
-            setProgress={setProgress}
-          />
-          <div className={styles.mainContainer}>
-            <div className={styles.scrollableContainer}>
-              <div className={styles.gridProfile}>
-                <div className={styles.profileModule}>
-                  {renderFirstImage(1)}
+        <FadeInAndOut>
+          <div className={styles.fullContainer}>
+            <NavSidebar
+              profileAvatar={profileAvatar}
+              profileEmail={profileEmail}
+              profileName={profileName}
+              tapes={tapeInfoOptions}
+              akord={akord}
+              setLoading={setLoading}
+              setTape={setTape}
+              tape={tape}
+              router={router}
+              setProgress={setProgress}
+            />
+            <div className={styles.mainContainer}>
+              <div className={styles.scrollableContainer}>
+                <div className={styles.gridProfile}>
+                  <div className={styles.profileModule}>
+                    {renderFirstImage(1)}
+                  </div>
+
+                  <div
+                    className={styles.profileModuleRectangle}
+                    style={{
+                      backgroundColor: 'var(--artape-primary-color)',
+                      overflow: 'auto',
+                    }}
+                  >
+                    <AudioPlayer audioFiles={audioFiles} color={color} />
+                  </div>
+
+                  {sortedImageFiles &&
+                    sortedImageFiles.map((image) => {
+                      if (image.url) {
+                        return image.moduleId === 6 ? (
+                          <div
+                            className={styles.profileModuleRectangle}
+                            key={image.name}
+                          >
+                            <Image
+                              className={`${image.name} ${styles.objectFit}`}
+                              src={image.url}
+                              alt={image.name}
+                              height={350}
+                              width={700}
+                            />
+                          </div>
+                        ) : (
+                          <div
+                            className={styles.profileModule}
+                            key={image.name}
+                          >
+                            <Image
+                              className={`${image.name} ${styles.objectFit}`}
+                              src={image.url}
+                              alt={image.name}
+                              height={400}
+                              width={400}
+                            />
+                          </div>
+                        );
+                      }
+                    })}
                 </div>
-                <div
-                  className={styles.profileModuleRectangle}
-                  style={{
-                    backgroundColor: 'var(--artape-primary-color)',
-                    overflow: 'auto',
-                  }}
-                >
-                  <AudioPlayer audioFiles={audioFiles} color={color} />
-                </div>
-                {sortedImageFiles &&
-                  sortedImageFiles.map((image) => {
-                    if (image.url) {
-                      return image.moduleId === 6 ? (
-                        <div
-                          className={styles.profileModuleRectangle}
-                          key={image.name}
-                        >
-                          <Image
-                            className={`${image.name} ${styles.objectFit}`}
-                            src={image.url}
-                            alt={image.name}
-                            height={350}
-                            width={700}
-                          />
-                        </div>
-                      ) : (
-                        <div className={styles.profileModule} key={image.name}>
-                          <Image
-                            className={`${image.name} ${styles.objectFit}`}
-                            src={image.url}
-                            alt={image.name}
-                            height={400}
-                            width={400}
-                          />
-                        </div>
-                      );
-                    }
-                  })}
               </div>
             </div>
           </div>
-        </div>
+        </FadeInAndOut>
       </main>
     </>
   );

@@ -10,6 +10,7 @@ import {
 import getTapeInfoJSON from './Helper Functions/getTapeInfoJSON';
 import processItem from './Helper Functions/processItem';
 import SidebarHide from './Images/UI/SidebarHide';
+import Link from 'next/link';
 
 //
 
@@ -221,6 +222,7 @@ const NavSidebar = ({
               </div>
               <div className={styles.profileTextContent}>
                 <h2>{profileName}</h2>
+
                 <span>{profileEmail}</span>
               </div>
             </div>

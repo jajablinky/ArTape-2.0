@@ -10,6 +10,7 @@ import Link from 'next/link';
 import Loader from '@/components/Loader';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import AkordSignIn from '@/components/Helper Functions/AkordSignIn';
+import { motion } from 'framer-motion';
 
 import {
   AudioFileWithUrls,
@@ -26,6 +27,7 @@ import Tape from './tape/[id]';
 import getTapeInfoJSON from '@/components/Helper Functions/getTapeInfoJSON';
 import processItem from '@/components/Helper Functions/processItem';
 import { extractColorFromTags } from '@/components/Helper Functions/extractColorFromTags';
+import FadeInAndOut from '@/components/FadeInAndOut';
 
 export default function Home() {
   /* -- State  -- */
@@ -262,6 +264,7 @@ export default function Home() {
       </Head>
       <main className={styles.main}>
         {loading ? <LoadingOverlay progress={progress} /> : null}
+
         <div
           style={{
             display: 'flex',
@@ -272,67 +275,71 @@ export default function Home() {
             width: '100%',
           }}
         >
-          <div
-            style={{
-              display: 'flex',
+          <FadeInAndOut>
+            <div
+              style={{
+                display: 'flex',
 
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '24px',
-            }}
-          >
-            <Loader invert size="md" />
-            <ArTapeFontLogo color={'--var(--artape-black)'} />
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '14px',
-            }}
-          >
-            {showVaultIdForm && isAuthenticated ? (
-              <VaultSelectionForm
-                tapeInfoOptions={tapeInfoOptions}
-                setSelectedTapeInfo={setSelectedTapeInfo}
-                handleSubmit={handleSubmit}
-                onSubmit={handleVaultSelection}
-                loading={loading}
-              />
-            ) : showVaultIdForm ? (
-              <EmailPasswordForm
-                onSubmit={handleSubmit(onSubmit)}
-                loading={loading}
-                errors={errors}
-                register={register}
-              />
-            ) : (
-              <>
-                <button
-                  style={{
-                    background: 'var(--artape-black)',
-                    color: 'var(--artape-white)',
-                    fontSize: '12px',
-                  }}
-                  onClick={() => setShowVaultIdForm(true)}
-                >
-                  View My Tapes
-                </button>
-                <Link href="/create">
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '24px',
+              }}
+            >
+              <Loader invert size="md" />
+              <ArTapeFontLogo color={'--var(--artape-black)'} />
+            </div>
+          </FadeInAndOut>
+          <FadeInAndOut>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '14px',
+              }}
+            >
+              {showVaultIdForm && isAuthenticated ? (
+                <VaultSelectionForm
+                  tapeInfoOptions={tapeInfoOptions}
+                  setSelectedTapeInfo={setSelectedTapeInfo}
+                  handleSubmit={handleSubmit}
+                  onSubmit={handleVaultSelection}
+                  loading={loading}
+                />
+              ) : showVaultIdForm ? (
+                <EmailPasswordForm
+                  onSubmit={handleSubmit(onSubmit)}
+                  loading={loading}
+                  errors={errors}
+                  register={register}
+                />
+              ) : (
+                <>
                   <button
                     style={{
-                      background: 'transparent',
-                      color: 'var(--artape-black)',
-
+                      background: 'var(--artape-black)',
+                      color: 'var(--artape-white)',
                       fontSize: '12px',
                     }}
+                    onClick={() => setShowVaultIdForm(true)}
                   >
-                    Create A New Tape
+                    View My Tapes
                   </button>
-                </Link>
-              </>
-            )}
-          </div>
+                  <Link href="/create">
+                    <button
+                      style={{
+                        background: 'transparent',
+                        color: 'var(--artape-black)',
+
+                        fontSize: '12px',
+                      }}
+                    >
+                      Create A New Tape
+                    </button>
+                  </Link>
+                </>
+              )}
+            </div>
+          </FadeInAndOut>
         </div>
       </main>
     </>
