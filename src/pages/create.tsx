@@ -22,6 +22,7 @@ import EditableAudioPlayer from '@/components/EditableAudioPlayer';
 
 import LoadingOverlay from '@/components/LoadingOverlay';
 
+import { UDL_LICENSE_TX_ID } from '@akord/akord-js';
 import createMetadataJSON from '@/components/Helper Functions/createMetadataJSON';
 import { SubmitValues } from '@/types/SubmitValues';
 import AkordSignIn from '@/components/Helper Functions/AkordSignIn';
@@ -30,6 +31,29 @@ import { extractColorFromTags } from '@/components/Helper Functions/extractColor
 import Link from 'next/link';
 
 /* Types */
+
+const udl = {
+  license: UDL_LICENSE_TX_ID,
+  licenseFee: {
+    type: 'Monthly',
+    value: 5,
+  },
+  derivations: [
+    {
+      type: 'Allowed-With-RevenueShare',
+      value: 30,
+    },
+    {
+      type: 'Allowed-With-RevenueShare',
+      value: 10,
+      duration: {
+        type: 'After',
+        value: 2,
+      },
+    },
+  ],
+  commercialUses: [{ type: 'Allowed-With-Credit' }],
+};
 
 const loader = (
   <Image
@@ -255,6 +279,7 @@ const Create = () => {
           const profileEmail = profile.email;
           const profileName = profile.name;
           const profileAvatar = profile.avatar;
+
           const { vaultId } = await akord.vault.create(data.tapeArtistName, {
             tags: ['ArTape', 'Music', `color-${color}`],
           });
@@ -270,7 +295,8 @@ const Create = () => {
             const { stackId } = await akord.stack.create(
               vaultId,
               data.profilePicture[0],
-              data.profilePicture[0].name
+              data.profilePicture[0].name,
+              { udl }
             );
             const { transactionId } = await akord.stack.move(stackId, folderId);
             completedUploads += 1;
@@ -296,7 +322,8 @@ const Create = () => {
               const { stackId: mementoStackId } = await akord.stack.create(
                 vaultId,
                 mementoSvgFile,
-                mementoSvgFile.name
+                mementoSvgFile.name,
+                { udl }
               );
               await akord.stack.move(mementoStackId, folderId);
               console.log(
@@ -316,7 +343,8 @@ const Create = () => {
                 const { stackId } = await akord.stack.create(
                   vaultId,
                   audioFile,
-                  audioFile.name
+                  audioFile.name,
+                  { udl }
                 );
                 await akord.stack.move(stackId, folderId);
                 completedUploads += 1;
@@ -343,7 +371,8 @@ const Create = () => {
               const { stackId } = await akord.stack.create(
                 vaultId,
                 image.url,
-                image.name
+                image.name,
+                { udl }
               );
               await akord.stack.move(stackId, folderId);
 

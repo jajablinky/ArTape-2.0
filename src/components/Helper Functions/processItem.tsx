@@ -28,6 +28,9 @@ async function processItem(
       (audio) => audio.fileName === item.name
     );
 
+    const udl = item.versions[0].udl;
+    console.log(udl);
+
     result.audioFiles = [
       {
         trackNumber: audioMeta?.trackNumber || 0,
@@ -38,6 +41,7 @@ async function processItem(
         audioUrl: blobUrl,
         albumPictureUrl: albumPictures[audioMeta?.albumPicture || ''] || null,
         fileName: audioMeta?.fileName || '',
+        udl: udl || null,
       },
     ];
   }
@@ -45,6 +49,7 @@ async function processItem(
   else if (item.versions[0].type.startsWith('image')) {
     const imageId = item.id;
     const { data: decryptedImage } = await akord.stack.getVersion(imageId);
+    const udl = item.versions[0].udl;
 
     const blobUrl = URL.createObjectURL(new Blob([decryptedImage]));
     const imageMeta = tapeInfoJSON?.imageFiles.find(
@@ -73,6 +78,7 @@ async function processItem(
           alt: imageMeta?.alt || '',
           moduleId: matchingImageModuleId || 0,
           url: blobUrl,
+          udl: udl | null,
         },
       ];
     }

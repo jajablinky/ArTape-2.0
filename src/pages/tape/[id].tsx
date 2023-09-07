@@ -15,6 +15,8 @@ import NavSidebar from '@/components/NavSidebar';
 import { profile } from 'console';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import FadeInAndOut from '@/components/FadeInAndOut';
+import UDLOverlay from '@/components/UDLOverlay';
+import InfoIcon from '@/components/Images/UI/InfoIcon';
 
 const Tape = () => {
   const [sortedImageFiles, setSortedImagesFiles] = useState<
@@ -25,6 +27,24 @@ const Tape = () => {
     percentage: 0,
     state: 'Communicating with Akord',
   });
+  const [udlOverlay, setUdlOverlay] = useState([
+    { moduleId: 1, overlay: false },
+    { moduleId: 3, overlay: false },
+    { moduleId: 4, overlay: false },
+    { moduleId: 5, overlay: false },
+    { moduleId: 6, overlay: false },
+    { moduleId: 7, overlay: false },
+    { moduleId: 8, overlay: false },
+    { moduleId: 9, overlay: false },
+  ]);
+
+  const toggleOverlay = (moduleId: number) => {
+    setUdlOverlay((prev) =>
+      prev.map((item) =>
+        item.moduleId === moduleId ? { ...item, overlay: !item.overlay } : item
+      )
+    );
+  };
 
   const router = useRouter();
   const { id } = router.query;
@@ -65,6 +85,10 @@ const Tape = () => {
   interface Image {
     moduleId: number | string | null;
   }
+
+  useEffect(() => {
+    console.log(tape);
+  }, []);
 
   useEffect(() => {
     if (imageFiles && imageFiles.length > 0) {
@@ -138,8 +162,15 @@ const Tape = () => {
             <div className={styles.mainContainer}>
               <div className={styles.scrollableContainer}>
                 <div className={styles.gridProfile}>
-                  <div className={styles.profileModule}>
+                  <div
+                    className={styles.profileModule}
+                    onClick={() => toggleOverlay(1)}
+                  >
+                    {udlOverlay[0]?.overlay ? <UDLOverlay /> : null}
                     {renderFirstImage(1)}
+                    <div className={styles.infoIcon}>
+                      <InfoIcon color={'var(--artape-black)'} />
+                    </div>
                   </div>
 
                   <div
@@ -158,8 +189,15 @@ const Tape = () => {
                         return image.moduleId === 6 ? (
                           <div
                             className={styles.profileModuleRectangle}
-                            key={image.name}
+                            key={image.moduleId}
+                            onClick={() => toggleOverlay(image.moduleId)}
                           >
+                            {udlOverlay.find(
+                              (item) => item.moduleId === image.moduleId
+                            )?.overlay ? (
+                              <UDLOverlay />
+                            ) : null}
+
                             <Image
                               className={`${image.name} ${styles.objectFit}`}
                               src={image.url}
@@ -167,12 +205,22 @@ const Tape = () => {
                               height={350}
                               width={700}
                             />
+                            <div className={styles.infoIcon}>
+                              <InfoIcon color={'var(--artape-black)'} />
+                            </div>
                           </div>
                         ) : (
                           <div
                             className={styles.profileModule}
-                            key={image.name}
+                            key={image.moduleId}
+                            onClick={() => toggleOverlay(image.moduleId)}
                           >
+                            {udlOverlay.find(
+                              (item) => item.moduleId === image.moduleId
+                            )?.overlay ? (
+                              <UDLOverlay />
+                            ) : null}
+
                             <Image
                               className={`${image.name} ${styles.objectFit}`}
                               src={image.url}
@@ -180,6 +228,9 @@ const Tape = () => {
                               height={400}
                               width={400}
                             />
+                            <div className={styles.infoIcon}>
+                              <InfoIcon color={'var(--artape-black)'} />
+                            </div>
                           </div>
                         );
                       }

@@ -9,9 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@akord/akord-js": "4.16.1",
+    "@akord/akord-js": "4.19.1-beta.0",
     "@rive-app/react-canvas": "^3.0.55",
-    "@shopify/draggable": "^1.0.0-beta.8",
     "@types/node": "^20.4.4",
     "base64-js": "^1.5.1",
     "dotenv": "^16.3.1",

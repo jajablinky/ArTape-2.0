@@ -82,7 +82,6 @@ export default function Home() {
             searchCriteria: 'CONTAINS_SOME',
           },
         });
-        console.log(vaults);
 
         const tapeInfos = [];
 
