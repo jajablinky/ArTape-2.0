@@ -12,7 +12,7 @@ import CassetteMemento from '@/components/Images/Mementos/CassetteMemento';
 import EditButton from '@/components/Images/UI/EditButton';
 import { ImageFileWithUrls } from '@/types/TapeInfo';
 import NavSidebar from '@/components/NavSidebar';
-import { profile } from 'console';
+
 import LoadingOverlay from '@/components/LoadingOverlay';
 import FadeInAndOut from '@/components/FadeInAndOut';
 import UDLOverlay from '@/components/UDLOverlay';
@@ -166,7 +166,9 @@ const Tape = () => {
                     className={styles.profileModule}
                     onClick={() => toggleOverlay(1)}
                   >
-                    {udlOverlay[0]?.overlay ? <UDLOverlay /> : null}
+                    {udlOverlay[0]?.overlay ? (
+                      <UDLOverlay imageFile={imageFiles[0]} />
+                    ) : null}
                     {renderFirstImage(1)}
                     <div className={styles.infoIcon}>
                       <InfoIcon color={'var(--artape-black)'} />

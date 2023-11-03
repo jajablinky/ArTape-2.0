@@ -2,8 +2,7 @@ import React from 'react';
 
 const UdlBadge = () => (
   <svg
-    width="97.25"
-    height="40.665"
+    width="125"
     viewBox="0 0 1167 488"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"

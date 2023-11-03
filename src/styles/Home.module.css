@@ -162,12 +162,12 @@
 }
 
 .profileModule:hover {
-  opacity: 80%;
+  opacity: 90%;
   cursor: pointer;
 }
 
 .profileModuleRectangle:hover {
-  opacity: 80%;
+  opacity: 90%;
   cursor: pointer;
 }
 
