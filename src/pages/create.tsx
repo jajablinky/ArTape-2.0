@@ -11,11 +11,6 @@ import CassetteLogo from '../../public/Artape-Cassete-Logo.gif';
 
 import { FieldErrors, SubmitHandler, useForm } from 'react-hook-form';
 
-import CassetteMemento from '@/components/Images/Mementos/CassetteMemento';
-
-import PineappleMemento from '@/components/Images/Mementos/PineappleMemento';
-import LoudMemento from '@/components/Images/Mementos/LoudMemento';
-import MinimalMemento from '@/components/Images/Mementos/MinimalMemento';
 import EditButton from '@/components/Images/UI/EditButton';
 import UploadButton from '@/components/Images/UI/UploadButton';
 import EditableAudioPlayer from '@/components/EditableAudioPlayer';
@@ -26,7 +21,7 @@ import { UDL_LICENSE_TX_ID } from '@akord/akord-js';
 import createMetadataJSON from '@/components/Helper Functions/createMetadataJSON';
 import { SubmitValues } from '@/types/SubmitValues';
 import AkordSignIn from '@/components/Helper Functions/AkordSignIn';
-import getMementoSvgContent from '@/components/Helper Functions/getMementoSvgContent';
+
 import { extractColorFromTags } from '@/components/Helper Functions/extractColorFromTags';
 import Link from 'next/link';
 
