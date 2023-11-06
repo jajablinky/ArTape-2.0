@@ -102,10 +102,9 @@ const NavSidebar = ({
         audioFiles: [],
         color: '',
         imageFiles: [],
-        memento: '',
-        profilePicture: '',
+
         tapeArtistName: '',
-        tapeDescription: '',
+
         type: '',
       };
 
@@ -131,9 +130,7 @@ const NavSidebar = ({
       }>[] = [];
 
       items.forEach((item) => {
-        processPromises.push(
-          processItem(item, tapeInfoJSON, akord, albumPictures)
-        );
+        processPromises.push(processItem(item, tapeInfoJSON, akord));
       });
       setProgress({
         percentage: 80,
@@ -173,10 +170,10 @@ const NavSidebar = ({
         audioFiles,
         color: tapeInfoJSON?.color,
         imageFiles,
-        memento: tapeInfoJSON?.memento,
+
         profilePicture,
         tapeArtistName: tapeInfoJSON?.tapeArtistName,
-        tapeDescription: tapeInfoJSON?.tapeDescription,
+
         type: tapeInfoJSON?.type,
         tapeInfoJSON,
       });

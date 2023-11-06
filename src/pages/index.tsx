@@ -163,10 +163,6 @@ export default function Home() {
 
         const audioFiles: AudioFileWithUrls[] = [];
         const imageFiles: ImageFileWithUrls[] = [];
-        const profilePicture: { name: string; url: string } = {
-          name: '',
-          url: '',
-        };
 
         // Merge all the process results into audioFiles, imageFiles, and profilePicture
         processResults.forEach((result) => {
@@ -175,10 +171,6 @@ export default function Home() {
           }
           if (result.imageFiles) {
             imageFiles.push(...result.imageFiles);
-          }
-          if (result.profilePicture) {
-            profilePicture.name = result.profilePicture.name;
-            profilePicture.url = result.profilePicture.url;
           }
         });
 
@@ -194,7 +186,6 @@ export default function Home() {
           audioFiles,
           color: tapeInfoJSON?.color,
           imageFiles,
-          profilePicture,
           tapeArtistName: tapeInfoJSON?.tapeArtistName,
           type: tapeInfoJSON?.type,
           tapeInfoJSON,
@@ -209,10 +200,6 @@ export default function Home() {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    console.log(tape);
-  }, [tape]);
 
   return (
     <>

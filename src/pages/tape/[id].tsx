@@ -5,10 +5,6 @@ import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import AudioPlayer from '@/components/AudioPlayer';
-import PineappleMemento from '@/components/Images/Mementos/PineappleMemento';
-import LoudMemento from '@/components/Images/Mementos/LoudMemento';
-import MinimalMemento from '@/components/Images/Mementos/MinimalMemento';
-import CassetteMemento from '@/components/Images/Mementos/CassetteMemento';
 
 import { ImageFileWithUrls } from '@/types/TapeInfo';
 import NavSidebar from '@/components/NavSidebar';
@@ -53,23 +49,10 @@ const Tape = () => {
   if (!tape) {
     return <div>No tape data available</div>;
   }
-  const mementoGenerator = () => {
-    if (memento === 'Pineapple') {
-      return <PineappleMemento color={color} />;
-    } else if (memento === 'Loud') {
-      return <LoudMemento color={color} />;
-    } else if (memento === 'Minimal') {
-      return <MinimalMemento color={color} />;
-    } else if (memento === 'Minimal') {
-      return <CassetteMemento color={color} />;
-    } else {
-      return null;
-    }
-  };
+
   const {
     audioFiles,
     color,
-    memento,
     tapeArtistName,
     imageFiles,
     profileAvatar,
