@@ -17,7 +17,10 @@ async function processItem(
   } = {};
 
   // Audio processing
-  if (item.versions[0].type.startsWith('audio')) {
+  if (
+    item.versions[0].type.startsWith('audio') ||
+    item.versions[0].type.startsWith('video')
+  ) {
     const audioId = item.id;
     const { data: decryptedAudio } = await akord.stack.getVersion(audioId);
 
@@ -32,7 +35,7 @@ async function processItem(
 
     result.audioFiles = [
       {
-        trackNumber: audioMeta?.trackNumber || 0,
+        moduleId: audioMeta?.moduleId || 0,
         name: audioMeta?.name || '',
         artistName: audioMeta?.artistName || '',
         duration: audioMeta?.duration || 0,
