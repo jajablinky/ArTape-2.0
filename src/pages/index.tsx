@@ -121,39 +121,8 @@ export default function Home() {
       setLoading(true);
       const { vaultId } = selectedTapeInfo;
       if (akord) {
-        // Type guard to make sure that folders must contain an object with name
-        type NamedNode = NodeLike & { name: string };
-
-        // Find the most recent folder's id
-        const folders = await akord.folder.listAll(vaultId);
-        const namedFolders: NamedNode[] = folders.filter(
-          (folder: NodeLike): folder is NamedNode => 'name' in folder
-        );
-        const { id } = namedFolders.reduce<NamedNode>(
-          (highest: NamedNode, currentFolder: NamedNode): NamedNode => {
-            const [highestMajor, highestMinor, highestPatch] = highest.name
-              .split('.')
-              .map(Number);
-            const [currentMajor, currentMinor, currentPatch] =
-              currentFolder.name.split('.').map(Number);
-
-            if (currentMajor > highestMajor) return currentFolder;
-            if (currentMajor === highestMajor && currentMinor > highestMinor)
-              return currentFolder;
-            if (
-              currentMajor === highestMajor &&
-              currentMinor === highestMinor &&
-              currentPatch > highestPatch
-            )
-              return currentFolder;
-
-            return highest;
-          },
-          { name: '0.0.0', id: '' } as NamedNode
-        );
-
         // List all items inside the most recent version of tape
-        const items = await akord.stack.listAll(vaultId, { parentId: id });
+        const items = await akord.stack.listAll(vaultId);
         let tapeInfoJSON: TapeInfoJSON = {
           audioFiles: [],
           color: '',
@@ -166,8 +135,6 @@ export default function Home() {
         const profileEmail = profile.email;
         const profileName = profile.name;
         const profileAvatar = profile.avatar;
-
-        const albumPictures: { [name: string]: string } = {};
 
         const tapeInfoPromises: Promise<TapeInfoJSON | null>[] = [];
         items.forEach((item) => {
@@ -189,9 +156,7 @@ export default function Home() {
         }>[] = [];
 
         items.forEach((item) => {
-          processPromises.push(
-            processItem(item, tapeInfoJSON, akord, albumPictures)
-          );
+          processPromises.push(processItem(item, tapeInfoJSON, akord));
         });
 
         const processResults = await Promise.all(processPromises);

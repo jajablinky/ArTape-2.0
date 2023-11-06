@@ -7,8 +7,7 @@ import {
 async function processItem(
   item: any,
   tapeInfoJSON: TapeInfoJSON | null,
-  akord: any,
-  albumPictures: { [name: string]: string }
+  akord: any
 ) {
   // Variable to hold the return values
   let result: {
@@ -37,9 +36,7 @@ async function processItem(
         name: audioMeta?.name || '',
         artistName: audioMeta?.artistName || '',
         duration: audioMeta?.duration || 0,
-        albumPicture: audioMeta?.albumPicture || '',
         audioUrl: blobUrl,
-        albumPictureUrl: albumPictures[audioMeta?.albumPicture || ''] || null,
         fileName: audioMeta?.fileName || '',
         udl: udl || null,
       },
@@ -66,30 +63,16 @@ async function processItem(
     }
 
     // Only add to imageFiles if it's not a profile picture or album picture
-    if (
-      item.name !== tapeInfoJSON?.profilePicture &&
-      !tapeInfoJSON?.audioFiles.some(
-        (audio) => audio.albumPicture === item.name
-      )
-    ) {
-      result.imageFiles = [
-        {
-          name: item.name,
-          alt: imageMeta?.alt || '',
-          moduleId: matchingImageModuleId || 0,
-          url: blobUrl,
-          udl: udl | null,
-        },
-      ];
-    }
-    if (item.name === tapeInfoJSON?.profilePicture) {
-      result.profilePicture = { name: item.name, url: blobUrl };
-    }
-    if (
-      tapeInfoJSON?.audioFiles.some((audio) => audio.albumPicture === item.name)
-    ) {
-      albumPictures[item.name] = blobUrl;
-    }
+
+    result.imageFiles = [
+      {
+        name: item.name,
+        alt: imageMeta?.alt || '',
+        moduleId: matchingImageModuleId || 0,
+        url: blobUrl,
+        udl: udl | null,
+      },
+    ];
   }
 
   return result;
