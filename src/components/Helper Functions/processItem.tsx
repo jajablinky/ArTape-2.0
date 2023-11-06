@@ -7,8 +7,7 @@ import {
 async function processItem(
   item: any,
   tapeInfoJSON: TapeInfoJSON | null,
-  akord: any,
-  albumPictures: { [name: string]: string }
+  akord: any
 ) {
   // Variable to hold the return values
   let result: {
@@ -18,7 +17,10 @@ async function processItem(
   } = {};
 
   // Audio processing
-  if (item.versions[0].type.startsWith('audio')) {
+  if (
+    item.versions[0].type.startsWith('audio') ||
+    item.versions[0].type.startsWith('video')
+  ) {
     const audioId = item.id;
     const { data: decryptedAudio } = await akord.stack.getVersion(audioId);
 
@@ -28,16 +30,18 @@ async function processItem(
       (audio) => audio.fileName === item.name
     );
 
+    const udl = item.versions[0].udl;
+    console.log(udl);
+
     result.audioFiles = [
       {
-        trackNumber: audioMeta?.trackNumber || 0,
+        moduleId: audioMeta?.moduleId || 0,
         name: audioMeta?.name || '',
         artistName: audioMeta?.artistName || '',
         duration: audioMeta?.duration || 0,
-        albumPicture: audioMeta?.albumPicture || '',
         audioUrl: blobUrl,
-        albumPictureUrl: albumPictures[audioMeta?.albumPicture || ''] || null,
         fileName: audioMeta?.fileName || '',
+        udl: udl || null,
       },
     ];
   }
@@ -45,6 +49,7 @@ async function processItem(
   else if (item.versions[0].type.startsWith('image')) {
     const imageId = item.id;
     const { data: decryptedImage } = await akord.stack.getVersion(imageId);
+    const udl = item.versions[0].udl;
 
     const blobUrl = URL.createObjectURL(new Blob([decryptedImage]));
     const imageMeta = tapeInfoJSON?.imageFiles.find(
@@ -61,29 +66,16 @@ async function processItem(
     }
 
     // Only add to imageFiles if it's not a profile picture or album picture
-    if (
-      item.name !== tapeInfoJSON?.profilePicture &&
-      !tapeInfoJSON?.audioFiles.some(
-        (audio) => audio.albumPicture === item.name
-      )
-    ) {
-      result.imageFiles = [
-        {
-          name: item.name,
-          alt: imageMeta?.alt || '',
-          moduleId: matchingImageModuleId || 0,
-          url: blobUrl,
-        },
-      ];
-    }
-    if (item.name === tapeInfoJSON?.profilePicture) {
-      result.profilePicture = { name: item.name, url: blobUrl };
-    }
-    if (
-      tapeInfoJSON?.audioFiles.some((audio) => audio.albumPicture === item.name)
-    ) {
-      albumPictures[item.name] = blobUrl;
-    }
+
+    result.imageFiles = [
+      {
+        name: item.name,
+        alt: imageMeta?.alt || '',
+        moduleId: matchingImageModuleId || 0,
+        url: blobUrl,
+        udl: udl | null,
+      },
+    ];
   }
 
   return result;

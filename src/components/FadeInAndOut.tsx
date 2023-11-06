@@ -13,7 +13,7 @@ const FadeInAndOut: React.FC<FadeInAndOutProps> = ({ children }) => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{
-        duration: 0.85,
+        duration: 0.3,
       }}
     >
       {children}

@@ -162,7 +162,13 @@
 }
 
 .profileModule:hover {
-  opacity: 80%;
+  opacity: 90%;
+  cursor: pointer;
+}
+
+.profileModuleRectangle:hover {
+  opacity: 90%;
+  cursor: pointer;
 }
 
 .profileModuleRectangle {
@@ -230,6 +236,24 @@
 
 .artistHeaderRight {
   display: none;
+}
+
+.infoIcon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 2;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  display: none;
+}
+
+.profileModule:hover .infoIcon {
+  display: flex;
+}
+
+.profileModuleRectangle:hover .infoIcon {
+  display: flex;
 }
 
 @media (max-width: 1100px) {

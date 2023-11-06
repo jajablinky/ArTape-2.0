@@ -15,9 +15,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@akord/akord-js@npm:4.16.1":
-  version: 4.16.1
-  resolution: "@akord/akord-js@npm:4.16.1"
+"@akord/akord-js@npm:4.19.1-beta.0":
+  version: 4.19.1-beta.0
+  resolution: "@akord/akord-js@npm:4.19.1-beta.0"
   dependencies:
     "@akord/akord-auth": 0.28.0
     "@akord/crypto": 0.11.0
@@ -29,7 +29,7 @@ __metadata:
     streamsaver: ^2.0.6
     uuid: ^8.3.2
     web-streams-polyfill: ^3.2.1
-  checksum: 525cc2f834933f19a51530935daa1bebd1be148e32379d2466d2e65abbe338151a98760f5f759af823bdc670ba884f0f58e428d675e5cf0ff6f64a3cbb9465df
+  checksum: 81cafe46d69b018caa734a1530da564ac093e180d987d55448f095225d28627271e9f9efd898548fcf5e36aeb0bc056e934d63f20cb93978137b86d44c8ccbb7
   languageName: node
   linkType: hard
 
@@ -1981,7 +1981,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "artape-2@workspace:."
   dependencies:
-    "@akord/akord-js": 4.16.1
+    "@akord/akord-js": 4.19.1-beta.0
     "@rive-app/react-canvas": ^3.0.55
     "@shopify/draggable": ^1.0.0-beta.8
     "@svgr/webpack": ^8.0.1

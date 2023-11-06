@@ -15,11 +15,8 @@ export async function setAudioFilesWithFiles(
         file.audioUrl as string,
         file.fileName
       );
-      const albumPictureFile = await blobUrlToFile(
-        file.albumPictureUrl as string,
-        file.albumPicture
-      );
-      return { ...file, audioFile, albumPictureFile };
+
+      return { ...file, audioFile };
     })
   );
 
