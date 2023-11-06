@@ -158,10 +158,7 @@ export default function Home() {
           audioFiles: [],
           color: '',
           imageFiles: [],
-          memento: '',
-          profilePicture: '',
           tapeArtistName: '',
-          tapeDescription: '',
           type: '',
         };
 
@@ -232,10 +229,8 @@ export default function Home() {
           audioFiles,
           color: tapeInfoJSON?.color,
           imageFiles,
-          memento: tapeInfoJSON?.memento,
           profilePicture,
           tapeArtistName: tapeInfoJSON?.tapeArtistName,
-          tapeDescription: tapeInfoJSON?.tapeDescription,
           type: tapeInfoJSON?.type,
           tapeInfoJSON,
         });
@@ -253,6 +248,7 @@ export default function Home() {
   useEffect(() => {
     console.log(tape);
   }, [tape]);
+
   return (
     <>
       <Head>

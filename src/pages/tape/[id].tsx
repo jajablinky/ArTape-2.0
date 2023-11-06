@@ -9,7 +9,7 @@ import PineappleMemento from '@/components/Images/Mementos/PineappleMemento';
 import LoudMemento from '@/components/Images/Mementos/LoudMemento';
 import MinimalMemento from '@/components/Images/Mementos/MinimalMemento';
 import CassetteMemento from '@/components/Images/Mementos/CassetteMemento';
-import EditButton from '@/components/Images/UI/EditButton';
+
 import { ImageFileWithUrls } from '@/types/TapeInfo';
 import NavSidebar from '@/components/NavSidebar';
 
@@ -47,7 +47,7 @@ const Tape = () => {
   };
 
   const router = useRouter();
-  const { id } = router.query;
+  const { vaultId } = router.query;
   const { tape, setTape } = useTape();
 
   if (!tape) {
@@ -71,10 +71,7 @@ const Tape = () => {
     color,
     memento,
     tapeArtistName,
-    tapeDescription,
-    type,
     imageFiles,
-    profilePicture,
     profileAvatar,
     profileEmail,
     profileName,
@@ -126,12 +123,6 @@ const Tape = () => {
       // Handle the case when the image with the target moduleId is not found
       return <div>No image found for the moduleId: {targetModuleId}</div>;
     }
-  };
-
-  const handleEditClick = () => {
-    router.push({
-      pathname: `/tape/${[id]}/edit`,
-    });
   };
 
   return (
