@@ -5,11 +5,11 @@ async function getTapeInfoJSON(
   akord: any
 ): Promise<TapeInfoJSON | null> {
   if (item.name !== 'tapeInfo.json') return null;
-  const tapeInfoId = item.id;
-  const { data: decryptedTapeInfo } = await akord.stack.getVersion(tapeInfoId);
+  const { data: decryptedTapeInfo } = await akord.stack.getVersion(item.id);
 
   const tapeInfoString = new TextDecoder().decode(decryptedTapeInfo);
   const tapeInfoJSON = JSON.parse(tapeInfoString) as TapeInfoJSON;
+  console.log(tapeInfoJSON);
 
   return tapeInfoJSON;
 }
