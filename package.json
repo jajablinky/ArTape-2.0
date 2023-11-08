@@ -26,5 +26,6 @@
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "typescript": "^5.1.6"
-  }
+  },
+  "packageManager": "yarn@4.0.1"
 }
