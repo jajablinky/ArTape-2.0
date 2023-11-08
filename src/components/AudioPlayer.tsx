@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import styles from '@/styles/Home.module.css';
 
 import Loader from './Loader';
-import StopIcon from './Images/UI/StopIcon.tsx';
+import StopIcon from './Images/UI/StopIcon';
 import PrevIcon from './Images/UI/PrevIcon';
 import NextIcon from './Images/UI/NextIcon';
 import PlayIcon from './Images/UI/PlayIcon';
