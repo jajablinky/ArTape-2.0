@@ -105,6 +105,7 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
         audioPlayer.current.src = currentAudioUrl;
         audioPlayer.current.addEventListener('ended', handleEnded);
       }
+      if (isPlaying) audioPlayer.current.play();
     }
 
     return () => {
@@ -194,7 +195,7 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
         audioPlayer.current?.pause();
         setCurrentSongIndex(0);
         setPause(false);
-        //audioPlayer.current.currentTime = 0;
+        audioPlayer.current.currentTime = 0;
       }
       setisPlaying(false);
     }
