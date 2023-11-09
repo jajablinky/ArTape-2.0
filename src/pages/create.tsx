@@ -520,7 +520,7 @@ const Create = () => {
                 <div className={styles.linkToAkord}>
                   Don't have Akord account?{' '}
                   <Link
-                    href={'https://v2.akord.com/https://v2.akord.com/signup'}
+                    href={'https://v2.akord.com/signup'}
                   >
                     Sign Up for Akord!
                   </Link>
