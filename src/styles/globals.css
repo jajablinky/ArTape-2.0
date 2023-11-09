@@ -12,6 +12,9 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+
+  --progress-width: 0;
+  --buffer-width: 0;
 }
 
 body {
@@ -67,6 +70,22 @@ input {
 input:focus,
 input:focus-visible {
   outline: transparent;
+}
+
+.progress-bar::-webkit-slider-thumb {
+  z-index: 4;
+  position: relative;
+}
+
+.progress-bar::before {
+  transform: scaleX(var(--progress-width));
+  z-index: 3;
+}
+
+.progress-bar::after {
+  transform: scaleX(var(--buffer-width));
+  transform-origin: left;
+  z-index: 2;
 }
 
 @media (max-width: 1000px) {
