@@ -10,7 +10,6 @@ import Link from 'next/link';
 import Loader from '@/components/Loader';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import AkordSignIn from '@/components/Helper Functions/AkordSignIn';
-import { motion } from 'framer-motion';
 
 import {
   AudioFileWithUrls,
@@ -23,7 +22,7 @@ import { VaultValues } from '@/types/VaultValues';
 import EmailPasswordForm from '@/components/EmailPasswordForm';
 import VaultSelectionForm from '@/components/VaultSelectionForm';
 import ArTapeFontLogo from '@/components/Images/Logos/ArTapeFontLogo';
-import Tape from './tape/[id]';
+
 import getTapeInfoJSON from '@/components/Helper Functions/getTapeInfoJSON';
 import processItem from '@/components/Helper Functions/processItem';
 import { extractColorFromTags } from '@/components/Helper Functions/extractColorFromTags';
