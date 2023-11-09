@@ -17,11 +17,12 @@ interface AudioPlayerProps {
 }
 
 interface ProgressCSSProps extends React.CSSProperties {
-  "--progress-width": number;
-  "--buffer-width": number;
+  '--progress-width': number;
+  '--buffer-width': number;
 }
 
-interface AudioProgressBarProps extends React.ComponentPropsWithoutRef<"input"> {
+interface AudioProgressBarProps
+  extends React.ComponentPropsWithoutRef<'input'> {
   duration: number;
   currentProgress: number;
   buffered: number;
@@ -36,8 +37,8 @@ function AudioProgressBar(props: AudioProgressBarProps) {
   const bufferedWidth = isNaN(buffered / duration) ? 0 : buffered / duration;
 
   const progressStyles: ProgressCSSProps = {
-    "--progress-width": progressBarWidth,
-    "--buffer-width": bufferedWidth,
+    '--progress-width': progressBarWidth,
+    '--buffer-width': bufferedWidth,
   };
   return (
     <div className="absolute h-1 -top-[4px] left-0 right-0 group">
@@ -89,12 +90,11 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
   const [currentProgress, setCurrentProgress] = useState<number>(0);
   const [bufferProgress, setBufferProgress] = useState<number>(0);
 
-
   useEffect(() => {
     if (!audioPlayer.current) {
       audioPlayer.current = new Audio();
     }
-    console.log("useEffect currentSongIndex:", currentSongIndex);
+    console.log('useEffect currentSongIndex:', currentSongIndex);
     setCurrentSong(audioFiles[currentSongIndex]);
 
     if (audioPlayer.current && currentSongIndex !== -1 && audioFiles) {
@@ -125,7 +125,9 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
     }
   };
 
-  const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleProgressChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): void => {
     const newProgress = parseFloat(e.target.value);
     setCurrentProgress(newProgress);
 
@@ -134,17 +136,19 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
     }
   };
 
-
-  const handleBufferProgress: React.ReactEventHandler<HTMLAudioElement> = (e) => {
+  const handleBufferProgress: React.ReactEventHandler<HTMLAudioElement> = (
+    e
+  ) => {
     const audio = e.currentTarget;
     const dur = audio.duration;
     if (dur > 0) {
       for (let i = 0; i < audio.buffered.length; i++) {
         if (
-          audio.buffered.start(audio.buffered.length - 1 - i) < audio.currentTime
+          audio.buffered.start(audio.buffered.length - 1 - i) <
+          audio.currentTime
         ) {
           const bufferedLength = audio.buffered.end(
-            audio.buffered.length - 1 - i,
+            audio.buffered.length - 1 - i
           );
           setBufferProgress(bufferedLength);
           break;
@@ -155,30 +159,29 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
 
   const handlePauseResume = (): void => {
     if (!audioPlayer.current) {
-      console.log("no audio player");
+      console.log('no audio player');
       return;
     }
-    
+
     if (isPlaying) {
       //seekTime = audioPlayer.current.currentTime;
-      console.log("pause");
+      console.log('pause');
       audioPlayer.current?.pause();
-      console.log("pre check:", hasPaused);
+      console.log('pre check:', hasPaused);
       if (!hasPaused) {
-        console.log("first pause");
+        console.log('first pause');
         setStoredIndex(currentSongIndex);
         setPause(true);
+      } else {
+        console.log('already paused before!');
       }
-      else {
-        console.log("already paused before!");
-      }
-      console.log("post check:", hasPaused);
-      console.log("current stored index:", storedIndex);
+      console.log('post check:', hasPaused);
+      console.log('current stored index:', storedIndex);
       setisPlaying(false);
     }
     if (!isPlaying && audioPlayer.current.readyState >= 2) {
       //audioPlayer.current.currentTime = seekTime;
-      console.log("play");
+      console.log('play');
       audioPlayer.current?.play();
       setisPlaying(true);
     }
@@ -187,7 +190,7 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
   const handleStop = (): void => {
     if (audioPlayer.current) {
       if (isPlaying) {
-        console.log("stop");
+        console.log('stop');
         audioPlayer.current?.pause();
         setCurrentSongIndex(0);
         setPause(false);
@@ -200,17 +203,17 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
   const handleNextSong = (): void => {
     if (hasPaused) {
       setPause(false);
-      console.log("setting index to", storedIndex);
+      console.log('setting index to', storedIndex);
       setCurrentSongIndex(storedIndex);
-      console.log("has paused current song index:", currentSongIndex);
+      console.log('has paused current song index:', currentSongIndex);
       setStoredIndex(null);
     }
-    
-    console.log("current index:", currentSongIndex);
+
+    console.log('current index:', currentSongIndex);
     setCurrentSongIndex(
       currentSongIndex === audioFiles.length - 1 ? 0 : currentSongIndex + 1
     );
-    console.log("loading song", currentSongIndex)
+    console.log('loading song', currentSongIndex);
     audioPlayer.current?.load();
     setisPlaying(true);
   };
@@ -233,7 +236,7 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
   };
 
   const handleEnded = (): void => {
-    console.log("song ended");
+    console.log('song ended');
     handleNextSong();
   };
 
@@ -256,7 +259,7 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
 
   useEffect(() => {
     console.log(audioFiles);
-  });
+  }, []);
 
   return (
     <>
@@ -271,8 +274,8 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
             top: '0',
           }}
         >
-          <audio 
-            onEnded={handleEnded} 
+          <audio
+            onEnded={handleEnded}
             ref={audioPlayer}
             preload="metadata"
             onDurationChange={(e) => setSongDuration(e.currentTarget.duration)}
