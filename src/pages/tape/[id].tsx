@@ -223,7 +223,6 @@ const Tape = () => {
                         overflow: 'auto',
                       }}
                     >
-                      <AudioPlayer audioFiles={audioFiles} color={color} />
                     </div>
 
                     {sortedImageFiles &&
@@ -278,6 +277,9 @@ const Tape = () => {
                           );
                         }
                       })}
+                  </div>
+                  <div className={styles.AudioPlayer}>
+                    <AudioPlayer audioFiles={audioFiles} color={color} />
                   </div>
                 </div>
               </div>
