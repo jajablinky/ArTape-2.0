@@ -76,7 +76,7 @@ function formatToMinutes(duration: number): string {
 
 const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
   const [audioFetched, setAudioFetched] = useState<boolean>(true);
-  const [currentSongIndex, setCurrentSongIndex] = useState<number>(-1);
+  const [currentSongIndex, setCurrentSongIndex] = useState<number>(0);
   const [isPlaying, setisPlaying] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(1);
   const [currentSong, setCurrentSong] = useState<AudioFileWithFiles | null>(
