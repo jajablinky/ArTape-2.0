@@ -42,21 +42,16 @@ p {
 }
 
 button {
-  border: 1px solid var(--artape-black);
-  padding: 1em 100px;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: var(--artape-white);
+  background: transparent;
+  border: none;
   cursor: pointer;
   transition: all 0.25s;
 }
 button:hover {
   opacity: 90%;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto var(--artape-primary-color);
 }
 
 input {
