@@ -10,6 +10,7 @@ import PlayIcon from './Images/UI/PlayIcon';
 import PauseIcon from './Images/UI/PauseIcon';
 import { AudioFileWithFiles } from '@/types/TapeInfo';
 import ProgressBar from './ProgressBar';
+import Image from 'next/image';
 
 interface AudioPlayerProps {
   color: string;
@@ -241,22 +242,22 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
     handleNextSong();
   };
 
-  const handleTrackSelect = (index: number) => {
-    if (index === currentSongIndex) {
-      if (audioPlayer.current) {
-        if (isPlaying) {
-          audioPlayer.current.pause();
-          setisPlaying(false);
-        } else {
-          audioPlayer.current.play();
-          setisPlaying(true);
-        }
-      }
-    } else {
-      setCurrentSongIndex(index);
-      setisPlaying(true);
-    }
-  };
+  // const handleTrackSelect = (index: number) => {
+  //   if (index === currentSongIndex) {
+  //     if (audioPlayer.current) {
+  //       if (isPlaying) {
+  //         audioPlayer.current.pause();
+  //         setisPlaying(false);
+  //       } else {
+  //         audioPlayer.current.play();
+  //         setisPlaying(true);
+  //       }
+  //     }
+  //   } else {
+  //     setCurrentSongIndex(index);
+  //     setisPlaying(true);
+  //   }
+  // };
 
   useEffect(() => {
     console.log(audioFiles);
@@ -268,13 +269,21 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
         className={styles.musicPlayerContainer}
         onClick={(e) => e.stopPropagation()}
       >
-        <div
-          className={styles.musicPlayerHeader}
-          style={{
-            position: 'sticky',
-            top: '0',
-          }}
-        >
+        <div className={styles.musicPlayerLeft}>
+          <div className={styles.musicPlayerArtwork}>
+            <Image
+              // src={image.url}
+              // alt={image.name}
+              height={60}
+              width={60}
+            />
+          </div>
+          <div className={styles.musicPlayerText}>
+            <p className={styles.songName}>Song Name</p>
+            <p className={styles.artistName}>Artist Name</p>
+          </div>
+        </div>
+        <div className={styles.musicPlayerMiddle}>
           <audio
             onEnded={handleEnded}
             ref={audioPlayer}
@@ -290,9 +299,9 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
             {currentSongIndex !== -1 ? (
               <button onClick={() => handlePrevSong()}>
                 <PrevIcon
-                  height={30}
-                  width={30}
-                  color={'var(--artape-primary-color)'}
+                  height={18}
+                  width={21}
+                  color={'var(--artape-black)'}
                 />
               </button>
             ) : (
@@ -302,39 +311,25 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
             {isPlaying ? (
               <button onClick={() => handlePauseResume()}>
                 <PauseIcon
-                  height={30}
-                  width={30}
-                  color={'var(--artape-primary-color)'}
+                  height={21}
+                  width={21}
+                  color={'var(--artape-black)'}
                 />
               </button>
             ) : (
               <button onClick={() => handlePauseResume()}>
                 <PlayIcon
-                  height={30}
-                  width={30}
-                  color={'var(--artape-primary-color)'}
+                  height={21}
+                  width={21}
+                  color={'var(--artape-black)'}
                 />
               </button>
             )}
-
-            {isPlaying ? (
-              <button onClick={() => handleStop()}>
-                <StopIcon
-                  height={30}
-                  width={30}
-                  color={'var(--artape-primary-color)'}
-                />
-              </button>
-            ) : null}
             <button
               onClick={() => handleNextSong()}
-              style={{ color: 'var(--artape-primary-color)' }}
+              style={{ color: 'var(--artape-black)' }}
             >
-              <NextIcon
-                height={30}
-                width={30}
-                color={'var(--artape-primary-color)'}
-              />
+              <NextIcon height={18} width={21} color={'var(--artape-black)'} />
             </button>
           </div>
           <input
@@ -361,49 +356,6 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
         {audioFetched ? (
           audioFiles.map((audioFile, index: number) => (
             <div key={index} className={styles.trackContainer}>
-              <button
-                className={styles.musicPlayerTrack}
-                key={index}
-                onClick={() => handleTrackSelect(index)}
-              >
-                <div className={styles.musicPlayerLeftSide}>
-                  <div
-                    className={styles.songArt}
-                    style={{
-                      backgroundImage: `url(${audioFiles[index].albumPictureUrl})`,
-                      objectFit: 'cover',
-                    }}
-                  ></div>
-                  <div className={styles.musicInfo}>
-                    <div className={styles.artistTitleTrack}>
-                      <p>{audioFile.artistName}</p>
-                      <h2>{audioFile.name}</h2>
-                    </div>
-                    <div className={styles.durationBuyMp3}>
-                      <p>
-                        <span className={styles.duration}>
-                          {formatToMinutes(audioFile.duration)}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className={styles.musicPlayerRightSide}>
-                  {isPlaying && currentSongIndex === index ? (
-                    <StopIcon
-                      height={15}
-                      width={15}
-                      color={'var(--artape-primary-color)'}
-                    />
-                  ) : (
-                    <PlayIcon
-                      height={15}
-                      width={15}
-                      color={'var(--artape-primary-color)'}
-                    />
-                  )}
-                </div>
-              </button>
               {audioFetched && audioFile.audioUrl && (
                 <audio>
                   <source src={audioFile.audioUrl} type="audio/mpeg" />
@@ -415,6 +367,11 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
         ) : (
           <Loader />
         )}
+        <div className={styles.musicPlayerRight}>
+          <div className={styles.musicPlayerText}>
+            <p>Buttons</p>
+          </div>
+        </div>
       </motion.div>
     </>
   );
