@@ -9,6 +9,7 @@ import AudioPlayer from '@/components/AudioPlayer';
 import {
   AudioFileWithUrls,
   ImageFileWithUrls,
+  VideoFileWithUrls,
   TapeInfoJSON,
 } from '@/types/TapeInfo';
 import NavSidebar from '@/components/NavSidebar';
@@ -54,7 +55,7 @@ const Tape = () => {
   const { id } = router.query;
   const { tape, setTape } = useTape();
 
-  const { imageFiles, audioFiles, color } = tape || {};
+  const { imageFiles, audioFiles, videoFiles, color } = tape || {};
 
   interface Image {
     moduleId: number | string | null;
@@ -76,6 +77,7 @@ const Tape = () => {
             imageFiles: [],
             tapeArtistName: '',
             type: '',
+            videoFiles: [],
           };
 
           // commented out because its public and there is no profile
@@ -99,6 +101,7 @@ const Tape = () => {
           const processPromises: Promise<{
             audioFiles?: AudioFileWithUrls[];
             imageFiles?: ImageFileWithUrls[];
+            videoFiles?: VideoFileWithUrls[];
             profilePicture?: { name: string; url: string };
           }>[] = [];
 
@@ -110,6 +113,7 @@ const Tape = () => {
 
           const audioFiles: AudioFileWithUrls[] = [];
           const imageFiles: ImageFileWithUrls[] = [];
+          const videoFiles: VideoFileWithUrls[] = [];
           console.log('before processing');
           // Merge all the process results into audioFiles, imageFiles, and profilePicture
           processResults.forEach((result) => {
@@ -119,10 +123,14 @@ const Tape = () => {
             if (result.imageFiles) {
               imageFiles.push(...result.imageFiles);
             }
+            if (result.videoFiles) {
+              videoFiles.push(...result.videoFiles);
+            }
           });
 
           console.log('collected songs');
           console.log('collected images');
+          console.log('collected videos');
 
           setTape({
             akord,
@@ -134,6 +142,7 @@ const Tape = () => {
             imageFiles,
             tapeArtistName: tapeInfoJSON?.tapeArtistName,
             tapeInfoJSON,
+            videoFiles,
           });
           if (imageFiles) {
             const sortedImages = [...imageFiles].sort(
