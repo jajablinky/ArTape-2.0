@@ -77,7 +77,7 @@ export interface VideoFile {
 }
 
 export interface VideoFileWithUrls extends VideoFile {
-  url: string | null;
+  videoUrl: string | null;
 }
 
 export interface VideoFileWithFiles extends VideoFileWithUrls {

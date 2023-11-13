@@ -16,6 +16,7 @@ import {
   ImageFileWithUrls,
   TapeInfo,
   TapeInfoJSON,
+  VideoFileWithUrls,
 } from '@/types/TapeInfo';
 import { VaultValues } from '@/types/VaultValues';
 
@@ -128,6 +129,7 @@ export default function Home() {
           imageFiles: [],
           tapeArtistName: '',
           type: '',
+          videoFiles: [],
         };
 
         const profile = await akord.profile.get();
@@ -151,6 +153,7 @@ export default function Home() {
         const processPromises: Promise<{
           audioFiles?: AudioFileWithUrls[];
           imageFiles?: ImageFileWithUrls[];
+          videoFiles?: VideoFileWithUrls[];
           profilePicture?: { name: string; url: string };
         }>[] = [];
 
@@ -162,8 +165,9 @@ export default function Home() {
 
         const audioFiles: AudioFileWithUrls[] = [];
         const imageFiles: ImageFileWithUrls[] = [];
+        const videoFiles: VideoFileWithUrls[] = [];
 
-        // Merge all the process results into audioFiles, imageFiles, and profilePicture
+        // Merge all the process results into audioFiles, imageFiles, videoFiles, and profilePicture
         processResults.forEach((result) => {
           if (result.audioFiles) {
             audioFiles.push(...result.audioFiles);
@@ -171,10 +175,14 @@ export default function Home() {
           if (result.imageFiles) {
             imageFiles.push(...result.imageFiles);
           }
+          if (result.videoFiles) {
+            videoFiles.push(...result.videoFiles);
+          }
         });
 
         console.log('collected songs');
         console.log('collected images');
+        console.log('collected videos');
 
         setTape({
           akord,
@@ -188,6 +196,7 @@ export default function Home() {
           tapeArtistName: tapeInfoJSON?.tapeArtistName,
           type: tapeInfoJSON?.type,
           tapeInfoJSON,
+          videoFiles,
         });
         router.push({
           pathname: `/tape/${[vaultId]}`,

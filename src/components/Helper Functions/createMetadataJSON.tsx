@@ -31,6 +31,16 @@ const createMetadataJSON = (
             moduleId: file.moduleId,
           }))
         : [],
+      videoFiles: tape?.videoFiles
+          ? tape.videoFiles.map((file: any) => ({
+            name: file.name,
+            alt: file.alt,
+            artistName: file.artistName,
+            moduleId: file.moduleId,
+            duration: file.duration,
+            fileName: file.fileName,
+          }))
+        : [],
     };
     return metadata;
   } catch (error) {

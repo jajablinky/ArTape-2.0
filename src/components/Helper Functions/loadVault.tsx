@@ -2,6 +2,7 @@ import {
   AudioFileWithUrls,
   ImageFileWithUrls,
   TapeInfoJSON,
+  VideoFileWithUrls,
 } from '@/types/TapeInfo';
 import processItem from './processItem';
 import getTapeInfoJSON from './getTapeInfoJSON';
@@ -30,6 +31,7 @@ const loadVault = async (
       tapeArtistName: '',
       tapeDescription: '',
       type: '',
+      videoFiles: [],
     };
 
     const albumPictures: { [name: string]: string } = {};
@@ -50,6 +52,7 @@ const loadVault = async (
     const processPromises: Promise<{
       audioFiles?: AudioFileWithUrls[];
       imageFiles?: ImageFileWithUrls[];
+      videoFiles?: VideoFileWithUrls[];
       profilePicture?: { name: string; url: string };
     }>[] = [];
 
@@ -66,18 +69,22 @@ const loadVault = async (
 
     const audioFiles: AudioFileWithUrls[] = [];
     const imageFiles: ImageFileWithUrls[] = [];
+    const videoFiles: VideoFileWithUrls[] = [];
     const profilePicture: { name: string; url: string } = {
       name: '',
       url: '',
     };
 
-    // Merge all the process results into audioFiles, imageFiles, and profilePicture
+    // Merge all the process results into audioFiles, imageFiles, videoFiles, and profilePicture
     processResults.forEach((result) => {
       if (result.audioFiles) {
         audioFiles.push(...result.audioFiles);
       }
       if (result.imageFiles) {
         imageFiles.push(...result.imageFiles);
+      }
+      if (result.videoFiles) {
+        videoFiles.push(...result.videoFiles);
       }
       if (result.profilePicture) {
         profilePicture.name = result.profilePicture.name;
@@ -87,6 +94,7 @@ const loadVault = async (
 
     console.log('collected songs');
     console.log('collected images');
+    console.log('collected videos');
     setProgress({
       percentage: 100,
       state: 'Success!',
@@ -102,6 +110,7 @@ const loadVault = async (
       tapeDescription: tapeInfoJSON?.tapeDescription,
       type: tapeInfoJSON?.type,
       tapeInfoJSON,
+      videoFiles,
     });
     setLoading(false);
   } catch (e) {
