@@ -10,12 +10,14 @@ export interface TapeInfoJSON {
     imageFiles: ImageFile[];
     tapeArtistName: string;
     type: string;
+    videoFiles: VideoFile[];
 }
 
 
 export interface Tape extends Omit<TapeInfoJSON, 'audioFiles' | 'imageFiles' | 'profilePicture'> {
   audioFiles: AudioFileWithUrls[];
   imageFiles: ImageFileWithUrls[];
+  videoFiles: VideoFileWithUrls[];
   tapeInfoJSON: TapeInfoJSON | null;
 }
 
@@ -29,6 +31,10 @@ export interface TapeWithAudioFiles extends Tape {
 export interface TapeWithImageFiles extends Tape {
 
   imageFiles: ImageFileWithFiles[];
+}
+
+export interface TapeWithVideoFiles extends Tape {
+  videoFiles: VideoFileWithFiles[];
 }
 
 export interface AudioFile {
@@ -59,4 +65,21 @@ export interface ImageFileWithUrls extends ImageFile{
 
 export interface ImageFileWithFiles extends ImageFileWithUrls{
 file: File | null
+}
+
+export interface VideoFile {
+  name: string;
+  alt: string;
+  artistName: string;
+  moduleId: number;
+  duration: number;
+  fileName: string;
+}
+
+export interface VideoFileWithUrls extends VideoFile {
+  url: string | null;
+}
+
+export interface VideoFileWithFiles extends VideoFileWithUrls {
+  videoFile: File | null;
 }
