@@ -217,51 +217,34 @@ const Tape = () => {
                         </div>
                       </div>
 
-                      <div
-                        className={styles.profileModuleRectangle}
-                        style={{
-                          backgroundColor: 'var(--artape-primary-color)',
-                          overflow: 'auto',
-                        }}
-                      ></div>
+                    <div
+                      className={styles.profileModuleRectangle}
+                      style={{
+                        backgroundColor: 'var(--artape-primary-color)',
+                        overflow: 'auto',
+                      }}
+                      /* add code to move video file into rectangle module, it's a separate file */
+                    >
+                      
+                    </div>
 
-                      {sortedImageFiles &&
-                        sortedImageFiles.map((image) => {
-                          if (image.url) {
-                            return image.moduleId === 6 ? (
-                              <div
-                                className={styles.profileModuleRectangle}
-                                key={image.moduleId}
-                                onClick={() => toggleOverlay(image.moduleId)}
-                              >
-                                {udlOverlay.find(
-                                  (item) => item.moduleId === image.moduleId
-                                )?.overlay ? (
-                                  <UDLOverlay />
-                                ) : null}
+                    {sortedImageFiles &&
+                      sortedImageFiles.map((image) => {
+                        if (image.url) {
+                          return image.moduleId === 1 ? (
+                            null
+                          ) : (
+                            <div
+                              className={styles.profileModule}
+                              key={image.moduleId}
+                              onClick={() => toggleOverlay(image.moduleId)}
+                            >
+                              {udlOverlay.find(
+                                (item) => item.moduleId === image.moduleId
+                              )?.overlay ? (
+                                <UDLOverlay />
+                              ) : null}
 
-                                <Image
-                                  className={`${image.name} ${styles.objectFit}`}
-                                  src={image.url}
-                                  alt={image.name}
-                                  height={350}
-                                  width={700}
-                                />
-                                <div className={styles.infoIcon}>
-                                  <InfoIcon color={'var(--artape-black)'} />
-                                </div>
-                              </div>
-                            ) : (
-                              <div
-                                className={styles.profileModule}
-                                key={image.moduleId}
-                                onClick={() => toggleOverlay(image.moduleId)}
-                              >
-                                {udlOverlay.find(
-                                  (item) => item.moduleId === image.moduleId
-                                )?.overlay ? (
-                                  <UDLOverlay />
-                                ) : null}
 
                                 <Image
                                   className={`${image.name} ${styles.objectFit}`}
@@ -278,6 +261,9 @@ const Tape = () => {
                           }
                         })}
                     </div>
+                  </div>
+                  <div className={styles.AudioPlayer}>
+                    <AudioPlayer audioFiles={audioFiles} color={color} />
                   </div>
                 </div>
               </div>
