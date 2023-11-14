@@ -187,34 +187,35 @@ const Tape = () => {
         {loading && <LoadingOverlay progress={progress} />}
         {!loading && tape && (
           <FadeInAndOut>
-            <div className={styles.fullContainer}>
-              <NavSidebar
-                // profileAvatar={profileAvatar}
-                // profileEmail={profileEmail}
-                // profileName={profileName}
-                // tapes={tapeInfoOptions}
-                // akord={akord}
-                setLoading={setLoading}
-                setTape={setTape}
-                tape={tape}
-                router={router}
-                setProgress={setProgress}
-              />
-              <div className={styles.mainContainer}>
-                <div className={styles.scrollableContainer}>
-                  <div className={styles.gridProfile}>
-                    <div
-                      className={styles.profileModule}
-                      onClick={() => toggleOverlay(1)}
-                    >
-                      {udlOverlay[0]?.overlay ? (
-                        <UDLOverlay imageFile={imageFiles[0]} />
-                      ) : null}
-                      {renderFirstImage(1)}
-                      <div className={styles.infoIcon}>
-                        <InfoIcon color={'var(--artape-black)'} />
+            <div className={styles.fullWrapper}>
+              <div className={styles.fullContainer}>
+                <NavSidebar
+                  // profileAvatar={profileAvatar}
+                  // profileEmail={profileEmail}
+                  // profileName={profileName}
+                  // tapes={tapeInfoOptions}
+                  // akord={akord}
+                  setLoading={setLoading}
+                  setTape={setTape}
+                  tape={tape}
+                  router={router}
+                  setProgress={setProgress}
+                />
+                <div className={styles.mainContainer}>
+                  <div className={styles.scrollableContainer}>
+                    <div className={styles.gridProfile}>
+                      <div
+                        className={styles.profileModule}
+                        onClick={() => toggleOverlay(1)}
+                      >
+                        {udlOverlay[0]?.overlay ? (
+                          <UDLOverlay imageFile={imageFiles[0]} />
+                        ) : null}
+                        {renderFirstImage(1)}
+                        <div className={styles.infoIcon}>
+                          <InfoIcon color={'var(--artape-black)'} />
+                        </div>
                       </div>
-                    </div>
 
                     <div
                       className={styles.profileModuleRectangle}
@@ -244,25 +245,30 @@ const Tape = () => {
                                 <UDLOverlay />
                               ) : null}
 
-                              <Image
-                                className={`${image.name} ${styles.objectFit}`}
-                                src={image.url}
-                                alt={image.name}
-                                height={400}
-                                width={400}
-                              />
-                              <div className={styles.infoIcon}>
-                                <InfoIcon color={'var(--artape-black)'} />
+
+                                <Image
+                                  className={`${image.name} ${styles.objectFit}`}
+                                  src={image.url}
+                                  alt={image.name}
+                                  height={400}
+                                  width={400}
+                                />
+                                <div className={styles.infoIcon}>
+                                  <InfoIcon color={'var(--artape-black)'} />
+                                </div>
                               </div>
-                            </div>
-                          );
-                        }
-                      })}
+                            );
+                          }
+                        })}
+                    </div>
                   </div>
                   <div className={styles.AudioPlayer}>
                     <AudioPlayer audioFiles={audioFiles} color={color} />
                   </div>
                 </div>
+              </div>
+              <div className={styles.AudioPlayer}>
+                <AudioPlayer audioFiles={audioFiles} color={color} />
               </div>
             </div>
           </FadeInAndOut>
