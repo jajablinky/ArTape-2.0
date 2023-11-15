@@ -117,7 +117,7 @@ const VideoPlayer = ({color, videoFiles}: VideoPlayerProps) => {
 		if (currentVideoIndex === 0 && videoPlayer.current) {
 			videoPlayer.current.currentTime = 0;
 			videoPlayer.current.load();
-			if (!isPlaying) setIsPlaying(true);
+			if (isPlaying) videoPlayer.current.play();
 		}
 		else setCurrentVideoIndex(currentVideoIndex - 1);
 	};
