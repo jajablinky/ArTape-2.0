@@ -127,23 +127,6 @@ const VideoPlayer = ({color, videoFiles}: VideoPlayerProps) => {
 		handleNextVideo();
 	};
 
-	const handleTrackSelect = (index: number) => {
-		if (index === currentVideoIndex) {
-			if (videoPlayer.current) {
-				if (isPlaying) {
-					videoPlayer.current.pause();
-					setIsPlaying(false);
-				} else {
-					videoPlayer.current.play();
-					setIsPlaying(true);
-				}
-			}
-		} else {
-			setCurrentVideoIndex(index);
-			setIsPlaying(true);
-		}
-	};
-
 	return (
 		<video
 			onEnded={handleEnded}
