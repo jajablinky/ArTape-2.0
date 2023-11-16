@@ -5,6 +5,7 @@ import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import AudioPlayer from '@/components/AudioPlayer';
+import VideoPlayer from '@/components/VideoPlayer';
 
 import {
   AudioFileWithUrls,
@@ -232,9 +233,8 @@ const Tape = () => {
                         backgroundColor: 'var(--artape-primary-color)',
                         overflow: 'auto',
                       }}
-                      /* add code to move video file into rectangle module, it's a separate file */
                     >
-                      
+                      <VideoPlayer videoFiles={videoFiles} color={color} />
                     </div>
 
                     {sortedImageFiles &&
@@ -282,7 +282,6 @@ const Tape = () => {
             </div>
           </FadeInAndOut>
         )}
-        ;
       </main>
     </>
   );
