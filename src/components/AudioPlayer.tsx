@@ -228,8 +228,8 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
       if (audioPlayer.current) {
         audioPlayer.current.currentTime = 0;
         audioPlayer.current.load();
-        if (!isPlaying) {
-          setisPlaying(true);
+        if (isPlaying) {
+          audioPlayer.current.play();
         }
       }
     } else {
