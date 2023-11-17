@@ -95,6 +95,7 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
   const [songDuration, setSongDuration] = useState<number>(0);
   const [durationInMinutes, setDurationInMinutes] = useState<string>('');
   const [currentProgress, setCurrentProgress] = useState<number>(0);
+  const [currentProgInMin, setCurrentProgInMin] = useState<string>('');
   const [bufferProgress, setBufferProgress] = useState<number>(0);
 
   useEffect(() => {
@@ -300,6 +301,7 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
             }}
             onTimeUpdate={(e) => {
               setCurrentProgress(e.currentTarget.currentTime);
+              setCurrentProgInMin(formatToMinutes(e.currentTarget.currentTime))
               handleBufferProgress(e);
             }}
             onProgress={handleBufferProgress}
@@ -342,7 +344,7 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
             </button>
           </div>
           <div className={styles.progressBarWrapper}>
-            <p className={styles.progressTime}>0:00</p>
+            <p className={styles.progressTime}>{currentProgInMin}</p>
             <input
               type="range"
               name="progress"
