@@ -58,8 +58,12 @@ function AudioProgressBar(props: AudioProgressBarProps) {
 }
 
 function formatToMinutes(duration: number): string {
-  const minutes: number = Math.floor(duration / 60);
-  const seconds: number = Math.round(duration % 60);
+  let minutes: number = Math.floor(duration / 60);
+  let seconds: number = Math.round(duration % 60);
+  if (seconds === 60) {
+    minutes += 1;
+    seconds = 0;
+  }
   const durationFormatted: string = `${minutes}:${seconds
     .toString()
     .padStart(2, '0')}`;
