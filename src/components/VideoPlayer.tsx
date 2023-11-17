@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import styles from '@/styles/Home.module.css';
 
 import Loader from './Loader';
+import VolumeSlider from "./VolumeSlider";
 import { VideoFileWithFiles } from "@/types/TapeInfo";
 
 interface VideoPlayerProps {
@@ -186,14 +187,9 @@ const VideoPlayer = ({ color, videoFiles }: VideoPlayerProps) => {
             onChange={handleProgressChange}
             className={styles.ProgressBar}
           />
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={volume}
-            onChange={handleVolumeChange}
-            className={styles.volumeSlider}
+          <VolumeSlider
+            volume={volume}
+            handleVolumeChange={handleVolumeChange}
           />
         </div>
 
