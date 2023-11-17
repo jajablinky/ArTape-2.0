@@ -165,6 +165,7 @@ const VideoPlayer = ({ color, videoFiles }: VideoPlayerProps) => {
       >
         <div className={styles.videoPlayerMiddle}>
           <video
+            onClick={handlePauseResume}
             onEnded={handleEnded}
             ref={videoPlayer}
 			height={400}
