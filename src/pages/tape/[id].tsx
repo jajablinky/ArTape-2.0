@@ -51,6 +51,8 @@ const Tape = () => {
     );
   };
 
+  const [volume, setVolume] = useState<number>(1);
+
   const router = useRouter();
 
   const { id } = router.query;
@@ -234,7 +236,12 @@ const Tape = () => {
                         overflow: 'auto',
                       }}
                     >
-                      <VideoPlayer videoFiles={videoFiles} color={color} />
+                      <VideoPlayer 
+                        videoFiles={videoFiles} 
+                        color={color}
+                        volume={volume}
+                        setVolume={setVolume} 
+                      />
                     </div>
 
                     {sortedImageFiles &&
@@ -272,12 +279,22 @@ const Tape = () => {
                     </div>
                   </div>
                   <div className={styles.AudioPlayer}>
-                    <AudioPlayer audioFiles={audioFiles} color={color} />
+                    <AudioPlayer 
+                      audioFiles={audioFiles} 
+                      color={color} 
+                      volume={volume}
+                      setVolume={setVolume} 
+                    />
                   </div>
                 </div>
               </div>
               <div className={styles.AudioPlayer}>
-                <AudioPlayer audioFiles={audioFiles} color={color} />
+                <AudioPlayer 
+                  audioFiles={audioFiles} 
+                  color={color} 
+                  volume={volume}
+                  setVolume={setVolume}
+                />
               </div>
             </div>
           </FadeInAndOut>

@@ -16,6 +16,8 @@ import VolumeSlider from './VolumeSlider';
 interface AudioPlayerProps {
   color: string;
   audioFiles: AudioFileWithFiles[];
+  volume: number;
+  setVolume: any;
 }
 
 interface ProgressCSSProps extends React.CSSProperties {
@@ -76,11 +78,11 @@ function formatToMinutes(duration: number): string {
 //   return formatToMinutes(totalDuration);
 // }
 
-const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
+const AudioPlayer = ({ color, audioFiles, volume, setVolume }: AudioPlayerProps) => {
   const [audioFetched, setAudioFetched] = useState<boolean>(true);
   const [currentSongIndex, setCurrentSongIndex] = useState<number>(0);
   const [isPlaying, setisPlaying] = useState<boolean>(false);
-  const [volume, setVolume] = useState<number>(1);
+  
   const [currentSong, setCurrentSong] = useState<AudioFileWithFiles | null>(
     null
   );
@@ -119,14 +121,10 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
 
   /* Audio Player Logic */
 
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const newVolume = parseFloat(e.target.value);
-    setVolume(newVolume);
-
-    if (audioPlayer.current) {
-      audioPlayer.current.volume = newVolume;
-    }
-  };
+  // volume change
+  useEffect(() => {
+    if (audioPlayer.current) audioPlayer.current.volume = volume;
+  }, [volume]);
 
   const handleProgressChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -366,7 +364,7 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
         <div className={styles.musicPlayerRight}>
           <VolumeSlider
             volume={volume}
-            handleVolumeChange={handleVolumeChange}
+            setVolume={setVolume}
           />
         </div>
       </motion.div>

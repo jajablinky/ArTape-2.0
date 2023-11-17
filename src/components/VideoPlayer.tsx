@@ -9,6 +9,8 @@ import { VideoFileWithFiles } from "@/types/TapeInfo";
 interface VideoPlayerProps {
   color: string;
   videoFiles: VideoFileWithFiles[];
+  volume: number;
+  setVolume: any;
 }
 
 function formatToMinutes(duration: number): string {
@@ -20,13 +22,12 @@ function formatToMinutes(duration: number): string {
   return durationFormatted;
 }
 
-const VideoPlayer = ({ color, videoFiles }: VideoPlayerProps) => {
+const VideoPlayer = ({ color, videoFiles, volume, setVolume }: VideoPlayerProps) => {
   // insert react components
   const videoPlayer = useRef<HTMLVideoElement | null>(null);
   const [videoFetched, setVideoFetched] = useState<boolean>(true);
   const [currentVideoIndex, setCurrentVideoIndex] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [volume, setVolume] = useState<number>(1);
   const [currentVideo, setCurrentVideo] = useState<VideoFileWithFiles | null>(
     null
   );
@@ -59,14 +60,11 @@ const VideoPlayer = ({ color, videoFiles }: VideoPlayerProps) => {
   }, []);
 
   // Video Player Logic
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const newVolume = parseFloat(e.target.value);
-    setVolume(newVolume);
 
-    if (videoPlayer.current) {
-      videoPlayer.current.volume = newVolume;
-    }
-  };
+  // volume change
+  useEffect(() => {
+    if (videoPlayer.current) videoPlayer.current.volume = volume;
+  }, [volume]);
 
   const handleProgressChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -187,10 +185,6 @@ const VideoPlayer = ({ color, videoFiles }: VideoPlayerProps) => {
             value={currentProgress}
             onChange={handleProgressChange}
             className={styles.ProgressBar}
-          />
-          <VolumeSlider
-            volume={volume}
-            handleVolumeChange={handleVolumeChange}
           />
         </div>
 
