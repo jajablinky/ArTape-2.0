@@ -3,14 +3,15 @@ import { motion } from 'framer-motion';
 import styles from '@/styles/Home.module.css';
 
 import Loader from './Loader';
-import StopIcon from './Images/UI/StopIcon';
+
 import PrevIcon from './Images/UI/PrevIcon';
 import NextIcon from './Images/UI/NextIcon';
 import PlayIcon from './Images/UI/PlayIcon';
 import PauseIcon from './Images/UI/PauseIcon';
 import { AudioFileWithFiles } from '@/types/TapeInfo';
-import ProgressBar from './ProgressBar';
+
 import Image from 'next/image';
+import VolumeSlider from './VolumeSlider';
 
 interface AudioPlayerProps {
   color: string;
@@ -228,8 +229,8 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
       if (audioPlayer.current) {
         audioPlayer.current.currentTime = 0;
         audioPlayer.current.load();
-        if (!isPlaying) {
-          setisPlaying(true);
+        if (isPlaying) {
+          audioPlayer.current.play();
         }
       }
     } else {
@@ -332,25 +333,20 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
               <NextIcon height={18} width={21} color={'var(--artape-black)'} />
             </button>
           </div>
-          <input
-            type="range"
-            name="progress"
-            min="0"
-            max={songDuration}
-            step="0.01"
-            value={currentProgress}
-            onChange={handleProgressChange}
-            className={styles.ProgressBar}
-          />
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={volume}
-            onChange={handleVolumeChange}
-            className={styles.volumeSlider}
-          />
+          <div className={styles.progressBarWrapper}>
+            <p className={styles.progressTime}>0:00</p>
+            <input
+              type="range"
+              name="progress"
+              min="0"
+              max={songDuration}
+              step="0.01"
+              value={currentProgress}
+              onChange={handleProgressChange}
+              className={styles.progressBar}
+            />
+            <p className={styles.progressTime}>2:45</p>
+          </div>
         </div>
 
         {audioFetched ? (
@@ -368,9 +364,10 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
           <Loader />
         )}
         <div className={styles.musicPlayerRight}>
-          <div className={styles.musicPlayerText}>
-            <p>Buttons</p>
-          </div>
+          <VolumeSlider
+            volume={volume}
+            handleVolumeChange={handleVolumeChange}
+          />
         </div>
       </motion.div>
     </>
