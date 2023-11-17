@@ -89,6 +89,7 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
   const [hasPaused, setPause] = useState<boolean>(false);
   const [storedIndex, setStoredIndex] = useState<number | null>(null);
   const [songDuration, setSongDuration] = useState<number>(0);
+  const [durationInMinutes, setDurationInMinutes] = useState<string>('');
   const [currentProgress, setCurrentProgress] = useState<number>(0);
   const [bufferProgress, setBufferProgress] = useState<number>(0);
 
@@ -280,8 +281,8 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
             />
           </div>
           <div className={styles.musicPlayerText}>
-            <p className={styles.songName}>Song Name</p>
-            <p className={styles.artistName}>Artist Name</p>
+            <p className={styles.songName}>{currentSong?.name}</p>
+            <p className={styles.artistName}>{currentSong?.artistName}</p>
           </div>
         </div>
         <div className={styles.musicPlayerMiddle}>
@@ -289,7 +290,10 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
             onEnded={handleEnded}
             ref={audioPlayer}
             preload="metadata"
-            onDurationChange={(e) => setSongDuration(e.currentTarget.duration)}
+            onDurationChange={(e) => {
+              setSongDuration(e.currentTarget.duration);
+              setDurationInMinutes(formatToMinutes(songDuration));
+            }}
             onTimeUpdate={(e) => {
               setCurrentProgress(e.currentTarget.currentTime);
               handleBufferProgress(e);
@@ -345,7 +349,7 @@ const AudioPlayer = ({ color, audioFiles }: AudioPlayerProps) => {
               onChange={handleProgressChange}
               className={styles.progressBar}
             />
-            <p className={styles.progressTime}>2:45</p>
+            <p className={styles.progressTime}>{durationInMinutes}</p>
           </div>
         </div>
 
