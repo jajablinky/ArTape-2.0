@@ -9,7 +9,7 @@
   flex-direction: row;
   width: 100%;
   height: 100%;
-  padding-bottom: 105px;
+  padding-bottom: 80px;
 }
 
 .fullWrapper {
@@ -76,10 +76,10 @@
   position: fixed;
   bottom: 0;
   left: 0;
-  height: 105px;
   width: 100%;
   background: var(--artape-white);
-  padding: 0px 10px 0px 10px;
+  padding: 10px 0px 10px 0px;
+  border-top: #d1d1d1 1px solid;
 }
 
 .trackContainer {
@@ -90,19 +90,21 @@
   background: green;
 }
 
-.musicPlayerLeft {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-}
-
 .songName {
   font-size: 18px;
 }
 
 .artistName {
   font-size: 12px;
+}
+
+.musicPlayerLeft {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  flex-grow: 0;
+  padding-left: 20px;
 }
 
 .musicPlayerMiddle {
@@ -113,13 +115,21 @@
   object-fit: contain;
   z-index: 150;
   gap: 8px;
-  flex-grow: 1;
+  flex-grow: 0.5;
+}
+
+.musicPlayerRight {
+  display: flex;
+  flex-direction: row;
+  text-align: left;
+  flex-grow: 0;
+  padding-right: 20px;
 }
 
 .musicControls {
   display: flex;
   justify-content: center;
-  gap: 40px;
+  gap: 30px;
 }
 .musicPlayerTrack {
   display: flex;
@@ -133,10 +143,15 @@
   width: 100%;
 }
 
-.musicPlayerLeftSide {
+.progressTime {
+  font-size: 9px;
+}
+
+.progressBarWrapper {
   display: flex;
   flex-direction: row;
-  text-align: left;
+  gap: 10px;
+  align-items: center;
 }
 
 .artistTitleTrack {
