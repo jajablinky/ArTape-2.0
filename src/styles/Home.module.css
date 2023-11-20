@@ -87,7 +87,7 @@
 }
 
 .musicPlayerArtwork {
-  background: green;
+  background: var(--artape-primary-color);
 }
 
 .songName {
