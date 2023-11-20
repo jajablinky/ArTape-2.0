@@ -12,6 +12,8 @@ interface VideoPlayerProps {
   videoFiles: VideoFileWithFiles[];
   volume: number;
   setVolume: any;
+  mediaProgress: number;
+  setMediaProgress: any;
 }
 
 function formatToMinutes(duration: number): string {
@@ -23,7 +25,7 @@ function formatToMinutes(duration: number): string {
   return durationFormatted;
 }
 
-const VideoPlayer = ({ color, videoFiles, volume, setVolume }: VideoPlayerProps) => {
+const VideoPlayer = ({ color, videoFiles, volume, setVolume, mediaProgress, setMediaProgress }: VideoPlayerProps) => {
   // insert react components
   const videoPlayer = useRef<HTMLVideoElement | null>(null);
   const [videoFetched, setVideoFetched] = useState<boolean>(true);
@@ -67,16 +69,10 @@ const VideoPlayer = ({ color, videoFiles, volume, setVolume }: VideoPlayerProps)
     if (videoPlayer.current) videoPlayer.current.volume = volume;
   }, [volume]);
 
-  const handleProgressChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ): void => {
-    const newProgress = parseFloat(e.target.value);
-    setCurrentProgress(newProgress);
-
-    if (videoPlayer.current) {
-      videoPlayer.current.currentTime = newProgress;
-    }
-  };
+  // seek bar change
+  useEffect(() => {
+    if (videoPlayer.current) videoPlayer.current.currentTime = mediaProgress
+  }, [mediaProgress]);
 
   const handleBufferProgress: React.ReactEventHandler<HTMLAudioElement> = (
     e
@@ -170,20 +166,10 @@ const VideoPlayer = ({ color, videoFiles, volume, setVolume }: VideoPlayerProps)
             preload="metadata"
             onDurationChange={(e) => setVideoDuration(e.currentTarget.duration)}
             onTimeUpdate={(e) => {
-              setCurrentProgress(e.currentTarget.currentTime);
+              setMediaProgress(e.currentTarget.currentTime);
               handleBufferProgress(e);
             }}
             onProgress={handleBufferProgress}
-          />
-          <input
-            type="range"
-            name="progress"
-            min="0"
-            max={videoDuration}
-            step="0.01"
-            value={currentProgress}
-            onChange={handleProgressChange}
-            className={styles.ProgressBar}
           />
         </div>
 

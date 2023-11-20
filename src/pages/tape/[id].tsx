@@ -52,6 +52,7 @@ const Tape = () => {
   };
 
   const [volume, setVolume] = useState<number>(1);
+  const [mediaProgress, setMediaProgress] = useState<number>(0);
 
   const router = useRouter();
 
@@ -239,6 +240,8 @@ const Tape = () => {
                         color={color}
                         volume={volume}
                         setVolume={setVolume} 
+                        mediaProgress={mediaProgress}
+                        setMediaProgress={setMediaProgress}
                       />
                     </div>
         
@@ -281,6 +284,8 @@ const Tape = () => {
                   color={color} 
                   volume={volume}
                   setVolume={setVolume}
+                  mediaProgress={mediaProgress}
+                  setMediaProgress={setMediaProgress}
                 />
               </div>
             </div>

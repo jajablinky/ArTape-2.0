@@ -12,12 +12,15 @@ import { AudioFileWithFiles } from '@/types/TapeInfo';
 
 import Image from 'next/image';
 import VolumeSlider from './VolumeSlider';
+import MediaProgressBar from './MediaProgressBar';
 
 interface AudioPlayerProps {
   color: string;
   audioFiles: AudioFileWithFiles[];
   volume: number;
   setVolume: any;
+  mediaProgress: number;
+  setMediaProgress: any;
 }
 
 interface ProgressCSSProps extends React.CSSProperties {
@@ -78,7 +81,7 @@ function formatToMinutes(duration: number): string {
 //   return formatToMinutes(totalDuration);
 // }
 
-const AudioPlayer = ({ color, audioFiles, volume, setVolume }: AudioPlayerProps) => {
+const AudioPlayer = ({ color, audioFiles, volume, setVolume, mediaProgress, setMediaProgress }: AudioPlayerProps) => {
   const [audioFetched, setAudioFetched] = useState<boolean>(true);
   const [currentSongIndex, setCurrentSongIndex] = useState<number>(0);
   const [isPlaying, setisPlaying] = useState<boolean>(false);
@@ -91,7 +94,6 @@ const AudioPlayer = ({ color, audioFiles, volume, setVolume }: AudioPlayerProps)
   const [hasPaused, setPause] = useState<boolean>(false);
   const [storedIndex, setStoredIndex] = useState<number | null>(null);
   const [songDuration, setSongDuration] = useState<number>(0);
-  const [currentProgress, setCurrentProgress] = useState<number>(0);
   const [bufferProgress, setBufferProgress] = useState<number>(0);
 
   useEffect(() => {
@@ -126,16 +128,10 @@ const AudioPlayer = ({ color, audioFiles, volume, setVolume }: AudioPlayerProps)
     if (audioPlayer.current) audioPlayer.current.volume = volume;
   }, [volume]);
 
-  const handleProgressChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ): void => {
-    const newProgress = parseFloat(e.target.value);
-    setCurrentProgress(newProgress);
-
-    if (audioPlayer.current) {
-      audioPlayer.current.currentTime = newProgress;
-    }
-  };
+  // seek bar change
+  useEffect(() => {
+    if (audioPlayer.current) audioPlayer.current.currentTime = mediaProgress
+  }, [mediaProgress]);
 
   const handleBufferProgress: React.ReactEventHandler<HTMLAudioElement> = (
     e
@@ -289,7 +285,7 @@ const AudioPlayer = ({ color, audioFiles, volume, setVolume }: AudioPlayerProps)
             preload="metadata"
             onDurationChange={(e) => setSongDuration(e.currentTarget.duration)}
             onTimeUpdate={(e) => {
-              setCurrentProgress(e.currentTarget.currentTime);
+              setMediaProgress(e.currentTarget.currentTime);
               handleBufferProgress(e);
             }}
             onProgress={handleBufferProgress}
@@ -333,15 +329,10 @@ const AudioPlayer = ({ color, audioFiles, volume, setVolume }: AudioPlayerProps)
           </div>
           <div className={styles.progressBarWrapper}>
             <p className={styles.progressTime}>0:00</p>
-            <input
-              type="range"
-              name="progress"
-              min="0"
-              max={songDuration}
-              step="0.01"
-              value={currentProgress}
-              onChange={handleProgressChange}
-              className={`${styles.progressBar} ${styles.slider}`}
+            <MediaProgressBar
+              mediaProgress={mediaProgress}
+              setMediaProgress={setMediaProgress}
+              songDuration={songDuration}
             />
             <p className={styles.progressTime}>2:45</p>
           </div>
