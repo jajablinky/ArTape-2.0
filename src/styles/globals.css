@@ -49,6 +49,7 @@ button {
   border: none;
   cursor: pointer;
   transition: all 0.25s;
+  padding: 1em 20px;
 }
 button:hover {
   opacity: 90%;
@@ -67,30 +68,8 @@ input:focus-visible {
   outline: transparent;
 }
 
-.progress-bar::-webkit-slider-thumb {
-  z-index: 4;
-  position: relative;
-}
-
-.progress-bar::before {
-  transform: scaleX(var(--progress-width));
-  z-index: 3;
-}
-
-.progress-bar::after {
-  transform: scaleX(var(--buffer-width));
-  transform-origin: left;
-  z-index: 2;
-}
-
 @media (max-width: 1000px) {
   h1 {
     font-size: 24px;
-  }
-}
-
-@media (max-width: 1000px) {
-  button {
-    padding: 1em 20px;
   }
 }
