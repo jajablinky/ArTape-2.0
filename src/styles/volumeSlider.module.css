@@ -1,0 +1,19 @@
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  user-select: 'none';
+  touch-action: 'none';
+  height: 5px;
+  width: 100%;
+  background-color: #e5e6eb;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: var(--artape-primary-color);
+  height: 10px;
+  width: 5px;
+}

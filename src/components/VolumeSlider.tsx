@@ -19,7 +19,7 @@ const VolumeSlider = ({ volume, setVolume }) => {
         step="0.01"
         value={volume}
         onChange={getNewVolume}
-        className={styles.volumeSlider}
+        className={`${styles.slider}`}
       />
     </>
   );

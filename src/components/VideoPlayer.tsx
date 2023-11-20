@@ -1,10 +1,11 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import styles from '@/styles/Home.module.css';
 
 import Loader from './Loader';
 import VolumeSlider from "./VolumeSlider";
 import { VideoFileWithFiles } from "@/types/TapeInfo";
+
 
 interface VideoPlayerProps {
   color: string;
@@ -18,7 +19,7 @@ function formatToMinutes(duration: number): string {
   const seconds: number = Math.round(duration % 60);
   const durationFormatted: string = `${minutes}:${seconds
     .toString()
-    .padStart(2, "0")}`;
+    .padStart(2, '0')}`;
   return durationFormatted;
 }
 
@@ -45,16 +46,16 @@ const VideoPlayer = ({ color, videoFiles, volume, setVolume }: VideoPlayerProps)
       const currentVideoUrl = videoFiles[0].videoUrl;
       if (currentVideoUrl) {
         console.log(videoFiles[0].fileName, "'s duration:", videoDuration);
-        videoPlayer.current.removeEventListener("ended", handleEnded);
+        videoPlayer.current.removeEventListener('ended', handleEnded);
         videoPlayer.current.src = currentVideoUrl;
-        videoPlayer.current.addEventListener("ended", handleEnded);
+        videoPlayer.current.addEventListener('ended', handleEnded);
       }
       if (isPlaying) videoPlayer.current.play();
     }
 
     return () => {
       if (videoPlayer.current) {
-        videoPlayer.current.removeEventListener("ended", handleEnded);
+        videoPlayer.current.removeEventListener('ended', handleEnded);
       }
     };
   }, []);
@@ -100,20 +101,20 @@ const VideoPlayer = ({ color, videoFiles, volume, setVolume }: VideoPlayerProps)
 
   const handlePauseResume = (): void => {
     if (!videoPlayer.current) {
-      console.log("no audio player");
+      console.log('no audio player');
       return;
     }
 
     if (isPlaying) {
       //seekTime = audioPlayer.current.currentTime;
-      console.log("pause");
+      console.log('pause');
       videoPlayer.current?.pause();
       // may need to implement pause check (see audio player)
       setIsPlaying(false);
     }
     if (!isPlaying && videoPlayer.current.readyState >= 2) {
       //audioPlayer.current.currentTime = seekTime;
-      console.log("play");
+      console.log('play');
       videoPlayer.current?.play();
       setIsPlaying(true);
     }
@@ -121,7 +122,7 @@ const VideoPlayer = ({ color, videoFiles, volume, setVolume }: VideoPlayerProps)
 
   const handleStop = (): void => {
     if (videoPlayer.current && isPlaying) {
-      console.log("stop");
+      console.log('stop');
       videoPlayer.current.pause();
       setCurrentVideoIndex(0);
       videoPlayer.current.currentTime = 0;
@@ -130,11 +131,11 @@ const VideoPlayer = ({ color, videoFiles, volume, setVolume }: VideoPlayerProps)
   };
 
   const handleNextVideo = (): void => {
-    console.log("current video index:", currentVideoIndex);
+    console.log('current video index:', currentVideoIndex);
     setCurrentVideoIndex(
       currentVideoIndex === videoFiles.length - 1 ? 0 : currentVideoIndex + 1
     );
-    console.log("loading video", currentVideoIndex);
+    console.log('loading video', currentVideoIndex);
     videoPlayer.current?.load();
     setIsPlaying(true);
   };
@@ -151,7 +152,7 @@ const VideoPlayer = ({ color, videoFiles, volume, setVolume }: VideoPlayerProps)
   };
 
   const handleEnded = (): void => {
-    console.log("video ended");
+    console.log('video ended');
     handleNextVideo();
   };
 
@@ -166,8 +167,6 @@ const VideoPlayer = ({ color, videoFiles, volume, setVolume }: VideoPlayerProps)
             onClick={handlePauseResume}
             onEnded={handleEnded}
             ref={videoPlayer}
-			height={400}
-			width={750}
             preload="metadata"
             onDurationChange={(e) => setVideoDuration(e.currentTarget.duration)}
             onTimeUpdate={(e) => {

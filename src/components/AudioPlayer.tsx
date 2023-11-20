@@ -341,7 +341,7 @@ const AudioPlayer = ({ color, audioFiles, volume, setVolume }: AudioPlayerProps)
               step="0.01"
               value={currentProgress}
               onChange={handleProgressChange}
-              className={styles.progressBar}
+              className={`${styles.progressBar} ${styles.slider}`}
             />
             <p className={styles.progressTime}>2:45</p>
           </div>

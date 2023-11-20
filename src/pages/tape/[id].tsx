@@ -176,8 +176,7 @@ const Tape = () => {
           className={`${targetImage.name} ${styles.objectFit}`}
           src={targetImage.url || ''}
           alt={targetImage.name}
-          height={400}
-          width={400}
+          fill={true}
         />
       );
     } else {
@@ -228,7 +227,6 @@ const Tape = () => {
                           <InfoIcon color={'var(--artape-black)'} />
                         </div>
                       </div>
-
                     <div
                       className={styles.profileModuleRectangle}
                       style={{
@@ -243,31 +241,28 @@ const Tape = () => {
                         setVolume={setVolume} 
                       />
                     </div>
-
-                    {sortedImageFiles &&
-                      sortedImageFiles.map((image) => {
-                        if (image.url) {
-                          return image.moduleId === 1 ? (
-                            null
-                          ) : (
-                            <div
-                              className={styles.profileModule}
-                              key={image.moduleId}
-                              onClick={() => toggleOverlay(image.moduleId)}
-                            >
-                              {udlOverlay.find(
-                                (item) => item.moduleId === image.moduleId
-                              )?.overlay ? (
-                                <UDLOverlay />
-                              ) : null}
-
+        
+                      {sortedImageFiles &&
+                        sortedImageFiles.map((image) => {
+                          if (image.url) {
+                            return image.moduleId === 1 ? null : (
+                              <div
+                                className={styles.profileModule}
+                                key={image.moduleId}
+                                onClick={() => toggleOverlay(image.moduleId)}
+                                style={{ aspectRatio: 1 / 1 }}
+                              >
+                                {udlOverlay.find(
+                                  (item) => item.moduleId === image.moduleId
+                                )?.overlay ? (
+                                  <UDLOverlay />
+                                ) : null}
 
                                 <Image
                                   className={`${image.name} ${styles.objectFit}`}
                                   src={image.url}
                                   alt={image.name}
-                                  height={400}
-                                  width={400}
+                                  fill={true}
                                 />
                                 <div className={styles.infoIcon}>
                                   <InfoIcon color={'var(--artape-black)'} />
@@ -277,14 +272,6 @@ const Tape = () => {
                           }
                         })}
                     </div>
-                  </div>
-                  <div className={styles.AudioPlayer}>
-                    <AudioPlayer 
-                      audioFiles={audioFiles} 
-                      color={color} 
-                      volume={volume}
-                      setVolume={setVolume} 
-                    />
                   </div>
                 </div>
               </div>
