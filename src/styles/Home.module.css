@@ -211,7 +211,6 @@
 .profileModule {
   position: relative;
   background: (var(--artape-black));
-  aspect-ratio: 1/ 1;
   text-align: center;
   color: var(--artape-black);
   transition: all 100ms ease-in-out;
