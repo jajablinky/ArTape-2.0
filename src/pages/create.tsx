@@ -254,7 +254,8 @@ const Create = () => {
           (tape?.profilePicture ? 1 : 0) + // for profile picture
           (data.memento ? 1 : 0) + // for memento
           (tape?.audioFiles ? tape.audioFiles.length : 0) + // for audio files
-          imageUploadModules.length; // for image files
+          imageUploadModules.length + // for image files
+          (tape?.videoFiles ? tape.videoFiles.length : 0); // for video files
 
         let completedUploads = 0;
         let tapeInfoJSONUpload: File | null = null;
@@ -382,6 +383,38 @@ const Create = () => {
             }
           }
 
+          // Upload video files
+          if (tape?.videoFiles) {
+            for (const { videoFile } of tape.videoFiles) {
+              try {
+                if (videoFile === null) {
+                  continue; // if videoFile is null, we skip this iteration
+                }
+                const { stackId } = await akord.stack.create(
+                  vaultId,
+                  videoFile,
+                  videoFile.name,
+                  { udl }
+                );
+                await akord.stack.move(stackId, folderId);
+                completedUploads += 1;
+                setProgress({
+                  percentage: Math.round(
+                    (completedUploads / totalFilesToUpload) * 100
+                  ),
+                  state: `Uploaded video file: ${videoFile.name}`,
+                });
+                console.log(
+                  `Uploaded file: ${videoFile.name}, Stack ID: ${stackId}`
+                );
+              } catch (error) {
+                console.log(error);
+                setLoading(false);
+                setProgress({ percentage: 0, state: 'initial' });
+              }
+            }
+          }
+
           // Upload tapeInfo.json
           if (tapeInfoJSONUpload) {
             const { stackId } = await akord.stack.create(
@@ -402,7 +435,7 @@ const Create = () => {
             );
           }
 
-          // reformatting imageFiles and audioFiles to fit context when mapped per vault id at different page
+          // reformatting image/audio/videoFiles to fit context when mapped per vault id at different page
           const imageFiles = imageUploadModules.map((imageModule: any) => {
             return {
               name: imageModule.name,
@@ -461,6 +494,7 @@ const Create = () => {
             color,
             tapeInfoJSON: metadata,
             audioFiles: tape?.audioFiles || [],
+            videoFiles: tape?.videoFiles || [],
           });
           console.log(metadata);
           console.log('UPLOAD COMPLETE');

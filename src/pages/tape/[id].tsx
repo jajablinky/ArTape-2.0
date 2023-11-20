@@ -5,10 +5,12 @@ import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import AudioPlayer from '@/components/AudioPlayer';
+import VideoPlayer from '@/components/VideoPlayer';
 
 import {
   AudioFileWithUrls,
   ImageFileWithUrls,
+  VideoFileWithUrls,
   TapeInfoJSON,
 } from '@/types/TapeInfo';
 import NavSidebar from '@/components/NavSidebar';
@@ -54,7 +56,7 @@ const Tape = () => {
   const { id } = router.query;
   const { tape, setTape } = useTape();
 
-  const { imageFiles, audioFiles, color } = tape || {};
+  const { imageFiles, audioFiles, videoFiles, color } = tape || {};
 
   interface Image {
     moduleId: number | string | null;
@@ -76,6 +78,7 @@ const Tape = () => {
             imageFiles: [],
             tapeArtistName: '',
             type: '',
+            videoFiles: [],
           };
 
           // commented out because its public and there is no profile
@@ -99,6 +102,7 @@ const Tape = () => {
           const processPromises: Promise<{
             audioFiles?: AudioFileWithUrls[];
             imageFiles?: ImageFileWithUrls[];
+            videoFiles?: VideoFileWithUrls[];
             profilePicture?: { name: string; url: string };
           }>[] = [];
 
@@ -110,6 +114,7 @@ const Tape = () => {
 
           const audioFiles: AudioFileWithUrls[] = [];
           const imageFiles: ImageFileWithUrls[] = [];
+          const videoFiles: VideoFileWithUrls[] = [];
           console.log('before processing');
           // Merge all the process results into audioFiles, imageFiles, and profilePicture
           processResults.forEach((result) => {
@@ -119,10 +124,14 @@ const Tape = () => {
             if (result.imageFiles) {
               imageFiles.push(...result.imageFiles);
             }
+            if (result.videoFiles) {
+              videoFiles.push(...result.videoFiles);
+            }
           });
 
           console.log('collected songs');
           console.log('collected images');
+          console.log('collected videos');
 
           setTape({
             akord,
@@ -134,6 +143,7 @@ const Tape = () => {
             imageFiles,
             tapeArtistName: tapeInfoJSON?.tapeArtistName,
             tapeInfoJSON,
+            videoFiles,
           });
           if (imageFiles) {
             const sortedImages = [...imageFiles].sort(
@@ -164,8 +174,7 @@ const Tape = () => {
           className={`${targetImage.name} ${styles.objectFit}`}
           src={targetImage.url || ''}
           alt={targetImage.name}
-          height={400}
-          width={400}
+          fill={true}
         />
       );
     } else {
@@ -217,41 +226,31 @@ const Tape = () => {
                         </div>
                       </div>
 
-                    <div
-                      className={styles.profileModuleRectangle}
-                      style={{
-                        backgroundColor: 'var(--artape-primary-color)',
-                        overflow: 'auto',
-                      }}
-                      /* add code to move video file into rectangle module, it's a separate file */
-                    >
-                      
-                    </div>
+                      <div className={styles.profileModuleRectangle}>
+                        <VideoPlayer videoFiles={videoFiles} color={color} />
+                      </div>
 
-                    {sortedImageFiles &&
-                      sortedImageFiles.map((image) => {
-                        if (image.url) {
-                          return image.moduleId === 1 ? (
-                            null
-                          ) : (
-                            <div
-                              className={styles.profileModule}
-                              key={image.moduleId}
-                              onClick={() => toggleOverlay(image.moduleId)}
-                            >
-                              {udlOverlay.find(
-                                (item) => item.moduleId === image.moduleId
-                              )?.overlay ? (
-                                <UDLOverlay />
-                              ) : null}
-
+                      {sortedImageFiles &&
+                        sortedImageFiles.map((image) => {
+                          if (image.url) {
+                            return image.moduleId === 1 ? null : (
+                              <div
+                                className={styles.profileModule}
+                                key={image.moduleId}
+                                onClick={() => toggleOverlay(image.moduleId)}
+                                style={{ aspectRatio: 1 / 1 }}
+                              >
+                                {udlOverlay.find(
+                                  (item) => item.moduleId === image.moduleId
+                                )?.overlay ? (
+                                  <UDLOverlay />
+                                ) : null}
 
                                 <Image
                                   className={`${image.name} ${styles.objectFit}`}
                                   src={image.url}
                                   alt={image.name}
-                                  height={400}
-                                  width={400}
+                                  fill={true}
                                 />
                                 <div className={styles.infoIcon}>
                                   <InfoIcon color={'var(--artape-black)'} />
@@ -262,9 +261,6 @@ const Tape = () => {
                         })}
                     </div>
                   </div>
-                  <div className={styles.AudioPlayer}>
-                    <AudioPlayer audioFiles={audioFiles} color={color} />
-                  </div>
                 </div>
               </div>
               <div className={styles.AudioPlayer}>
@@ -273,7 +269,6 @@ const Tape = () => {
             </div>
           </FadeInAndOut>
         )}
-        ;
       </main>
     </>
   );

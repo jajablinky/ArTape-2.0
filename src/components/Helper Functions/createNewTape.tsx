@@ -21,6 +21,7 @@ const createNewTape = (i: number): TapeWithFiles => {
     type: '',
     color: '',
     memento: '',
+    videoFiles: [],
   };
 
   return newTape;
