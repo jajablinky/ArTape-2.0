@@ -1,7 +1,7 @@
 import React from 'react';
 import Loader from './Loader';
 import styles from '@/styles/loader.module.css';
-import ProgressBar from './ProgressBar';
+import ProgressBar from './LoadingProgressBar';
 import FadeInAndOut from './FadeInAndOut';
 
 const LoadingOverlay = ({ progress }) => {
