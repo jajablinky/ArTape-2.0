@@ -83,6 +83,16 @@ const AudioPlayer = ({
   const [songDuration, setSongDuration] = useState<number>(0);
   const [bufferProgress, setBufferProgress] = useState<number>(0);
 
+  // check if mouse button held
+  const [mouseDown, setMouseDown] = useState<boolean>(false);
+  onmousedown = function() {
+    setMouseDown(true);
+  }
+  onmouseup = function() {
+    setMouseDown(false);
+  }
+
+
   useEffect(() => {
     if (!audioPlayer.current) {
       audioPlayer.current = new Audio();
@@ -114,6 +124,11 @@ const AudioPlayer = ({
   useEffect(() => {
     if (audioPlayer.current) audioPlayer.current.volume = volume;
   }, [volume]);
+
+  // seek bar change
+  useEffect(() => {
+    if (audioPlayer.current && mouseDown) audioPlayer.current.currentTime = mediaProgress;
+  }, [mediaProgress]);
 
   const handleBufferProgress: React.ReactEventHandler<HTMLAudioElement> = (
     e
