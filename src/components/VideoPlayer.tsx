@@ -3,9 +3,8 @@ import { motion } from 'framer-motion';
 import styles from '@/styles/Home.module.css';
 
 import Loader from './Loader';
-import VolumeSlider from "./VolumeSlider";
-import { VideoFileWithFiles } from "@/types/TapeInfo";
-
+import VolumeSlider from './VolumeSlider';
+import { VideoFileWithFiles } from '@/types/TapeInfo';
 
 interface VideoPlayerProps {
   color: string;
@@ -25,7 +24,14 @@ function formatToMinutes(duration: number): string {
   return durationFormatted;
 }
 
-const VideoPlayer = ({ color, videoFiles, volume, setVolume, mediaProgress, setMediaProgress }: VideoPlayerProps) => {
+const VideoPlayer = ({
+  color,
+  videoFiles,
+  volume,
+  setVolume,
+  mediaProgress,
+  setMediaProgress,
+}: VideoPlayerProps) => {
   // insert react components
   const videoPlayer = useRef<HTMLVideoElement | null>(null);
   const [videoFetched, setVideoFetched] = useState<boolean>(true);
@@ -68,11 +74,6 @@ const VideoPlayer = ({ color, videoFiles, volume, setVolume, mediaProgress, setM
   useEffect(() => {
     if (videoPlayer.current) videoPlayer.current.volume = volume;
   }, [volume]);
-
-  // seek bar change
-  useEffect(() => {
-    if (videoPlayer.current) videoPlayer.current.currentTime = mediaProgress
-  }, [mediaProgress]);
 
   const handleBufferProgress: React.ReactEventHandler<HTMLAudioElement> = (
     e
@@ -170,23 +171,9 @@ const VideoPlayer = ({ color, videoFiles, volume, setVolume, mediaProgress, setM
               handleBufferProgress(e);
             }}
             onProgress={handleBufferProgress}
+            style={{ width: '100%' }}
           />
         </div>
-
-        {videoFetched ? (
-          videoFiles.map((audioFile, index: number) => (
-            <div key={index} className={styles.trackContainer}>
-              {videoFetched && audioFile.videoUrl && (
-                <video>
-                  <source src={audioFile.videoUrl} type="video/mp4" />
-                  Your browser does not support the video element.
-                </video>
-              )}
-            </div>
-          ))
-        ) : (
-          <Loader />
-        )}
       </motion.div>
     </>
   );

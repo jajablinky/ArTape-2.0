@@ -233,7 +233,6 @@ const Tape = () => {
                         className={styles.profileModuleRectangle}
                         style={{
                           backgroundColor: 'var(--artape-primary-color)',
-                          overflow: 'auto',
                         }}
                       >
                         <VideoPlayer

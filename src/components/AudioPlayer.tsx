@@ -115,11 +115,6 @@ const AudioPlayer = ({
     if (audioPlayer.current) audioPlayer.current.volume = volume;
   }, [volume]);
 
-  // seek bar change
-  useEffect(() => {
-    if (audioPlayer.current) audioPlayer.current.currentTime = mediaProgress;
-  }, [mediaProgress]);
-
   const handleBufferProgress: React.ReactEventHandler<HTMLAudioElement> = (
     e
   ) => {
