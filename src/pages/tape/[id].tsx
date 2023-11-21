@@ -32,6 +32,7 @@ const Tape = () => {
     percentage: 0,
     state: 'Communicating with Akord',
   });
+  const [currentModuleIndex, setCurrentModuleIndex] = useState<number>(0);
   const [udlOverlay, setUdlOverlay] = useState([
     { moduleId: 1, overlay: false },
     { moduleId: 3, overlay: false },
@@ -242,6 +243,8 @@ const Tape = () => {
                           setVolume={setVolume}
                           mediaProgress={mediaProgress}
                           setMediaProgress={setMediaProgress}
+                          currentModuleIndex={currentModuleIndex}
+                          setCurrentModuleIndex={setCurrentModuleIndex}
                         />
                       </div>
 
@@ -286,6 +289,8 @@ const Tape = () => {
                   setVolume={setVolume}
                   mediaProgress={mediaProgress}
                   setMediaProgress={setMediaProgress}
+                  currentModuleIndex={currentModuleIndex}
+                  setCurrentModuleIndex={setCurrentModuleIndex}
                 />
               </div>
             </div>

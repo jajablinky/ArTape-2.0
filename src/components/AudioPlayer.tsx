@@ -21,6 +21,8 @@ interface AudioPlayerProps {
   setVolume: any;
   mediaProgress: number;
   setMediaProgress: any;
+  currentModuleIndex: any;
+  setCurrentModuleIndex: any;
 }
 
 interface ProgressCSSProps extends React.CSSProperties {
@@ -69,15 +71,14 @@ const AudioPlayer = ({
   setVolume,
   mediaProgress,
   setMediaProgress,
+  currentModuleIndex,
+  setCurrentModuleIndex,
 }: AudioPlayerProps) => {
   const [audioFetched, setAudioFetched] = useState<boolean>(true);
-  const [currentModuleIndex, setcurrentModuleIndex] = useState<number>(0);
   const [isPlaying, setisPlaying] = useState<boolean>(false);
-
   const [currentSong, setCurrentSong] = useState<AudioFileWithFiles | null>(
     null
   );
-
   const audioPlayer = useRef<HTMLAudioElement | null>(null);
   const [hasPaused, setPause] = useState<boolean>(false);
   const [songDuration, setSongDuration] = useState<number>(0);
@@ -169,7 +170,7 @@ const AudioPlayer = ({
       if (isPlaying) {
         console.log('stop');
         audioPlayer.current?.pause();
-        setcurrentModuleIndex(0);
+        setCurrentModuleIndex(0);
         setPause(false);
         audioPlayer.current.currentTime = 0;
       }
@@ -183,11 +184,11 @@ const AudioPlayer = ({
     if (hasPaused) {
       setPause(false);
       console.log('setting index to', currentModuleIndex + 1);
-      setcurrentModuleIndex(currentModuleIndex + 1);
+      setCurrentModuleIndex(currentModuleIndex + 1);
     }
 
     console.log('current index:', currentModuleIndex);
-    setcurrentModuleIndex(
+    setCurrentModuleIndex(
       currentModuleIndex === audioFiles.length - 1 ? 0 : currentModuleIndex + 1
     );
     console.log('loading song', currentModuleIndex);
@@ -210,7 +211,7 @@ const AudioPlayer = ({
         }
       }
     } else {
-      setcurrentModuleIndex(currentModuleIndex - 1);
+      setCurrentModuleIndex(currentModuleIndex - 1);
     }
   };
 
@@ -231,7 +232,7 @@ const AudioPlayer = ({
   //       }
   //     }
   //   } else {
-  //     setcurrentModuleIndex(index);
+  //     setCurrentModuleIndex(index);
   //     setisPlaying(true);
   //   }
   // };
