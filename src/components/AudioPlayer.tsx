@@ -128,7 +128,10 @@ const AudioPlayer = ({
 
   // seek bar change
   useEffect(() => {
-    if (audioPlayer.current && mouseDown) audioPlayer.current.currentTime = mediaProgress;
+    if (audioPlayer.current && mouseDown) {
+      handlePauseResume('pause');
+      audioPlayer.current.currentTime = mediaProgress;
+    }
   }, [mediaProgress]);
 
   const handleBufferProgress: React.ReactEventHandler<HTMLAudioElement> = (
@@ -152,13 +155,13 @@ const AudioPlayer = ({
     }
   };
 
-  const handlePauseResume = (): void => {
+  const handlePauseResume = (input?: string): void => {
     if (!audioPlayer.current) {
       console.log('no audio player');
       return;
     }
 
-    if (isPlaying) {
+    if (isPlaying || input === "pause") {
       //seekTime = audioPlayer.current.currentTime;
       console.log('pause');
       audioPlayer.current?.pause();
@@ -172,7 +175,7 @@ const AudioPlayer = ({
       console.log('post check:', hasPaused);
       setisPlaying(false);
     }
-    if (!isPlaying && audioPlayer.current.readyState >= 2) {
+    if ((!isPlaying && audioPlayer.current.readyState >= 2) || input === "play") {
       //audioPlayer.current.currentTime = seekTime;
       console.log('play');
       audioPlayer.current?.play();
