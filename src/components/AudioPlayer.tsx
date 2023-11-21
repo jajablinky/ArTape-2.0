@@ -62,37 +62,24 @@ function AudioProgressBar(props: AudioProgressBarProps) {
   );
 }
 
-function formatToMinutes(duration: number): string {
-  const minutes: number = Math.floor(duration / 60);
-  const seconds: number = Math.round(duration % 60);
-  const durationFormatted: string = `${minutes}:${seconds
-    .toString()
-    .padStart(2, '0')}`;
-  return durationFormatted;
-}
-
-// function totalTapeLength(tapeInfo: TapeInfo): string {
-//   let totalDuration = 0;
-
-//   for (const track of tapeInfo.audioFiles) {
-//     totalDuration += track.duration;
-//   }
-
-//   return formatToMinutes(totalDuration);
-// }
-
-const AudioPlayer = ({ color, audioFiles, volume, setVolume, mediaProgress, setMediaProgress }: AudioPlayerProps) => {
+const AudioPlayer = ({
+  color,
+  audioFiles,
+  volume,
+  setVolume,
+  mediaProgress,
+  setMediaProgress,
+}: AudioPlayerProps) => {
   const [audioFetched, setAudioFetched] = useState<boolean>(true);
-  const [currentSongIndex, setCurrentSongIndex] = useState<number>(0);
+  const [currentModuleIndex, setcurrentModuleIndex] = useState<number>(0);
   const [isPlaying, setisPlaying] = useState<boolean>(false);
-  
+
   const [currentSong, setCurrentSong] = useState<AudioFileWithFiles | null>(
     null
   );
 
   const audioPlayer = useRef<HTMLAudioElement | null>(null);
   const [hasPaused, setPause] = useState<boolean>(false);
-  const [storedIndex, setStoredIndex] = useState<number | null>(null);
   const [songDuration, setSongDuration] = useState<number>(0);
   const [bufferProgress, setBufferProgress] = useState<number>(0);
 
@@ -100,11 +87,11 @@ const AudioPlayer = ({ color, audioFiles, volume, setVolume, mediaProgress, setM
     if (!audioPlayer.current) {
       audioPlayer.current = new Audio();
     }
-    console.log('useEffect currentSongIndex:', currentSongIndex);
-    setCurrentSong(audioFiles[currentSongIndex]);
+    console.log('useEffect currentModuleIndex:', currentModuleIndex);
+    setCurrentSong(audioFiles[currentModuleIndex]);
 
-    if (audioPlayer.current && currentSongIndex !== -1 && audioFiles) {
-      const currentAudioUrl = audioFiles[currentSongIndex].audioUrl;
+    if (audioPlayer.current && currentModuleIndex !== -1 && audioFiles) {
+      const currentAudioUrl = audioFiles[currentModuleIndex].audioUrl;
       if (currentAudioUrl) {
         console.log(currentSong?.fileName, "'s duration:", songDuration);
         audioPlayer.current.removeEventListener('ended', handleEnded);
@@ -119,7 +106,7 @@ const AudioPlayer = ({ color, audioFiles, volume, setVolume, mediaProgress, setM
         audioPlayer.current.removeEventListener('ended', handleEnded);
       }
     };
-  }, [currentSongIndex]);
+  }, [currentModuleIndex]);
 
   /* Audio Player Logic */
 
@@ -130,7 +117,7 @@ const AudioPlayer = ({ color, audioFiles, volume, setVolume, mediaProgress, setM
 
   // seek bar change
   useEffect(() => {
-    if (audioPlayer.current) audioPlayer.current.currentTime = mediaProgress
+    if (audioPlayer.current) audioPlayer.current.currentTime = mediaProgress;
   }, [mediaProgress]);
 
   const handleBufferProgress: React.ReactEventHandler<HTMLAudioElement> = (
@@ -167,13 +154,11 @@ const AudioPlayer = ({ color, audioFiles, volume, setVolume, mediaProgress, setM
       console.log('pre check:', hasPaused);
       if (!hasPaused) {
         console.log('first pause');
-        setStoredIndex(currentSongIndex);
         setPause(true);
       } else {
         console.log('already paused before!');
       }
       console.log('post check:', hasPaused);
-      console.log('current stored index:', storedIndex);
       setisPlaying(false);
     }
     if (!isPlaying && audioPlayer.current.readyState >= 2) {
@@ -189,7 +174,7 @@ const AudioPlayer = ({ color, audioFiles, volume, setVolume, mediaProgress, setM
       if (isPlaying) {
         console.log('stop');
         audioPlayer.current?.pause();
-        setCurrentSongIndex(0);
+        setcurrentModuleIndex(0);
         setPause(false);
         audioPlayer.current.currentTime = 0;
       }
@@ -197,29 +182,31 @@ const AudioPlayer = ({ color, audioFiles, volume, setVolume, mediaProgress, setM
     }
   };
 
+  // Create handle next Media
+
   const handleNextSong = (): void => {
     if (hasPaused) {
       setPause(false);
-      console.log('setting index to', storedIndex);
-      setCurrentSongIndex(storedIndex);
-      console.log('has paused current song index:', currentSongIndex);
-      setStoredIndex(null);
+      console.log('setting index to', currentModuleIndex + 1);
+      setcurrentModuleIndex(currentModuleIndex + 1);
     }
 
-    console.log('current index:', currentSongIndex);
-    setCurrentSongIndex(
-      currentSongIndex === audioFiles.length - 1 ? 0 : currentSongIndex + 1
+    console.log('current index:', currentModuleIndex);
+    setcurrentModuleIndex(
+      currentModuleIndex === audioFiles.length - 1 ? 0 : currentModuleIndex + 1
     );
-    console.log('loading song', currentSongIndex);
+    console.log('loading song', currentModuleIndex);
     audioPlayer.current?.load();
     setisPlaying(true);
   };
 
+  // Create handle prev media
+
   const handlePrevSong = (): void => {
-    if (currentSongIndex === -1) {
+    if (currentModuleIndex === -1) {
       return undefined;
     }
-    if (currentSongIndex === 0) {
+    if (currentModuleIndex === 0) {
       if (audioPlayer.current) {
         audioPlayer.current.currentTime = 0;
         audioPlayer.current.load();
@@ -228,7 +215,7 @@ const AudioPlayer = ({ color, audioFiles, volume, setVolume, mediaProgress, setM
         }
       }
     } else {
-      setCurrentSongIndex(currentSongIndex - 1);
+      setcurrentModuleIndex(currentModuleIndex - 1);
     }
   };
 
@@ -238,7 +225,7 @@ const AudioPlayer = ({ color, audioFiles, volume, setVolume, mediaProgress, setM
   };
 
   // const handleTrackSelect = (index: number) => {
-  //   if (index === currentSongIndex) {
+  //   if (index === currentModuleIndex) {
   //     if (audioPlayer.current) {
   //       if (isPlaying) {
   //         audioPlayer.current.pause();
@@ -249,7 +236,7 @@ const AudioPlayer = ({ color, audioFiles, volume, setVolume, mediaProgress, setM
   //       }
   //     }
   //   } else {
-  //     setCurrentSongIndex(index);
+  //     setcurrentModuleIndex(index);
   //     setisPlaying(true);
   //   }
   // };
@@ -291,7 +278,7 @@ const AudioPlayer = ({ color, audioFiles, volume, setVolume, mediaProgress, setM
             onProgress={handleBufferProgress}
           />
           <div className={styles.musicControls}>
-            {currentSongIndex !== -1 ? (
+            {currentModuleIndex !== -1 ? (
               <button onClick={() => handlePrevSong()}>
                 <PrevIcon
                   height={18}
@@ -353,10 +340,7 @@ const AudioPlayer = ({ color, audioFiles, volume, setVolume, mediaProgress, setM
           <Loader />
         )}
         <div className={styles.musicPlayerRight}>
-          <VolumeSlider
-            volume={volume}
-            setVolume={setVolume}
-          />
+          <VolumeSlider volume={volume} setVolume={setVolume} />
         </div>
       </motion.div>
     </>

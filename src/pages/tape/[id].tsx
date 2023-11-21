@@ -155,6 +155,7 @@ const Tape = () => {
             setSortedImagesFiles(sortedImages);
           }
         }
+        console.log('fetching');
         setLoading(false);
       } catch (e) {
         console.error(e);
@@ -228,23 +229,23 @@ const Tape = () => {
                           <InfoIcon color={'var(--artape-black)'} />
                         </div>
                       </div>
-                    <div
-                      className={styles.profileModuleRectangle}
-                      style={{
-                        backgroundColor: 'var(--artape-primary-color)',
-                        overflow: 'auto',
-                      }}
-                    >
-                      <VideoPlayer 
-                        videoFiles={videoFiles} 
-                        color={color}
-                        volume={volume}
-                        setVolume={setVolume} 
-                        mediaProgress={mediaProgress}
-                        setMediaProgress={setMediaProgress}
-                      />
-                    </div>
-        
+                      <div
+                        className={styles.profileModuleRectangle}
+                        style={{
+                          backgroundColor: 'var(--artape-primary-color)',
+                          overflow: 'auto',
+                        }}
+                      >
+                        <VideoPlayer
+                          videoFiles={videoFiles}
+                          color={color}
+                          volume={volume}
+                          setVolume={setVolume}
+                          mediaProgress={mediaProgress}
+                          setMediaProgress={setMediaProgress}
+                        />
+                      </div>
+
                       {sortedImageFiles &&
                         sortedImageFiles.map((image) => {
                           if (image.url) {
@@ -279,9 +280,9 @@ const Tape = () => {
                 </div>
               </div>
               <div className={styles.AudioPlayer}>
-                <AudioPlayer 
-                  audioFiles={audioFiles} 
-                  color={color} 
+                <AudioPlayer
+                  audioFiles={audioFiles}
+                  color={color}
                   volume={volume}
                   setVolume={setVolume}
                   mediaProgress={mediaProgress}
