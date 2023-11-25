@@ -134,7 +134,6 @@ const VideoPlayer = ({
       >
         <div className={styles.videoPlayerMiddle}>
           <video
-            onClick={handlePauseResume}
             onEnded={handleEnded}
             ref={videoPlayer}
             preload="metadata"

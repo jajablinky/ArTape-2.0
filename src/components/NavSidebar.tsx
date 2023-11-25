@@ -11,6 +11,8 @@ import getTapeInfoJSON from './Helper Functions/getTapeInfoJSON';
 import processItem from './Helper Functions/processItem';
 import SidebarHide from './Images/UI/SidebarHide';
 import Link from 'next/link';
+import Loader from './Loader';
+import prestonPlaceholderPhoto from '../components/Images/Images/dummyProfilePhoto.png';
 
 //
 
@@ -207,19 +209,15 @@ const NavSidebar = ({
         <div className={sidebarMini ? styles.bigSidebarHide : ''}>
           <div className={styles.top}>
             <div className={styles.profileMainHeader}>
-              <div className={styles.profilePhoto}>
-                <Image
-                  className={styles.imageProfilePhoto}
-                  src={profileAvatarURL}
-                  alt={'profile-avatar'}
-                  width={59}
-                  height={59}
-                />
-              </div>
+              <Loader invert size="md" />
               <div className={styles.profileTextContent}>
-                {/* <h2>{profileName}</h2>
-
-                <span>{profileEmail}</span> */}
+                <h1>Welcome, Preston</h1>
+                <Image
+                  src={prestonPlaceholderPhoto}
+                  alt={`${prestonPlaceholderPhoto}`}
+                  width={24}
+                  style={{ borderRadius: '1000px' }}
+                />
               </div>
             </div>
 

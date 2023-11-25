@@ -44,16 +44,14 @@
   align-self: stretch;
 }
 
-.profileTextContent h2 {
-  font-size: 24px;
-}
-
 .profileMainHeader {
+  margin-top: 24px;
   display: flex;
+  flex-direction: column;
   height: 107px;
   padding: 9px 24px;
-  justify-content: space-between;
-  align-items: center;
+  gap: 24px;
+  align-items: left;
   align-self: stretch;
 }
 
@@ -67,8 +65,14 @@
 
 .profileTextContent {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+.profileTextContent h2 {
+  font-size: 24px;
 }
 
 .profileStats {
