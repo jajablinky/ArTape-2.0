@@ -4,8 +4,8 @@ import { useTape } from '@/components/TapeContext';
 import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import AudioPlayer from '@/components/AudioPlayer';
 import VideoPlayer from '@/components/VideoPlayer';
+import MediaPlayer from '@/components/MediaPlayer';
 
 import {
   AudioFileWithUrls,
@@ -17,7 +17,7 @@ import NavSidebar from '@/components/NavSidebar';
 
 import LoadingOverlay from '@/components/LoadingOverlay';
 import FadeInAndOut from '@/components/FadeInAndOut';
-import UDLOverlay from '@/components/UDLOverlay';
+
 import InfoIcon from '@/components/Images/UI/InfoIcon';
 import processItem from '@/components/Helper Functions/processItem';
 import getTapeInfoJSON from '@/components/Helper Functions/getTapeInfoJSON';
@@ -32,26 +32,10 @@ const Tape = () => {
     percentage: 0,
     state: 'Communicating with Akord',
   });
-  const [udlOverlay, setUdlOverlay] = useState([
-    { moduleId: 1, overlay: false },
-    { moduleId: 3, overlay: false },
-    { moduleId: 4, overlay: false },
-    { moduleId: 5, overlay: false },
-    { moduleId: 6, overlay: false },
-    { moduleId: 7, overlay: false },
-    { moduleId: 8, overlay: false },
-    { moduleId: 9, overlay: false },
-  ]);
-
-  const toggleOverlay = (moduleId: number) => {
-    setUdlOverlay((prev) =>
-      prev.map((item) =>
-        item.moduleId === moduleId ? { ...item, overlay: !item.overlay } : item
-      )
-    );
-  };
+  const [currentModuleIndex, setCurrentModuleIndex] = useState<number>(0);
 
   const [volume, setVolume] = useState<number>(1);
+  const [mediaProgress, setMediaProgress] = useState<number>(0);
 
   const router = useRouter();
 
@@ -154,6 +138,7 @@ const Tape = () => {
             setSortedImagesFiles(sortedImages);
           }
         }
+        console.log('fetching');
         setLoading(false);
       } catch (e) {
         console.error(e);
@@ -215,33 +200,30 @@ const Tape = () => {
                 <div className={styles.mainContainer}>
                   <div className={styles.scrollableContainer}>
                     <div className={styles.gridProfile}>
-                      <div
-                        className={styles.profileModule}
-                        onClick={() => toggleOverlay(1)}
-                      >
-                        {udlOverlay[0]?.overlay ? (
-                          <UDLOverlay imageFile={imageFiles[0]} />
-                        ) : null}
+                      <div className={styles.profileModule}>
                         {renderFirstImage(1)}
                         <div className={styles.infoIcon}>
                           <InfoIcon color={'var(--artape-black)'} />
                         </div>
                       </div>
-                    <div
-                      className={styles.profileModuleRectangle}
-                      style={{
-                        backgroundColor: 'var(--artape-primary-color)',
-                        overflow: 'auto',
-                      }}
-                    >
-                      <VideoPlayer 
-                        videoFiles={videoFiles} 
-                        color={color}
-                        volume={volume}
-                        setVolume={setVolume} 
-                      />
-                    </div>
-        
+                      <div
+                        className={styles.profileModuleRectangle}
+                        style={{
+                          backgroundColor: 'var(--artape-primary-color)',
+                        }}
+                      >
+                        <VideoPlayer
+                          videoFiles={videoFiles}
+                          color={color}
+                          volume={volume}
+                          setVolume={setVolume}
+                          mediaProgress={mediaProgress}
+                          setMediaProgress={setMediaProgress}
+                          currentModuleIndex={currentModuleIndex}
+                          setCurrentModuleIndex={setCurrentModuleIndex}
+                        />
+                      </div>
+
                       {sortedImageFiles &&
                         sortedImageFiles.map((image) => {
                           if (image.url) {
@@ -249,15 +231,8 @@ const Tape = () => {
                               <div
                                 className={styles.profileModule}
                                 key={image.moduleId}
-                                onClick={() => toggleOverlay(image.moduleId)}
                                 style={{ aspectRatio: 1 / 1 }}
                               >
-                                {udlOverlay.find(
-                                  (item) => item.moduleId === image.moduleId
-                                )?.overlay ? (
-                                  <UDLOverlay />
-                                ) : null}
-
                                 <Image
                                   className={`${image.name} ${styles.objectFit}`}
                                   src={image.url}
@@ -276,11 +251,15 @@ const Tape = () => {
                 </div>
               </div>
               <div className={styles.AudioPlayer}>
-                <AudioPlayer 
-                  audioFiles={audioFiles} 
-                  color={color} 
+                <MediaPlayer
+                  audioFiles={audioFiles}
+                  color={color}
                   volume={volume}
                   setVolume={setVolume}
+                  mediaProgress={mediaProgress}
+                  setMediaProgress={setMediaProgress}
+                  currentModuleIndex={currentModuleIndex}
+                  setCurrentModuleIndex={setCurrentModuleIndex}
                 />
               </div>
             </div>

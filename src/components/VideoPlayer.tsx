@@ -2,39 +2,58 @@ import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import styles from '@/styles/Home.module.css';
 
-import Loader from './Loader';
-import VolumeSlider from "./VolumeSlider";
-import { VideoFileWithFiles } from "@/types/TapeInfo";
-
+import { VideoFileWithFiles } from '@/types/TapeInfo';
 
 interface VideoPlayerProps {
   color: string;
   videoFiles: VideoFileWithFiles[];
   volume: number;
   setVolume: any;
+  mediaProgress: number;
+  setMediaProgress: any;
+  currentModuleIndex: any;
+  setCurrentModuleIndex: any;
 }
 
-function formatToMinutes(duration: number): string {
-  const minutes: number = Math.floor(duration / 60);
-  const seconds: number = Math.round(duration % 60);
-  const durationFormatted: string = `${minutes}:${seconds
-    .toString()
-    .padStart(2, '0')}`;
-  return durationFormatted;
-}
-
-const VideoPlayer = ({ color, videoFiles, volume, setVolume }: VideoPlayerProps) => {
+const VideoPlayer = ({
+  color,
+  videoFiles,
+  volume,
+  setVolume,
+  mediaProgress,
+  setMediaProgress,
+  currentModuleIndex,
+  setCurrentModuleIndex,
+}: VideoPlayerProps) => {
   // insert react components
   const videoPlayer = useRef<HTMLVideoElement | null>(null);
-  const [videoFetched, setVideoFetched] = useState<boolean>(true);
   const [currentVideoIndex, setCurrentVideoIndex] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [currentVideo, setCurrentVideo] = useState<VideoFileWithFiles | null>(
-    null
-  );
   const [videoDuration, setVideoDuration] = useState<number>(0);
   const [currentProgress, setCurrentProgress] = useState<number>(0);
+
   const [bufferProgress, setBufferProgress] = useState<number>(0);
+
+  const handlePauseResume = (): void => {
+    if (!videoPlayer.current) {
+      console.log('no audio player');
+      return;
+    }
+
+    if (isPlaying) {
+      //seekTime = audioPlayer.current.currentTime;
+      console.log('pause');
+      videoPlayer.current?.pause();
+      // may need to implement pause check (see audio player)
+      setIsPlaying(false);
+    }
+    if (!isPlaying && videoPlayer.current.readyState >= 2) {
+      //audioPlayer.current.currentTime = seekTime;
+      console.log('play');
+      videoPlayer.current?.play();
+      setIsPlaying(true);
+    }
+  };
 
   // insert functions & handlers
   useEffect(() => {
@@ -62,21 +81,18 @@ const VideoPlayer = ({ color, videoFiles, volume, setVolume }: VideoPlayerProps)
 
   // Video Player Logic
 
+  useEffect(() => {
+    // Only runs if currentModuleIndex is 1 which is the video module currently
+    if (currentModuleIndex === 1) {
+      handlePauseResume();
+    }
+  }, [isPlaying]);
+
   // volume change
   useEffect(() => {
-    if (videoPlayer.current) videoPlayer.current.volume = volume;
+    if (videoPlayer.current && currentModuleIndex === 1)
+      videoPlayer.current.volume = volume;
   }, [volume]);
-
-  const handleProgressChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ): void => {
-    const newProgress = parseFloat(e.target.value);
-    setCurrentProgress(newProgress);
-
-    if (videoPlayer.current) {
-      videoPlayer.current.currentTime = newProgress;
-    }
-  };
 
   const handleBufferProgress: React.ReactEventHandler<HTMLAudioElement> = (
     e
@@ -99,61 +115,15 @@ const VideoPlayer = ({ color, videoFiles, volume, setVolume }: VideoPlayerProps)
     }
   };
 
-  const handlePauseResume = (): void => {
-    if (!videoPlayer.current) {
-      console.log('no audio player');
-      return;
-    }
-
-    if (isPlaying) {
-      //seekTime = audioPlayer.current.currentTime;
-      console.log('pause');
-      videoPlayer.current?.pause();
-      // may need to implement pause check (see audio player)
-      setIsPlaying(false);
-    }
-    if (!isPlaying && videoPlayer.current.readyState >= 2) {
-      //audioPlayer.current.currentTime = seekTime;
-      console.log('play');
-      videoPlayer.current?.play();
-      setIsPlaying(true);
-    }
-  };
-
-  const handleStop = (): void => {
-    if (videoPlayer.current && isPlaying) {
-      console.log('stop');
-      videoPlayer.current.pause();
-      setCurrentVideoIndex(0);
-      videoPlayer.current.currentTime = 0;
-      setIsPlaying(false);
-    }
-  };
-
-  const handleNextVideo = (): void => {
+  const handleNextMedia = (): void => {
     console.log('current video index:', currentVideoIndex);
-    setCurrentVideoIndex(
-      currentVideoIndex === videoFiles.length - 1 ? 0 : currentVideoIndex + 1
-    );
-    console.log('loading video', currentVideoIndex);
-    videoPlayer.current?.load();
+    setCurrentModuleIndex(currentModuleIndex + 1);
     setIsPlaying(true);
-  };
-
-  const handlePrevVideo = (): void => {
-    if (currentVideoIndex === -1) {
-      return undefined;
-    }
-    if (currentVideoIndex === 0 && videoPlayer.current) {
-      videoPlayer.current.currentTime = 0;
-      videoPlayer.current.load();
-      if (isPlaying) videoPlayer.current.play();
-    } else setCurrentVideoIndex(currentVideoIndex - 1);
   };
 
   const handleEnded = (): void => {
     console.log('video ended');
-    handleNextVideo();
+    handleNextMedia();
   };
 
   return (
@@ -164,43 +134,18 @@ const VideoPlayer = ({ color, videoFiles, volume, setVolume }: VideoPlayerProps)
       >
         <div className={styles.videoPlayerMiddle}>
           <video
-            onClick={handlePauseResume}
             onEnded={handleEnded}
             ref={videoPlayer}
             preload="metadata"
             onDurationChange={(e) => setVideoDuration(e.currentTarget.duration)}
             onTimeUpdate={(e) => {
-              setCurrentProgress(e.currentTarget.currentTime);
+              setMediaProgress(e.currentTarget.currentTime);
               handleBufferProgress(e);
             }}
             onProgress={handleBufferProgress}
-          />
-          <input
-            type="range"
-            name="progress"
-            min="0"
-            max={videoDuration}
-            step="0.01"
-            value={currentProgress}
-            onChange={handleProgressChange}
-            className={styles.ProgressBar}
+            style={{ width: '100%' }}
           />
         </div>
-
-        {videoFetched ? (
-          videoFiles.map((audioFile, index: number) => (
-            <div key={index} className={styles.trackContainer}>
-              {videoFetched && audioFile.videoUrl && (
-                <video>
-                  <source src={audioFile.videoUrl} type="video/mp4" />
-                  Your browser does not support the video element.
-                </video>
-              )}
-            </div>
-          ))
-        ) : (
-          <Loader />
-        )}
       </motion.div>
     </>
   );

@@ -1,13 +1,18 @@
 .sidebarContainer {
   position: relative;
-  flex-shrink: 0;
   width: 315px;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-start;
   border-right: 1px solid #afafaf;
   height: 100%;
   transition: all 300ms;
+}
+
+.sidebarContent {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  height: 100%;
 }
 
 .sidebarHideButton {
@@ -44,16 +49,14 @@
   align-self: stretch;
 }
 
-.profileTextContent h2 {
-  font-size: 24px;
-}
-
 .profileMainHeader {
+  margin-top: 24px;
   display: flex;
+  flex-direction: column;
   height: 107px;
   padding: 9px 24px;
-  justify-content: space-between;
-  align-items: center;
+  gap: 24px;
+  align-items: left;
   align-self: stretch;
 }
 
@@ -67,8 +70,14 @@
 
 .profileTextContent {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+.profileTextContent h2 {
+  font-size: 24px;
 }
 
 .profileStats {
