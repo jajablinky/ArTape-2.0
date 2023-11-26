@@ -1,35 +1,28 @@
 import { useEffect, useState } from 'react';
 import styles from '@/styles/sidebar.module.css';
 import Image from 'next/image';
-import { NodeLike } from '@akord/akord-js';
-import {
-  AudioFileWithUrls,
-  ImageFileWithUrls,
-  TapeInfoJSON,
-} from '@/types/TapeInfo';
-import getTapeInfoJSON from './Helper Functions/getTapeInfoJSON';
-import processItem from './Helper Functions/processItem';
 import SidebarHide from './Images/UI/SidebarHide';
-import Link from 'next/link';
+
 import Loader from './Loader';
 import prestonPlaceholderPhoto from '../components/Images/Images/dummyProfilePhoto.png';
+import { NextRouter } from 'next/router';
+import Home from './Images/UI/Home';
+import Explore from './Images/UI/Explore';
 
-//
+interface NavSidebarProps {
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  router: NextRouter;
+}
 
-const NavSidebar = ({
-  // profileAvatar,
-  // profileName,
-  // profileEmail,
-  // akord,
-  setLoading,
-  setTape,
-  tape,
-  router,
-  setProgress,
-}) => {
-  const [profileAvatarURL, setProfileAvatarURL] = useState('');
+const NavSidebar = ({ setLoading, router }: NavSidebarProps) => {
   const [sidebarMini, setSidebarMini] = useState(false);
   const [vaultId, setVaultId] = useState(0);
+
+  const tapes = [
+    { color: 'red', tapeName: 'Tape Name' },
+    { color: 'red', tapeName: 'Tape Name' },
+    { color: 'red', tapeName: 'Tape Name' },
+  ];
 
   useEffect(() => {
     const handleResize = () => {
@@ -62,10 +55,6 @@ const NavSidebar = ({
     }
   };
 
-  // useEffect(() => {
-  //   handleProfilePhoto();
-  // }, []);
-
   return (
     <>
       <div
@@ -79,37 +68,47 @@ const NavSidebar = ({
         >
           <SidebarHide color={'var(--artape-black)'} />
         </button>
-        <div className={styles.sidebarContent}>
-          <div className={sidebarMini ? styles.bigSidebarHide : ''}>
-            <div className={styles.top}>
-              <div className={styles.profileMainHeader}>
-                <Loader invert size="md" />
-                <div className={styles.profileTextContent}>
-                  <h1>Welcome, Preston</h1>
-                  <Image
-                    src={prestonPlaceholderPhoto}
-                    alt={`${prestonPlaceholderPhoto}`}
-                    width={24}
-                    style={{ borderRadius: '1000px' }}
-                  />
-                </div>
+        <div
+          className={`${styles.sidebarContent} ${
+            sidebarMini ? styles.bigSidebarHide : ''
+          }`}
+        >
+          <div className={styles.top}>
+            <div className={styles.profileMainHeader}>
+              <Loader invert size="md" />
+              <div className={styles.profileTextContent}>
+                <h1>Welcome, Preston</h1>
+                <Image
+                  src={prestonPlaceholderPhoto}
+                  alt={`${prestonPlaceholderPhoto}`}
+                  width={24}
+                  style={{ borderRadius: '1000px' }}
+                />
               </div>
-
-              {/* {tapes.map((tape: any, i: number) => {
-              return (
-                <div
-                  className={styles.artape}
-                  style={{ background: tape.color }}
-                  onClick={() => handleVaultSelection(i)}
-                  key={tape.name}
-                >
-                  <div className={styles.artapeName}>{tape.tapeName}</div>
-                </div>
-              );
-            })} */}
             </div>
-            <div className={styles.bottom}></div>
+            <div className={`${styles.module} ${styles.artapeHeader}`}>
+              <Home color="var(--artape-black)" />
+              HOME
+            </div>
+            <div className={`${styles.module} ${styles.artapeHeader}`}>
+              <Explore color="var(--artape-black)" />
+              EXPLORE
+            </div>
+            <div className={styles.artapeList}>
+              {tapes.map((tape: any, i: number) => {
+                return (
+                  <div
+                    className={`${styles.module} ${styles.artape}`}
+                    onClick={() => handleVaultSelection(i)}
+                    key={tape.tapeName}
+                  >
+                    <div className={styles.artapeName}>{tape.tapeName}</div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
+          <div className={styles.bottom}></div>
         </div>
       </div>
     </>
