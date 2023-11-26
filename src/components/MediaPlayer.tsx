@@ -14,7 +14,7 @@ import Image from 'next/image';
 import VolumeSlider from './VolumeSlider';
 import MediaProgressBar from './MediaProgressBar';
 
-interface AudioPlayerProps {
+interface MediaPlayerProps {
   color: string;
   audioFiles: AudioFileWithFiles[];
   volume: number;
@@ -25,46 +25,7 @@ interface AudioPlayerProps {
   setCurrentModuleIndex: any;
 }
 
-interface ProgressCSSProps extends React.CSSProperties {
-  '--progress-width': number;
-  '--buffer-width': number;
-}
-
-interface AudioProgressBarProps
-  extends React.ComponentPropsWithoutRef<'input'> {
-  duration: number;
-  currentProgress: number;
-  buffered: number;
-}
-
-function AudioProgressBar(props: AudioProgressBarProps) {
-  const { duration, currentProgress, buffered, ...rest } = props;
-
-  const progressBarWidth = isNaN(currentProgress / duration)
-    ? 0
-    : currentProgress / duration;
-  const bufferedWidth = isNaN(buffered / duration) ? 0 : buffered / duration;
-
-  const progressStyles: ProgressCSSProps = {
-    '--progress-width': progressBarWidth,
-    '--buffer-width': bufferedWidth,
-  };
-  return (
-    <div className="absolute h-1 -top-[4px] left-0 right-0 group">
-      <input
-        type="range"
-        name="progress"
-        style={progressStyles}
-        min={0}
-        max={duration}
-        value={currentProgress}
-        {...rest}
-      />
-    </div>
-  );
-}
-
-const AudioPlayer = ({
+const MediaPlayer = ({
   color,
   audioFiles,
   volume,
@@ -73,64 +34,63 @@ const AudioPlayer = ({
   setMediaProgress,
   currentModuleIndex,
   setCurrentModuleIndex,
-}: AudioPlayerProps) => {
+}: MediaPlayerProps) => {
   const [audioFetched, setAudioFetched] = useState<boolean>(true);
   const [isPlaying, setisPlaying] = useState<boolean>(false);
   const [currentSong, setCurrentSong] = useState<AudioFileWithFiles | null>(
     null
   );
-  const audioPlayer = useRef<HTMLAudioElement | null>(null);
+  const mediaPlayer = useRef<HTMLAudioElement | null>(null);
   const [hasPaused, setPause] = useState<boolean>(false);
   const [songDuration, setSongDuration] = useState<number>(0);
   const [bufferProgress, setBufferProgress] = useState<number>(0);
 
   // check if mouse button held
   const [mouseDown, setMouseDown] = useState<boolean>(false);
-  onmousedown = function() {
+  onmousedown = function () {
     setMouseDown(true);
-  }
-  onmouseup = function() {
+  };
+  onmouseup = function () {
     setMouseDown(false);
-  }
-
+  };
 
   useEffect(() => {
-    if (!audioPlayer.current) {
-      audioPlayer.current = new Audio();
+    if (!mediaPlayer.current) {
+      mediaPlayer.current = new Audio();
     }
     console.log('useEffect currentModuleIndex:', currentModuleIndex);
     setCurrentSong(audioFiles[currentModuleIndex]);
 
-    if (audioPlayer.current && currentModuleIndex !== -1 && audioFiles) {
+    if (mediaPlayer.current && currentModuleIndex !== -1 && audioFiles) {
       const currentAudioUrl = audioFiles[currentModuleIndex].audioUrl;
       if (currentAudioUrl) {
         console.log(currentSong?.fileName, "'s duration:", songDuration);
-        audioPlayer.current.removeEventListener('ended', handleEnded);
-        audioPlayer.current.src = currentAudioUrl;
-        audioPlayer.current.addEventListener('ended', handleEnded);
+        mediaPlayer.current.removeEventListener('ended', handleEnded);
+        mediaPlayer.current.src = currentAudioUrl;
+        mediaPlayer.current.addEventListener('ended', handleEnded);
       }
-      if (isPlaying) audioPlayer.current.play();
+      if (isPlaying) mediaPlayer.current.play();
     }
 
     return () => {
-      if (audioPlayer.current) {
-        audioPlayer.current.removeEventListener('ended', handleEnded);
+      if (mediaPlayer.current) {
+        mediaPlayer.current.removeEventListener('ended', handleEnded);
       }
     };
   }, [currentModuleIndex]);
 
-  /* Audio Player Logic */
+  /* Media Player Logic */
 
   // volume change
   useEffect(() => {
-    if (audioPlayer.current) audioPlayer.current.volume = volume;
+    if (mediaPlayer.current) mediaPlayer.current.volume = volume;
   }, [volume]);
 
   // seek bar change
   useEffect(() => {
-    if (audioPlayer.current && mouseDown) {
+    if (mediaPlayer.current && mouseDown) {
       handlePauseResume('pause');
-      audioPlayer.current.currentTime = mediaProgress;
+      mediaPlayer.current.currentTime = mediaProgress;
     }
   }, [mediaProgress]);
 
@@ -156,15 +116,15 @@ const AudioPlayer = ({
   };
 
   const handlePauseResume = (input?: string): void => {
-    if (!audioPlayer.current) {
+    if (!mediaPlayer.current) {
       console.log('no audio player');
       return;
     }
 
-    if (isPlaying || input === "pause") {
-      //seekTime = audioPlayer.current.currentTime;
+    if (isPlaying || input === 'pause') {
+      //seekTime = mediaPlayer.current.currentTime;
       console.log('pause');
-      audioPlayer.current?.pause();
+      mediaPlayer.current?.pause();
       console.log('pre check:', hasPaused);
       if (!hasPaused) {
         console.log('first pause');
@@ -175,24 +135,14 @@ const AudioPlayer = ({
       console.log('post check:', hasPaused);
       setisPlaying(false);
     }
-    if ((!isPlaying && audioPlayer.current.readyState >= 2) || input === "play") {
-      //audioPlayer.current.currentTime = seekTime;
+    if (
+      (!isPlaying && mediaPlayer.current.readyState >= 2) ||
+      input === 'play'
+    ) {
+      //mediaPlayer.current.currentTime = seekTime;
       console.log('play');
-      audioPlayer.current?.play();
+      mediaPlayer.current?.play();
       setisPlaying(true);
-    }
-  };
-
-  const handleStop = (): void => {
-    if (audioPlayer.current) {
-      if (isPlaying) {
-        console.log('stop');
-        audioPlayer.current?.pause();
-        setCurrentModuleIndex(0);
-        setPause(false);
-        audioPlayer.current.currentTime = 0;
-      }
-      setisPlaying(false);
     }
   };
 
@@ -210,7 +160,7 @@ const AudioPlayer = ({
       currentModuleIndex === audioFiles.length - 1 ? 0 : currentModuleIndex + 1
     );
     console.log('loading song', currentModuleIndex);
-    audioPlayer.current?.load();
+    mediaPlayer.current?.load();
     setisPlaying(true);
   };
 
@@ -221,11 +171,11 @@ const AudioPlayer = ({
       return undefined;
     }
     if (currentModuleIndex === 0) {
-      if (audioPlayer.current) {
-        audioPlayer.current.currentTime = 0;
-        audioPlayer.current.load();
+      if (mediaPlayer.current) {
+        mediaPlayer.current.currentTime = 0;
+        mediaPlayer.current.load();
         if (isPlaying) {
-          audioPlayer.current.play();
+          mediaPlayer.current.play();
         }
       }
     } else {
@@ -237,23 +187,6 @@ const AudioPlayer = ({
     console.log('song ended');
     handleNextSong();
   };
-
-  // const handleTrackSelect = (index: number) => {
-  //   if (index === currentModuleIndex) {
-  //     if (audioPlayer.current) {
-  //       if (isPlaying) {
-  //         audioPlayer.current.pause();
-  //         setisPlaying(false);
-  //       } else {
-  //         audioPlayer.current.play();
-  //         setisPlaying(true);
-  //       }
-  //     }
-  //   } else {
-  //     setCurrentModuleIndex(index);
-  //     setisPlaying(true);
-  //   }
-  // };
 
   useEffect(() => {
     console.log(audioFiles);
@@ -282,7 +215,7 @@ const AudioPlayer = ({
         <div className={styles.musicPlayerMiddle}>
           <audio
             onEnded={handleEnded}
-            ref={audioPlayer}
+            ref={mediaPlayer}
             preload="metadata"
             onDurationChange={(e) => setSongDuration(e.currentTarget.duration)}
             onTimeUpdate={(e) => {
@@ -361,4 +294,4 @@ const AudioPlayer = ({
   );
 };
 
-export default AudioPlayer;
+export default MediaPlayer;

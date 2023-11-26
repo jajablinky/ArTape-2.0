@@ -4,8 +4,8 @@ import { useTape } from '@/components/TapeContext';
 import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import AudioPlayer from '@/components/AudioPlayer';
 import VideoPlayer from '@/components/VideoPlayer';
+import MediaPlayer from '@/components/MediaPlayer';
 
 import {
   AudioFileWithUrls,
@@ -17,7 +17,7 @@ import NavSidebar from '@/components/NavSidebar';
 
 import LoadingOverlay from '@/components/LoadingOverlay';
 import FadeInAndOut from '@/components/FadeInAndOut';
-import UDLOverlay from '@/components/UDLOverlay';
+
 import InfoIcon from '@/components/Images/UI/InfoIcon';
 import processItem from '@/components/Helper Functions/processItem';
 import getTapeInfoJSON from '@/components/Helper Functions/getTapeInfoJSON';
@@ -33,24 +33,6 @@ const Tape = () => {
     state: 'Communicating with Akord',
   });
   const [currentModuleIndex, setCurrentModuleIndex] = useState<number>(0);
-  const [udlOverlay, setUdlOverlay] = useState([
-    { moduleId: 1, overlay: false },
-    { moduleId: 3, overlay: false },
-    { moduleId: 4, overlay: false },
-    { moduleId: 5, overlay: false },
-    { moduleId: 6, overlay: false },
-    { moduleId: 7, overlay: false },
-    { moduleId: 8, overlay: false },
-    { moduleId: 9, overlay: false },
-  ]);
-
-  const toggleOverlay = (moduleId: number) => {
-    setUdlOverlay((prev) =>
-      prev.map((item) =>
-        item.moduleId === moduleId ? { ...item, overlay: !item.overlay } : item
-      )
-    );
-  };
 
   const [volume, setVolume] = useState<number>(1);
   const [mediaProgress, setMediaProgress] = useState<number>(0);
@@ -218,13 +200,7 @@ const Tape = () => {
                 <div className={styles.mainContainer}>
                   <div className={styles.scrollableContainer}>
                     <div className={styles.gridProfile}>
-                      <div
-                        className={styles.profileModule}
-                        onClick={() => toggleOverlay(1)}
-                      >
-                        {udlOverlay[0]?.overlay ? (
-                          <UDLOverlay imageFile={imageFiles[0]} />
-                        ) : null}
+                      <div className={styles.profileModule}>
                         {renderFirstImage(1)}
                         <div className={styles.infoIcon}>
                           <InfoIcon color={'var(--artape-black)'} />
@@ -255,15 +231,8 @@ const Tape = () => {
                               <div
                                 className={styles.profileModule}
                                 key={image.moduleId}
-                                onClick={() => toggleOverlay(image.moduleId)}
                                 style={{ aspectRatio: 1 / 1 }}
                               >
-                                {udlOverlay.find(
-                                  (item) => item.moduleId === image.moduleId
-                                )?.overlay ? (
-                                  <UDLOverlay />
-                                ) : null}
-
                                 <Image
                                   className={`${image.name} ${styles.objectFit}`}
                                   src={image.url}
@@ -282,7 +251,7 @@ const Tape = () => {
                 </div>
               </div>
               <div className={styles.AudioPlayer}>
-                <AudioPlayer
+                <MediaPlayer
                   audioFiles={audioFiles}
                   color={color}
                   volume={volume}
