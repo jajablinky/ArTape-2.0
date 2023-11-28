@@ -21,8 +21,10 @@ interface MediaPlayerProps {
   setVolume: any;
   mediaProgress: number;
   setMediaProgress: any;
-  currentModuleIndex: any;
+  currentModuleIndex: number;
   setCurrentModuleIndex: any;
+  mediaSelected: boolean;
+  setMediaSelected: any;
 }
 
 const MediaPlayer = ({
@@ -34,6 +36,8 @@ const MediaPlayer = ({
   setMediaProgress,
   currentModuleIndex,
   setCurrentModuleIndex,
+  mediaSelected,
+  setMediaSelected,
 }: MediaPlayerProps) => {
   const [audioFetched, setAudioFetched] = useState<boolean>(true);
   const [isPlaying, setisPlaying] = useState<boolean>(false);
@@ -55,6 +59,7 @@ const MediaPlayer = ({
   };
 
   useEffect(() => {
+    console.log('currentModuleIndex changed, now', currentModuleIndex);
     if (!mediaPlayer.current) {
       mediaPlayer.current = new Audio();
     }
@@ -69,7 +74,9 @@ const MediaPlayer = ({
         mediaPlayer.current.src = currentAudioUrl;
         mediaPlayer.current.addEventListener('ended', handleEnded);
       }
+      if (mediaSelected) setisPlaying(true);
       if (isPlaying) mediaPlayer.current.play();
+      setMediaSelected(false);
     }
 
     return () => {
@@ -77,7 +84,7 @@ const MediaPlayer = ({
         mediaPlayer.current.removeEventListener('ended', handleEnded);
       }
     };
-  }, [currentModuleIndex]);
+  }, [currentModuleIndex || mediaSelected]);
 
   /* Media Player Logic */
 
@@ -87,6 +94,7 @@ const MediaPlayer = ({
   }, [volume]);
 
   // seek bar change
+  // note: this currently pauses media if mouse is held down anywhere on screen
   useEffect(() => {
     if (mediaPlayer.current && mouseDown) {
       handlePauseResume('pause');

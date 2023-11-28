@@ -33,6 +33,7 @@ const Tape = () => {
     state: 'Communicating with Akord',
   });
   const [currentModuleIndex, setCurrentModuleIndex] = useState<number>(0);
+  const [mediaSelected, setMediaSelected] = useState<boolean>(false);
 
   const [volume, setVolume] = useState<number>(1);
   const [mediaProgress, setMediaProgress] = useState<number>(0);
@@ -200,7 +201,13 @@ const Tape = () => {
                 <div className={styles.mainContainer}>
                   <div className={styles.scrollableContainer}>
                     <div className={styles.gridProfile}>
-                      <div className={styles.profileModule}>
+                      <div 
+                        className={styles.profileModule}
+                        onClick={() => {
+                          setCurrentModuleIndex(0);
+                          setMediaSelected(true);
+                        }}
+                      >
                         {renderFirstImage(1)}
                         <div className={styles.infoIcon}>
                           <InfoIcon color={'var(--artape-black)'} />
@@ -208,6 +215,10 @@ const Tape = () => {
                       </div>
                       <div
                         className={styles.profileModuleRectangle}
+                        onClick={() => {
+                          setCurrentModuleIndex(1);
+                          setMediaSelected(true);
+                        }}
                         style={{
                           backgroundColor: 'var(--artape-primary-color)',
                         }}
@@ -230,6 +241,10 @@ const Tape = () => {
                             return image.moduleId === 1 ? null : (
                               <div
                                 className={styles.profileModule}
+                                onClick={() => {
+                                  setCurrentModuleIndex(image.moduleId - 1);
+                                  setMediaSelected(true);
+                                }}
                                 key={image.moduleId}
                                 style={{ aspectRatio: 1 / 1 }}
                               >
@@ -260,6 +275,8 @@ const Tape = () => {
                   setMediaProgress={setMediaProgress}
                   currentModuleIndex={currentModuleIndex}
                   setCurrentModuleIndex={setCurrentModuleIndex}
+                  mediaSelected={mediaSelected}
+                  setMediaSelected={setMediaSelected}
                 />
               </div>
             </div>
