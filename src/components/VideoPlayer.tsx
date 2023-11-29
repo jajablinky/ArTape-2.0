@@ -11,8 +11,10 @@ interface VideoPlayerProps {
   setVolume: any;
   mediaProgress: number;
   setMediaProgress: any;
-  currentModuleIndex: any;
+  currentModuleIndex: number;
   setCurrentModuleIndex: any;
+  mediaSelected: boolean;
+  setMediaSelected: any;
 }
 
 const VideoPlayer = ({
@@ -24,6 +26,8 @@ const VideoPlayer = ({
   setMediaProgress,
   currentModuleIndex,
   setCurrentModuleIndex,
+  mediaSelected,
+  setMediaSelected,
 }: VideoPlayerProps) => {
   // insert react components
   const videoPlayer = useRef<HTMLVideoElement | null>(null);
@@ -69,7 +73,9 @@ const VideoPlayer = ({
         videoPlayer.current.src = currentVideoUrl;
         videoPlayer.current.addEventListener('ended', handleEnded);
       }
+      if (mediaSelected && currentModuleIndex === 1) setIsPlaying(true);
       if (isPlaying) videoPlayer.current.play();
+      setMediaSelected(false);
     }
 
     return () => {
@@ -77,7 +83,7 @@ const VideoPlayer = ({
         videoPlayer.current.removeEventListener('ended', handleEnded);
       }
     };
-  }, []);
+  }, [currentModuleIndex || mediaSelected]);
 
   // Video Player Logic
 

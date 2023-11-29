@@ -216,6 +216,7 @@ const Tape = () => {
                       <div
                         className={styles.profileModuleRectangle}
                         onClick={() => {
+                          console.log("video click");
                           setCurrentModuleIndex(1);
                           setMediaSelected(true);
                         }}
@@ -232,6 +233,8 @@ const Tape = () => {
                           setMediaProgress={setMediaProgress}
                           currentModuleIndex={currentModuleIndex}
                           setCurrentModuleIndex={setCurrentModuleIndex}
+                          mediaSelected={mediaSelected}
+                          setMediaSelected={setMediaSelected}
                         />
                       </div>
 
