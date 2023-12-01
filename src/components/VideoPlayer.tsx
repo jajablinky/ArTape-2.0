@@ -74,6 +74,7 @@ const VideoPlayer = ({
         videoPlayer.current.addEventListener('ended', handleEnded);
       }
       if (mediaSelected && currentModuleIndex === 1) setIsPlaying(true);
+      else setIsPlaying(false);
       if (isPlaying) videoPlayer.current.play();
       setMediaSelected(false);
     }
@@ -143,6 +144,10 @@ const VideoPlayer = ({
             onEnded={handleEnded}
             ref={videoPlayer}
             preload="metadata"
+            onClick={() => {
+              setCurrentModuleIndex(1);
+              setMediaSelected(true);
+            }}
             onDurationChange={(e) => setVideoDuration(e.currentTarget.duration)}
             onTimeUpdate={(e) => {
               setMediaProgress(e.currentTarget.currentTime);

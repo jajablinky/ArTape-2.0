@@ -74,7 +74,10 @@ const MediaPlayer = ({
         mediaPlayer.current.src = currentAudioUrl;
         mediaPlayer.current.addEventListener('ended', handleEnded);
       }
-      if (mediaSelected) setisPlaying(true);
+      if (mediaSelected) {
+        if (currentModuleIndex !== 1) setisPlaying(true);
+        else setisPlaying(false);
+      }
       if (isPlaying) mediaPlayer.current.play();
       setMediaSelected(false);
     }
