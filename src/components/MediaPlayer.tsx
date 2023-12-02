@@ -40,12 +40,11 @@ const MediaPlayer = ({
   setMediaSelected,
 }: MediaPlayerProps) => {
   const [audioFetched, setAudioFetched] = useState<boolean>(true);
-  const [isPlaying, setisPlaying] = useState<boolean>(false);
+  const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
   const [currentSong, setCurrentSong] = useState<AudioFileWithFiles | null>(
     null
   );
-  const mediaPlayer = useRef<HTMLAudioElement | null>(null);
-  const [hasPaused, setPause] = useState<boolean>(false);
+  const audioPlayer = useRef<HTMLAudioElement | null>(null);
   const [songDuration, setSongDuration] = useState<number>(0);
   const [bufferProgress, setBufferProgress] = useState<number>(0);
 
@@ -59,34 +58,36 @@ const MediaPlayer = ({
   };
 
   useEffect(() => {
-    console.log('currentModuleIndex changed, now', currentModuleIndex);
-    if (!mediaPlayer.current) {
-      mediaPlayer.current = new Audio();
+    if (!audioPlayer.current) {
+      audioPlayer.current = new Audio();
     }
-    console.log('useEffect currentModuleIndex:', currentModuleIndex);
+
     setCurrentSong(audioFiles[currentModuleIndex]);
 
-    if (mediaPlayer.current && currentModuleIndex !== -1 && audioFiles) {
+    if (
+      audioPlayer.current &&
+      currentModuleIndex !== -1 &&
+      audioFiles &&
+      currentModuleIndex !== 1
+    ) {
       const currentAudioUrl = audioFiles[currentModuleIndex].audioUrl;
       if (currentAudioUrl) {
-        console.log(currentSong?.fileName, "'s duration:", songDuration);
-        mediaPlayer.current.removeEventListener('ended', handleEnded);
-        mediaPlayer.current.src = currentAudioUrl;
-        mediaPlayer.current.addEventListener('ended', handleEnded);
+        audioPlayer.current.removeEventListener('ended', handleEnded);
+        audioPlayer.current.src = currentAudioUrl;
+        audioPlayer.current.addEventListener('ended', handleEnded);
       }
-      if (mediaSelected === 'audio') {
-        if (currentModuleIndex !== 1) setisPlaying(true);
-        else setisPlaying(false);
-      }
-      if (isPlaying) mediaPlayer.current.play();
-      setMediaSelected(false);
+
+      if (currentModuleIndex !== 1) setIsAudioPlaying(true);
+      else setIsAudioPlaying(false);
+
+      if (isAudioPlaying) audioPlayer.current.play();
     }
 
     // make a case for mediaSelected being video to make sure audio isn't playing
 
     return () => {
-      if (mediaPlayer.current) {
-        mediaPlayer.current.removeEventListener('ended', handleEnded);
+      if (audioPlayer.current) {
+        audioPlayer.current.removeEventListener('ended', handleEnded);
       }
     };
   }, [currentModuleIndex, mediaSelected]);
@@ -95,15 +96,15 @@ const MediaPlayer = ({
 
   // volume change
   useEffect(() => {
-    if (mediaPlayer.current) mediaPlayer.current.volume = volume;
+    if (audioPlayer.current) audioPlayer.current.volume = volume;
   }, [volume]);
 
   // seek bar change
   // note: this currently pauses media if mouse is held down anywhere on screen
   useEffect(() => {
-    if (mediaPlayer.current && mouseDown) {
+    if (audioPlayer.current && mouseDown) {
       handlePauseResume('pause');
-      mediaPlayer.current.currentTime = mediaProgress;
+      audioPlayer.current.currentTime = mediaProgress;
     }
   }, [mediaProgress]);
 
@@ -129,70 +130,77 @@ const MediaPlayer = ({
   };
 
   const handlePauseResume = (input?: string): void => {
-    if (!mediaPlayer.current) {
+    if (!audioPlayer.current) {
       console.log('no audio player');
       return;
     }
-
-    if (isPlaying || input === 'pause') {
-      //seekTime = mediaPlayer.current.currentTime;
-      console.log('pause');
-      mediaPlayer.current?.pause();
-      console.log('pre check:', hasPaused);
-      if (!hasPaused) {
-        console.log('first pause');
-        setPause(true);
-      } else {
-        console.log('already paused before!');
-      }
-      console.log('post check:', hasPaused);
-      setisPlaying(false);
+    if (isAudioPlaying || input === 'pause') {
+      //seekTime = audioPlayer.current.currentTime;
+      audioPlayer.current?.pause();
+      setIsAudioPlaying(false);
     }
     if (
-      (!isPlaying && mediaPlayer.current.readyState >= 2) ||
+      (!isAudioPlaying && audioPlayer.current.readyState >= 2) ||
       input === 'play'
     ) {
-      //mediaPlayer.current.currentTime = seekTime;
+      //audioPlayer.current.currentTime = seekTime;
       console.log('play');
-      mediaPlayer.current?.play();
-      setisPlaying(true);
+      audioPlayer.current?.play();
+      setIsAudioPlaying(true);
     }
   };
 
   // Create handle next Media
 
   const handleNextSong = (): void => {
-    if (hasPaused) {
-      setPause(false);
-      console.log('setting index to', currentModuleIndex + 1);
+    const tapeLength = audioFiles.length - 1;
+
+    if (currentModuleIndex !== tapeLength) {
+      console.log('setting index:', currentModuleIndex);
       setCurrentModuleIndex(currentModuleIndex + 1);
     }
-
-    console.log('current index:', currentModuleIndex);
-    setCurrentModuleIndex(
-      currentModuleIndex === audioFiles.length - 1 ? 0 : currentModuleIndex + 1
-    );
-    console.log('loading song', currentModuleIndex);
-    mediaPlayer.current?.load();
-    setisPlaying(true);
+    if (currentModuleIndex === tapeLength) {
+      console.log('setting index:', currentModuleIndex);
+      setCurrentModuleIndex(0);
+    }
+    if (currentModuleIndex === 0) {
+      setMediaSelected('video');
+      audioPlayer.current?.pause();
+      console.log('media selected video');
+    }
+    if (currentModuleIndex !== 0) {
+      setMediaSelected('audio');
+      console.log('media selected audio');
+      if (!isAudioPlaying) {
+        setIsAudioPlaying(true);
+      }
+    }
+    setIsAudioPlaying(true);
   };
 
   // Create handle prev media
 
   const handlePrevSong = (): void => {
-    if (currentModuleIndex === -1) {
-      return undefined;
-    }
     if (currentModuleIndex === 0) {
-      if (mediaPlayer.current) {
-        mediaPlayer.current.currentTime = 0;
-        mediaPlayer.current.load();
-        if (isPlaying) {
-          mediaPlayer.current.play();
+      if (audioPlayer.current) {
+        audioPlayer.current.currentTime = 0;
+        audioPlayer.current.load();
+        if (isAudioPlaying) {
+          audioPlayer.current.play();
         }
       }
-    } else {
+    }
+    if (currentModuleIndex === 1 || currentModuleIndex === 2) {
+      // if current module index is one after video player
+      if (audioPlayer.current) {
+        audioPlayer.current?.pause();
+        audioPlayer.current.currentTime = 0;
+      }
+    }
+
+    if (currentModuleIndex !== 0) {
       setCurrentModuleIndex(currentModuleIndex - 1);
+      console.log('prev', currentModuleIndex);
     }
   };
 
@@ -200,10 +208,6 @@ const MediaPlayer = ({
     console.log('song ended');
     handleNextSong();
   };
-
-  useEffect(() => {
-    console.log(audioFiles);
-  }, []);
 
   return (
     <>
@@ -213,12 +217,12 @@ const MediaPlayer = ({
       >
         <div className={styles.musicPlayerLeft}>
           <div className={styles.musicPlayerArtwork}>
-            <Image
+            {/* <Image
               // src={image.url}
               // alt={image.name}
               height={60}
               width={60}
-            />
+            /> */}
           </div>
           <div className={styles.musicPlayerText}>
             <p className={styles.songName}>Song Name</p>
@@ -228,7 +232,7 @@ const MediaPlayer = ({
         <div className={styles.musicPlayerMiddle}>
           <audio
             onEnded={handleEnded}
-            ref={mediaPlayer}
+            ref={audioPlayer}
             preload="metadata"
             onDurationChange={(e) => setSongDuration(e.currentTarget.duration)}
             onTimeUpdate={(e) => {
@@ -250,7 +254,7 @@ const MediaPlayer = ({
               ''
             )}
 
-            {isPlaying ? (
+            {isAudioPlaying ? (
               <button onClick={() => handlePauseResume()}>
                 <PauseIcon
                   height={21}

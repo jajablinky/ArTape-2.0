@@ -86,13 +86,8 @@ const VideoPlayer = ({
   // Video Player Logic
 
   useEffect(() => {
-    // Only runs if currentModuleIndex is 1 which is the video module currently
-    if (mediaSelected === 'video') {
-      if (currentModuleIndex === 1) {
-        handleVideoPauseResume();
-      }
-
-      handleVideoPauseResume;
+    if (currentModuleIndex === 1 || currentModuleIndex === 2) {
+      handleVideoPauseResume();
     }
   }, [currentModuleIndex, mediaSelected, click]);
 

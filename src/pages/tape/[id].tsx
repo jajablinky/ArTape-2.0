@@ -32,7 +32,7 @@ const Tape = () => {
     percentage: 0,
     state: 'Communicating with Akord',
   });
-  const [currentModuleIndex, setCurrentModuleIndex] = useState<number>(0);
+  const [currentModuleIndex, setCurrentModuleIndex] = useState<number>(-1);
   const [mediaSelected, setMediaSelected] = useState<string>('');
 
   const [volume, setVolume] = useState<number>(1);
