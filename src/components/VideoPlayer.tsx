@@ -13,7 +13,7 @@ interface VideoPlayerProps {
   setMediaProgress: any;
   currentModuleIndex: number;
   setCurrentModuleIndex: any;
-  mediaSelected: boolean;
+  mediaSelected: string;
   setMediaSelected: any;
 }
 
@@ -35,10 +35,11 @@ const VideoPlayer = ({
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [videoDuration, setVideoDuration] = useState<number>(0);
   const [currentProgress, setCurrentProgress] = useState<number>(0);
+  const [click, setClick] = useState(0);
 
   const [bufferProgress, setBufferProgress] = useState<number>(0);
 
-  const handlePauseResume = (): void => {
+  const handleVideoPauseResume = (): void => {
     if (!videoPlayer.current) {
       console.log('no audio player');
       return;
@@ -73,10 +74,6 @@ const VideoPlayer = ({
         videoPlayer.current.src = currentVideoUrl;
         videoPlayer.current.addEventListener('ended', handleEnded);
       }
-      if (mediaSelected && currentModuleIndex === 1) setIsPlaying(true);
-      else setIsPlaying(false);
-      if (isPlaying) videoPlayer.current.play();
-      setMediaSelected(false);
     }
 
     return () => {
@@ -84,16 +81,20 @@ const VideoPlayer = ({
         videoPlayer.current.removeEventListener('ended', handleEnded);
       }
     };
-  }, [currentModuleIndex || mediaSelected]);
+  }, []);
 
   // Video Player Logic
 
   useEffect(() => {
     // Only runs if currentModuleIndex is 1 which is the video module currently
-    if (currentModuleIndex === 1) {
-      handlePauseResume();
+    if (mediaSelected === 'video') {
+      if (currentModuleIndex === 1) {
+        handleVideoPauseResume();
+      }
+
+      handleVideoPauseResume;
     }
-  }, [isPlaying]);
+  }, [currentModuleIndex, mediaSelected, click]);
 
   // volume change
   useEffect(() => {
@@ -143,11 +144,12 @@ const VideoPlayer = ({
           <video
             onEnded={handleEnded}
             ref={videoPlayer}
-            preload="metadata"
             onClick={() => {
               setCurrentModuleIndex(1);
-              setMediaSelected(true);
+              setMediaSelected('video');
+              setClick(click + 1);
             }}
+            preload="metadata"
             onDurationChange={(e) => setVideoDuration(e.currentTarget.duration)}
             onTimeUpdate={(e) => {
               setMediaProgress(e.currentTarget.currentTime);

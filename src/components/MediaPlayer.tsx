@@ -23,7 +23,7 @@ interface MediaPlayerProps {
   setMediaProgress: any;
   currentModuleIndex: number;
   setCurrentModuleIndex: any;
-  mediaSelected: boolean;
+  mediaSelected: string;
   setMediaSelected: any;
 }
 
@@ -74,7 +74,7 @@ const MediaPlayer = ({
         mediaPlayer.current.src = currentAudioUrl;
         mediaPlayer.current.addEventListener('ended', handleEnded);
       }
-      if (mediaSelected) {
+      if (mediaSelected === 'audio') {
         if (currentModuleIndex !== 1) setisPlaying(true);
         else setisPlaying(false);
       }
@@ -87,7 +87,7 @@ const MediaPlayer = ({
         mediaPlayer.current.removeEventListener('ended', handleEnded);
       }
     };
-  }, [currentModuleIndex || mediaSelected]);
+  }, [currentModuleIndex, mediaSelected]);
 
   /* Media Player Logic */
 

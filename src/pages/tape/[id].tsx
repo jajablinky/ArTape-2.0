@@ -33,7 +33,7 @@ const Tape = () => {
     state: 'Communicating with Akord',
   });
   const [currentModuleIndex, setCurrentModuleIndex] = useState<number>(0);
-  const [mediaSelected, setMediaSelected] = useState<boolean>(false);
+  const [mediaSelected, setMediaSelected] = useState<string>('');
 
   const [volume, setVolume] = useState<number>(1);
   const [mediaProgress, setMediaProgress] = useState<number>(0);
@@ -201,11 +201,11 @@ const Tape = () => {
                 <div className={styles.mainContainer}>
                   <div className={styles.scrollableContainer}>
                     <div className={styles.gridProfile}>
-                      <div 
+                      <div
                         className={styles.profileModule}
                         onClick={() => {
                           setCurrentModuleIndex(0);
-                          setMediaSelected(true);
+                          setMediaSelected('audio');
                         }}
                       >
                         {renderFirstImage(1)}
@@ -215,11 +215,6 @@ const Tape = () => {
                       </div>
                       <div
                         className={styles.profileModuleRectangle}
-                        onClick={() => {
-                          console.log("video click");
-                          setCurrentModuleIndex(1);
-                          setMediaSelected(true);
-                        }}
                         style={{
                           backgroundColor: 'var(--artape-primary-color)',
                         }}
@@ -246,7 +241,7 @@ const Tape = () => {
                                 className={styles.profileModule}
                                 onClick={() => {
                                   setCurrentModuleIndex(image.moduleId - 1);
-                                  setMediaSelected(true);
+                                  setMediaSelected('audio');
                                 }}
                                 key={image.moduleId}
                                 style={{ aspectRatio: 1 / 1 }}
