@@ -39,20 +39,20 @@ const VideoPlayer = ({
 
   const [bufferProgress, setBufferProgress] = useState<number>(0);
 
-  const handleVideoPauseResume = (): void => {
+  const handleVideoPauseResume = (input?: string): void => {
     if (!videoPlayer.current) {
-      console.log('no audio player');
+      console.log('no video player');
       return;
     }
 
-    if (isPlaying) {
+    if (isPlaying || input === 'pause') {
       //seekTime = audioPlayer.current.currentTime;
       console.log('pause');
       videoPlayer.current?.pause();
       // may need to implement pause check (see audio player)
       setIsPlaying(false);
     }
-    if (!isPlaying && videoPlayer.current.readyState >= 2) {
+    else if ((!isPlaying && videoPlayer.current.readyState >= 2) || input === 'play') {
       //audioPlayer.current.currentTime = seekTime;
       console.log('play');
       videoPlayer.current?.play();
@@ -86,8 +86,12 @@ const VideoPlayer = ({
   // Video Player Logic
 
   useEffect(() => {
-    if (currentModuleIndex === 1 || currentModuleIndex === 2) {
-      handleVideoPauseResume();
+    if (currentModuleIndex === 1) {
+      handleVideoPauseResume('play');
+    }
+    else {
+      handleVideoPauseResume('pause');
+      videoPlayer.current.currentTime = 0;
     }
   }, [currentModuleIndex, mediaSelected, click]);
 
