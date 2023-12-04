@@ -48,7 +48,7 @@ const VideoPlayer = ({
       return;
     }
 
-    if (isVideoPlaying) {
+    if (isVideoPlaying || input === 'pause') {
       //seekTime = audioPlayer.current.currentTime;
       console.log('pause');
       videoPlayer.current?.pause();
@@ -56,7 +56,7 @@ const VideoPlayer = ({
       setIsVideoPlaying(false);
     }
 
-    if (!isVideoPlaying && videoPlayer.current.readyState >= 2) {
+    else if ((!isVideoPlaying && videoPlayer.current.readyState >= 2) || input === 'play') {
       //audioPlayer.current.currentTime = seekTime;
       console.log('play');
       videoPlayer.current?.play();
@@ -89,14 +89,31 @@ const VideoPlayer = ({
 
   // Video Player Logic
 
+  useEffect(()=>{
+    console.log('test isVideoPlaying:', isVideoPlaying);
+  }, [isVideoPlaying]);
+
   useEffect(() => {
     if (currentModuleIndex === 1) {
-      handleVideoPauseResume('play');
-    } else {
+      // play/pause conditions
+      if (isVideoPlaying) handleVideoPauseResume('pause');
+      else handleVideoPauseResume('play');
+    }
+    else {
+      // cannot play
       handleVideoPauseResume('pause');
       videoPlayer.current.currentTime = 0;
     }
   }, [currentModuleIndex, mediaSelected, click]);
+
+  // useEffect(() => {
+  //   if (currentModuleIndex === 1) {
+  //     handleVideoPauseResume('play');
+  //   } else {
+  //     handleVideoPauseResume('pause');
+  //     videoPlayer.current.currentTime = 0;
+  //   }
+  // }, [currentModuleIndex, mediaSelected]);
 
   // volume change
   useEffect(() => {

@@ -44,7 +44,7 @@ const MediaPlayer = ({
   setIsVideoPlaying,
 }: MediaPlayerProps) => {
   const [audioFetched, setAudioFetched] = useState<boolean>(true);
-  const [isMediaPlaying, setIsMediaPlaying] = useState<boolean>(true);
+  const [isMediaPlaying, setIsMediaPlaying] = useState<boolean>(false);
   const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
   const [currentSong, setCurrentSong] = useState<AudioFileWithFiles | null>(
     null
@@ -64,28 +64,36 @@ const MediaPlayer = ({
 
   useEffect(() => {
     // This useEffect is for audio only
-    if (mediaSelected === 'audio') {
-      if (!audioPlayer.current) {
-        audioPlayer.current = new Audio();
-      }
+    if (!audioPlayer.current) {
+      audioPlayer.current = new Audio();
+    }
 
+    if (mediaSelected === 'audio') {
+      console.log('selected audio');
       setCurrentSong(audioFiles[currentModuleIndex]);
 
       if (
         audioPlayer.current &&
         currentModuleIndex !== -1 &&
-        audioFiles &&
-        currentModuleIndex !== 1
+        audioFiles
       ) {
+        console.log('audio player/files exist, module index is not -1');
         const currentAudioUrl = audioFiles[currentModuleIndex].audioUrl;
         if (currentAudioUrl) {
+          console.log('audio url retrieved');
           audioPlayer.current.removeEventListener('ended', handleEnded);
           audioPlayer.current.src = currentAudioUrl;
           audioPlayer.current.addEventListener('ended', handleEnded);
         }
 
-        if (currentModuleIndex !== 1) setIsAudioPlaying(true);
-        else setIsAudioPlaying(false);
+        if (currentModuleIndex !== 1) {
+          console.log('index selected is for audio');
+          setIsAudioPlaying(true);
+        }
+        else {
+          console.log('index selected is for video')
+          setIsAudioPlaying(false);
+        }
 
         if (isAudioPlaying) audioPlayer.current.play();
       }
@@ -98,22 +106,22 @@ const MediaPlayer = ({
         }
       };
     }
-    if (mediaSelected === 'video') {
+    else if (mediaSelected === 'video') {
       setIsAudioPlaying(false);
-      handleAudioPauseResume();
+      handleAudioPauseResume('pause');
     }
   }, [currentModuleIndex, mediaSelected]);
 
   /* Media Player Logic */
 
-  useEffect(() => {
-    if (currentModuleIndex !== 1) {
-      handlePauseResume('play');
-    } else {
-      handlePauseResume('pause');
-      audioPlayer.current.currentTime = 0;
-    }
-  }, [currentModuleIndex, mediaSelected]);
+  // useEffect(() => {
+  //   if (currentModuleIndex !== 1) {
+  //     handlePauseResume('play');
+  //   } else {
+  //     handlePauseResume('pause');
+  //     audioPlayer.current.currentTime = 0;
+  //   }
+  // }, [currentModuleIndex, mediaSelected]);
 
   // volume change
   useEffect(() => {
@@ -170,15 +178,18 @@ const MediaPlayer = ({
     }
   };
 
-  const handlePauseResume = (input: string): void => {
+  const handlePauseResume = (input?: string): void => {
     if (mediaSelected === 'video') {
+      if (isVideoPlaying) {
+        setIsVideoPlaying(false);
+      }
       setIsVideoPlaying((prev: boolean) => !prev);
-      setIsMediaPlaying((prev: boolean) => !prev);
+      
     }
     if (mediaSelected === 'audio') {
       handleAudioPauseResume('pause');
-      setIsMediaPlaying((prev: boolean) => !prev);
     }
+    setIsMediaPlaying((prev: boolean) => !prev);
   };
 
   // Create handle next Media
@@ -224,18 +235,20 @@ const MediaPlayer = ({
     } else if (currentModuleIndex === 1) {
       setMediaSelected('audio');
       setCurrentModuleIndex(0);
+      setIsAudioPlaying(true);
     } else if (currentModuleIndex === 2) {
       // if current module index is one after video player
       setMediaSelected('video');
       if (audioPlayer.current) {
         audioPlayer.current?.pause();
         audioPlayer.current.currentTime = 0;
+        setIsAudioPlaying(false);
       }
       setCurrentModuleIndex(1);
     } else {
       setCurrentModuleIndex(currentModuleIndex - 1);
+      setIsAudioPlaying(true);
     }
-    setIsAudioPlaying(true);
 
     console.log('prev', currentModuleIndex);
   };
