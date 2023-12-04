@@ -18,15 +18,17 @@ interface MediaPlayerProps {
   color: string;
   audioFiles: AudioFileWithFiles[];
   volume: number;
-  setVolume: any;
+  setVolume: React.Dispatch<React.SetStateAction<number>>;
   mediaProgress: number;
-  setMediaProgress: any;
+  setMediaProgress: React.Dispatch<React.SetStateAction<number>>;
   currentModuleIndex: number;
-  setCurrentModuleIndex: any;
+  setCurrentModuleIndex: React.Dispatch<React.SetStateAction<number>>;
   mediaSelected: string;
-  setMediaSelected: any;
-  setIsVideoPlaying: any;
+  setMediaSelected: React.Dispatch<React.SetStateAction<string>>;
+  setIsVideoPlaying: React.Dispatch<React.SetStateAction<boolean>>;
   isVideoPlaying: boolean;
+  mediaClickType: string;
+  setMediaClickType: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const MediaPlayer = ({
@@ -42,9 +44,14 @@ const MediaPlayer = ({
   setMediaSelected,
   isVideoPlaying,
   setIsVideoPlaying,
+  mediaClickType,
+  setMediaClickType,
 }: MediaPlayerProps) => {
   const [audioFetched, setAudioFetched] = useState<boolean>(true);
+
+  // need to raise this to [id] file
   const [isMediaPlaying, setIsMediaPlaying] = useState<boolean>(false);
+  
   const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
   const [currentSong, setCurrentSong] = useState<AudioFileWithFiles | null>(
     null
@@ -89,13 +96,15 @@ const MediaPlayer = ({
         if (currentModuleIndex !== 1) {
           console.log('index selected is for audio');
           setIsAudioPlaying(true);
+          setIsMediaPlaying(true);
+          audioPlayer.current.play();
         }
         else {
           console.log('index selected is for video')
           setIsAudioPlaying(false);
+          setIsMediaPlaying(true);
+          audioPlayer.current.pause();
         }
-
-        if (isAudioPlaying) audioPlayer.current.play();
       }
 
       // make a case for mediaSelected being video to make sure audio isn't playing
@@ -130,12 +139,12 @@ const MediaPlayer = ({
 
   // seek bar change
   // note: this currently pauses media if mouse is held down anywhere on screen
-  useEffect(() => {
-    if (audioPlayer.current && mouseDown) {
-      handleAudioPauseResume('pause');
-      audioPlayer.current.currentTime = mediaProgress;
-    }
-  }, [mediaProgress]);
+  // useEffect(() => {
+  //   if (audioPlayer.current && mouseDown) {
+  //     handleAudioPauseResume('pause');
+  //     audioPlayer.current.currentTime = mediaProgress;
+  //   }
+  // }, [mediaProgress]);
 
   const handleBufferProgress: React.ReactEventHandler<HTMLAudioElement> = (
     e
@@ -178,18 +187,28 @@ const MediaPlayer = ({
     }
   };
 
-  const handlePauseResume = (input?: string): void => {
+  const handlePauseResume = () => {
     if (mediaSelected === 'video') {
       if (isVideoPlaying) {
         setIsVideoPlaying(false);
+        setIsMediaPlaying(false);
       }
-      setIsVideoPlaying((prev: boolean) => !prev);
-      
+      else {
+        setIsVideoPlaying(true);
+        setIsMediaPlaying(true);
+      }      
     }
-    if (mediaSelected === 'audio') {
-      handleAudioPauseResume('pause');
+    else if (mediaSelected === 'audio') {
+      if (isAudioPlaying) {
+        handleAudioPauseResume('pause');
+        setIsMediaPlaying(false);
+      }
+      else {
+        handleAudioPauseResume('play');
+        setIsMediaPlaying(true);
+      }
     }
-    setIsMediaPlaying((prev: boolean) => !prev);
+    setMediaClickType('player');
   };
 
   // Create handle next Media
@@ -296,7 +315,7 @@ const MediaPlayer = ({
             </button>
 
             {isMediaPlaying ? (
-              <button onClick={() => handlePauseResume('pause')}>
+              <button onClick={() => handlePauseResume()}>
                 <PauseIcon
                   height={21}
                   width={21}
@@ -304,7 +323,7 @@ const MediaPlayer = ({
                 />
               </button>
             ) : (
-              <button onClick={() => handlePauseResume('pause')}>
+              <button onClick={() => handlePauseResume()}>
                 <PlayIcon
                   height={21}
                   width={21}

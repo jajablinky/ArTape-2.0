@@ -34,6 +34,7 @@ const Tape = () => {
   });
   const [currentModuleIndex, setCurrentModuleIndex] = useState<number>(-1);
   const [mediaSelected, setMediaSelected] = useState<string>('');
+  const [mediaClickType, setMediaClickType] = useState<string>('');
   const [isVideoPlaying, setIsVideoPlaying] = useState<boolean>(false);
 
   const [volume, setVolume] = useState<number>(1);
@@ -233,6 +234,8 @@ const Tape = () => {
                           setCurrentModuleIndex={setCurrentModuleIndex}
                           mediaSelected={mediaSelected}
                           setMediaSelected={setMediaSelected}
+                          mediaClickType={mediaClickType}
+                          setMediaClickType={setMediaClickType}
                         />
                       </div>
 
@@ -280,6 +283,8 @@ const Tape = () => {
                   setCurrentModuleIndex={setCurrentModuleIndex}
                   mediaSelected={mediaSelected}
                   setMediaSelected={setMediaSelected}
+                  mediaClickType={mediaClickType}
+                  setMediaClickType={setMediaClickType}
                 />
               </div>
             </div>

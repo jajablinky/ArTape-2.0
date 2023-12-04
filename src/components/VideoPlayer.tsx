@@ -8,15 +8,17 @@ interface VideoPlayerProps {
   color: string;
   videoFiles: VideoFileWithFiles[];
   volume: number;
-  setVolume: any;
+  setVolume: React.Dispatch<React.SetStateAction<number>>;
   mediaProgress: number;
-  setMediaProgress: any;
+  setMediaProgress: React.Dispatch<React.SetStateAction<number>>;
   currentModuleIndex: number;
-  setCurrentModuleIndex: any;
+  setCurrentModuleIndex: React.Dispatch<React.SetStateAction<number>>;
   mediaSelected: string;
-  setMediaSelected: any;
+  setMediaSelected: React.Dispatch<React.SetStateAction<string>>;
   isVideoPlaying: boolean;
-  setIsVideoPlaying: any;
+  setIsVideoPlaying: React.Dispatch<React.SetStateAction<boolean>>;
+  mediaClickType: string;
+  setMediaClickType: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const VideoPlayer = ({
@@ -32,6 +34,8 @@ const VideoPlayer = ({
   setMediaSelected,
   isVideoPlaying,
   setIsVideoPlaying,
+  mediaClickType,
+  setMediaClickType,
 }: VideoPlayerProps) => {
   // insert react components
   const videoPlayer = useRef<HTMLVideoElement | null>(null);
@@ -89,31 +93,31 @@ const VideoPlayer = ({
 
   // Video Player Logic
 
-  useEffect(()=>{
-    console.log('test isVideoPlaying:', isVideoPlaying);
-  }, [isVideoPlaying]);
+  // useEffect(()=>{
+  //   //console.log('test isVideoPlaying:', isVideoPlaying);
+  //   handleVideoPauseResume();
+  // }, [isVideoPlaying]);
 
   useEffect(() => {
-    if (currentModuleIndex === 1) {
-      // play/pause conditions
-      if (isVideoPlaying) handleVideoPauseResume('pause');
-      else handleVideoPauseResume('play');
+    if (mediaClickType === 'module') {
+      if (currentModuleIndex === 1) {
+        // play/pause conditions
+        if (isVideoPlaying) handleVideoPauseResume('pause');
+        else handleVideoPauseResume('play');
+      }
+      else {
+        // cannot play
+        handleVideoPauseResume('pause');
+        if (videoPlayer.current) videoPlayer.current.currentTime = 0;
+      }
+      
     }
-    else {
-      // cannot play
-      handleVideoPauseResume('pause');
-      videoPlayer.current.currentTime = 0;
+    else if (mediaClickType === 'player') {
+      if (isVideoPlaying) videoPlayer.current?.play();
+      else videoPlayer.current?.pause();
     }
-  }, [currentModuleIndex, mediaSelected, click]);
-
-  // useEffect(() => {
-  //   if (currentModuleIndex === 1) {
-  //     handleVideoPauseResume('play');
-  //   } else {
-  //     handleVideoPauseResume('pause');
-  //     videoPlayer.current.currentTime = 0;
-  //   }
-  // }, [currentModuleIndex, mediaSelected]);
+    setMediaClickType('');
+  }, [currentModuleIndex, mediaSelected, mediaClickType]);
 
   // volume change
   useEffect(() => {
@@ -168,6 +172,7 @@ const VideoPlayer = ({
             onClick={() => {
               setCurrentModuleIndex(1);
               setMediaSelected('video');
+              setMediaClickType('module');
               setClick(click + 1);
             }}
             preload="metadata"
