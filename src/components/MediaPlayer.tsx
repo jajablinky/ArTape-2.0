@@ -106,6 +106,15 @@ const MediaPlayer = ({
 
   /* Media Player Logic */
 
+  useEffect(() => {
+    if (currentModuleIndex !== 1) {
+      handlePauseResume('play');
+    } else {
+      handlePauseResume('pause');
+      audioPlayer.current.currentTime = 0;
+    }
+  }, [currentModuleIndex, mediaSelected]);
+
   // volume change
   useEffect(() => {
     if (audioPlayer.current) audioPlayer.current.volume = volume;
@@ -146,12 +155,11 @@ const MediaPlayer = ({
       console.log('no audio player');
       return;
     }
-    if (isAudioPlaying || input === 'pause') {
+    if (isAudioPlaying || input === 'pause' || mediaSelected !== 'audio') {
       //seekTime = audioPlayer.current.currentTime;
       audioPlayer.current?.pause();
       setIsAudioPlaying(false);
-    }
-    if (
+    } else if (
       (!isAudioPlaying && audioPlayer.current.readyState >= 2) ||
       input === 'play'
     ) {
@@ -181,8 +189,7 @@ const MediaPlayer = ({
     if (currentModuleIndex !== tapeLength) {
       console.log('setting index:', currentModuleIndex);
       setCurrentModuleIndex(currentModuleIndex + 1);
-    }
-    if (currentModuleIndex === tapeLength) {
+    } else if (currentModuleIndex === tapeLength) {
       console.log('setting index:', currentModuleIndex);
       setCurrentModuleIndex(0);
     }
@@ -190,8 +197,7 @@ const MediaPlayer = ({
       setMediaSelected('video');
       audioPlayer.current?.pause();
       console.log('media selected video');
-    }
-    if (currentModuleIndex !== 0) {
+    } else {
       setMediaSelected('audio');
       console.log('media selected audio');
       if (!isAudioPlaying) {
@@ -211,20 +217,23 @@ const MediaPlayer = ({
           audioPlayer.current.play();
         }
       }
-    }
-    if (currentModuleIndex === 1 || currentModuleIndex === 2) {
+    } else if (currentModuleIndex === 1) {
+      setMediaSelected('audio');
+      setCurrentModuleIndex(0);
+    } else if (currentModuleIndex === 2) {
       // if current module index is one after video player
+      setMediaSelected('video');
       if (audioPlayer.current) {
         audioPlayer.current?.pause();
         audioPlayer.current.currentTime = 0;
       }
-    }
-
-    if (currentModuleIndex !== 0) {
+      setCurrentModuleIndex(1);
+    } else {
       setCurrentModuleIndex(currentModuleIndex - 1);
-      console.log('prev', currentModuleIndex);
     }
     setIsAudioPlaying(true);
+
+    console.log('prev', currentModuleIndex);
   };
 
   const handleEnded = (): void => {
