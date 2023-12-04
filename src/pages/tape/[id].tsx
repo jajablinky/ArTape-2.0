@@ -34,6 +34,7 @@ const Tape = () => {
   });
   const [currentModuleIndex, setCurrentModuleIndex] = useState<number>(-1);
   const [mediaSelected, setMediaSelected] = useState<string>('');
+  const [isVideoPlaying, setIsVideoPlaying] = useState<boolean>(false);
 
   const [volume, setVolume] = useState<number>(1);
   const [mediaProgress, setMediaProgress] = useState<number>(0);
@@ -220,6 +221,8 @@ const Tape = () => {
                         }}
                       >
                         <VideoPlayer
+                          isVideoPlaying={isVideoPlaying}
+                          setIsVideoPlaying={setIsVideoPlaying}
                           videoFiles={videoFiles}
                           color={color}
                           volume={volume}
@@ -265,6 +268,8 @@ const Tape = () => {
               </div>
               <div className={styles.AudioPlayer}>
                 <MediaPlayer
+                  setIsVideoPlaying={setIsVideoPlaying}
+                  isVideoPlaying={isVideoPlaying}
                   audioFiles={audioFiles}
                   color={color}
                   volume={volume}

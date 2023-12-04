@@ -15,6 +15,8 @@ interface VideoPlayerProps {
   setCurrentModuleIndex: any;
   mediaSelected: string;
   setMediaSelected: any;
+  isVideoPlaying: boolean;
+  setIsVideoPlaying: any;
 }
 
 const VideoPlayer = ({
@@ -28,11 +30,12 @@ const VideoPlayer = ({
   setCurrentModuleIndex,
   mediaSelected,
   setMediaSelected,
+  isVideoPlaying,
+  setIsVideoPlaying,
 }: VideoPlayerProps) => {
   // insert react components
   const videoPlayer = useRef<HTMLVideoElement | null>(null);
   const [currentVideoIndex, setCurrentVideoIndex] = useState<number>(0);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [videoDuration, setVideoDuration] = useState<number>(0);
   const [currentProgress, setCurrentProgress] = useState<number>(0);
   const [click, setClick] = useState(0);
@@ -45,18 +48,18 @@ const VideoPlayer = ({
       return;
     }
 
-    if (isPlaying) {
+    if (isVideoPlaying) {
       //seekTime = audioPlayer.current.currentTime;
       console.log('pause');
       videoPlayer.current?.pause();
       // may need to implement pause check (see audio player)
-      setIsPlaying(false);
+      setIsVideoPlaying(false);
     }
-    if (!isPlaying && videoPlayer.current.readyState >= 2) {
+    if (!isVideoPlaying && videoPlayer.current.readyState >= 2) {
       //audioPlayer.current.currentTime = seekTime;
       console.log('play');
       videoPlayer.current?.play();
-      setIsPlaying(true);
+      setIsVideoPlaying(true);
     }
   };
 
@@ -121,7 +124,7 @@ const VideoPlayer = ({
   const handleNextMedia = (): void => {
     console.log('current video index:', currentVideoIndex);
     setCurrentModuleIndex(currentModuleIndex + 1);
-    setIsPlaying(true);
+    setIsVideoPlaying(true);
   };
 
   const handleEnded = (): void => {

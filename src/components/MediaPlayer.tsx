@@ -25,6 +25,8 @@ interface MediaPlayerProps {
   setCurrentModuleIndex: any;
   mediaSelected: string;
   setMediaSelected: any;
+  setIsVideoPlaying: any;
+  isVideoPlaying: boolean;
 }
 
 const MediaPlayer = ({
@@ -38,8 +40,11 @@ const MediaPlayer = ({
   setCurrentModuleIndex,
   mediaSelected,
   setMediaSelected,
+  isVideoPlaying,
+  setIsVideoPlaying,
 }: MediaPlayerProps) => {
   const [audioFetched, setAudioFetched] = useState<boolean>(true);
+  const [isMediaPlaying, setIsMediaPlaying] = useState<boolean>(true);
   const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
   const [currentSong, setCurrentSong] = useState<AudioFileWithFiles | null>(
     null
@@ -58,38 +63,45 @@ const MediaPlayer = ({
   };
 
   useEffect(() => {
-    if (!audioPlayer.current) {
-      audioPlayer.current = new Audio();
-    }
-
-    setCurrentSong(audioFiles[currentModuleIndex]);
-
-    if (
-      audioPlayer.current &&
-      currentModuleIndex !== -1 &&
-      audioFiles &&
-      currentModuleIndex !== 1
-    ) {
-      const currentAudioUrl = audioFiles[currentModuleIndex].audioUrl;
-      if (currentAudioUrl) {
-        audioPlayer.current.removeEventListener('ended', handleEnded);
-        audioPlayer.current.src = currentAudioUrl;
-        audioPlayer.current.addEventListener('ended', handleEnded);
+    // This useEffect is for audio only
+    if (mediaSelected === 'audio') {
+      if (!audioPlayer.current) {
+        audioPlayer.current = new Audio();
       }
 
-      if (currentModuleIndex !== 1) setIsAudioPlaying(true);
-      else setIsAudioPlaying(false);
+      setCurrentSong(audioFiles[currentModuleIndex]);
 
-      if (isAudioPlaying) audioPlayer.current.play();
-    }
+      if (
+        audioPlayer.current &&
+        currentModuleIndex !== -1 &&
+        audioFiles &&
+        currentModuleIndex !== 1
+      ) {
+        const currentAudioUrl = audioFiles[currentModuleIndex].audioUrl;
+        if (currentAudioUrl) {
+          audioPlayer.current.removeEventListener('ended', handleEnded);
+          audioPlayer.current.src = currentAudioUrl;
+          audioPlayer.current.addEventListener('ended', handleEnded);
+        }
 
-    // make a case for mediaSelected being video to make sure audio isn't playing
+        if (currentModuleIndex !== 1) setIsAudioPlaying(true);
+        else setIsAudioPlaying(false);
 
-    return () => {
-      if (audioPlayer.current) {
-        audioPlayer.current.removeEventListener('ended', handleEnded);
+        if (isAudioPlaying) audioPlayer.current.play();
       }
-    };
+
+      // make a case for mediaSelected being video to make sure audio isn't playing
+
+      return () => {
+        if (audioPlayer.current) {
+          audioPlayer.current.removeEventListener('ended', handleEnded);
+        }
+      };
+    }
+    if (mediaSelected === 'video') {
+      setIsAudioPlaying(false);
+      handleAudioPauseResume();
+    }
   }, [currentModuleIndex, mediaSelected]);
 
   /* Media Player Logic */
@@ -103,7 +115,7 @@ const MediaPlayer = ({
   // note: this currently pauses media if mouse is held down anywhere on screen
   useEffect(() => {
     if (audioPlayer.current && mouseDown) {
-      handlePauseResume('pause');
+      handleAudioPauseResume('pause');
       audioPlayer.current.currentTime = mediaProgress;
     }
   }, [mediaProgress]);
@@ -129,7 +141,7 @@ const MediaPlayer = ({
     }
   };
 
-  const handlePauseResume = (input?: string): void => {
+  const handleAudioPauseResume = (input?: string): void => {
     if (!audioPlayer.current) {
       console.log('no audio player');
       return;
@@ -147,6 +159,17 @@ const MediaPlayer = ({
       console.log('play');
       audioPlayer.current?.play();
       setIsAudioPlaying(true);
+    }
+  };
+
+  const handlePauseResume = (input: string): void => {
+    if (mediaSelected === 'video') {
+      setIsVideoPlaying((prev: boolean) => !prev);
+      setIsMediaPlaying((prev: boolean) => !prev);
+    }
+    if (mediaSelected === 'audio') {
+      handleAudioPauseResume('pause');
+      setIsMediaPlaying((prev: boolean) => !prev);
     }
   };
 
@@ -184,7 +207,6 @@ const MediaPlayer = ({
     if (currentModuleIndex === 0) {
       if (audioPlayer.current) {
         audioPlayer.current.currentTime = 0;
-        audioPlayer.current.load();
         if (isAudioPlaying) {
           audioPlayer.current.play();
         }
@@ -202,6 +224,7 @@ const MediaPlayer = ({
       setCurrentModuleIndex(currentModuleIndex - 1);
       console.log('prev', currentModuleIndex);
     }
+    setIsAudioPlaying(true);
   };
 
   const handleEnded = (): void => {
@@ -242,20 +265,12 @@ const MediaPlayer = ({
             onProgress={handleBufferProgress}
           />
           <div className={styles.musicControls}>
-            {currentModuleIndex !== -1 ? (
-              <button onClick={() => handlePrevSong()}>
-                <PrevIcon
-                  height={18}
-                  width={21}
-                  color={'var(--artape-black)'}
-                />
-              </button>
-            ) : (
-              ''
-            )}
+            <button onClick={() => handlePrevSong()}>
+              <PrevIcon height={18} width={21} color={'var(--artape-black)'} />
+            </button>
 
-            {isAudioPlaying ? (
-              <button onClick={() => handlePauseResume()}>
+            {isMediaPlaying ? (
+              <button onClick={() => handlePauseResume('pause')}>
                 <PauseIcon
                   height={21}
                   width={21}
@@ -263,7 +278,7 @@ const MediaPlayer = ({
                 />
               </button>
             ) : (
-              <button onClick={() => handlePauseResume()}>
+              <button onClick={() => handlePauseResume('pause')}>
                 <PlayIcon
                   height={21}
                   width={21}
