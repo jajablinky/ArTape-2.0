@@ -189,13 +189,17 @@ const MediaPlayer = ({
     if (currentModuleIndex !== tapeLength) {
       console.log('setting index:', currentModuleIndex);
       setCurrentModuleIndex(currentModuleIndex + 1);
-    } else if (currentModuleIndex === tapeLength) {
+      console.log('index is now', currentModuleIndex);
+    }
+    else if (currentModuleIndex === tapeLength) {
       console.log('setting index:', currentModuleIndex);
       setCurrentModuleIndex(0);
+      console.log('index is now', currentModuleIndex);
     }
     if (currentModuleIndex === 0) {
       setMediaSelected('video');
       audioPlayer.current?.pause();
+      setIsAudioPlaying(false);
       console.log('media selected video');
     } else {
       setMediaSelected('audio');

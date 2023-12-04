@@ -125,10 +125,12 @@ const VideoPlayer = ({
     }
   };
 
+  // next media is currently always audio
   const handleNextMedia = (): void => {
     console.log('current video index:', currentVideoIndex);
+    setIsVideoPlaying(false);
     setCurrentModuleIndex(currentModuleIndex + 1);
-    setIsVideoPlaying(true);
+    setMediaSelected('audio');
   };
 
   const handleEnded = (): void => {
