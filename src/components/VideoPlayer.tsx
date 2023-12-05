@@ -99,22 +99,30 @@ const VideoPlayer = ({
   // }, [isVideoPlaying]);
 
   useEffect(() => {
-    if (mediaClickType === 'module') {
-      if (currentModuleIndex === 1) {
-        // play/pause conditions
-        if (isVideoPlaying) handleVideoPauseResume('pause');
-        else handleVideoPauseResume('play');
+    if (mediaSelected === 'video') {
+      console.log('selected video');
+      if (mediaClickType === 'module') {
+        console.log('module clicked');
+        if (currentModuleIndex === 1) {
+          // play/pause conditions
+          if (isVideoPlaying) handleVideoPauseResume('pause');
+          else handleVideoPauseResume('play');
+        }
+        else {
+          // cannot play
+          handleVideoPauseResume('pause');
+          if (videoPlayer.current) videoPlayer.current.currentTime = 0;
+        }
+        
       }
-      else {
-        // cannot play
-        handleVideoPauseResume('pause');
-        if (videoPlayer.current) videoPlayer.current.currentTime = 0;
+      else if (mediaClickType === 'player') {
+        if (isVideoPlaying) videoPlayer.current?.play();
+        else videoPlayer.current?.pause();
       }
-      
     }
-    else if (mediaClickType === 'player') {
-      if (isVideoPlaying) videoPlayer.current?.play();
-      else videoPlayer.current?.pause();
+    else if (mediaSelected === 'audio') {
+      setIsVideoPlaying(false);
+      handleVideoPauseResume('pause');
     }
     setMediaClickType('');
   }, [currentModuleIndex, mediaSelected, mediaClickType]);
