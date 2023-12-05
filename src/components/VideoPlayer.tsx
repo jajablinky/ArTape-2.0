@@ -99,8 +99,10 @@ const VideoPlayer = ({
   // }, [isVideoPlaying]);
 
   useEffect(() => {
+    // option 1: video selected
     if (mediaSelected === 'video') {
       console.log('selected video');
+      // option 1a: clicked on video module
       if (mediaClickType === 'module') {
         console.log('module clicked');
         if (currentModuleIndex === 1) {
@@ -115,14 +117,20 @@ const VideoPlayer = ({
         }
         
       }
+      // option 1b: clicked on play/pause button
       else if (mediaClickType === 'player') {
         if (isVideoPlaying) videoPlayer.current?.play();
         else videoPlayer.current?.pause();
       }
+      // option 1c: video navigated to with no marked click
+      // (i.e. - end of song, next/prev button)
+      // can't be "if mediaSelected is empty", since this would cause a loop
     }
+    // option 2: audio selected, stop video entirely
     else if (mediaSelected === 'audio') {
       setIsVideoPlaying(false);
       handleVideoPauseResume('pause');
+      if (videoPlayer.current) videoPlayer.current.currentTime = 0;
     }
     setMediaClickType('');
   }, [currentModuleIndex, mediaSelected, mediaClickType]);
