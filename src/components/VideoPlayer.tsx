@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import styles from '@/styles/Home.module.css';
 
 import { VideoFileWithFiles } from '@/types/TapeInfo';
+import { MediaClickType } from '@/pages/tape/[id]';
 
 interface VideoPlayerProps {
   color: string;
@@ -17,8 +18,9 @@ interface VideoPlayerProps {
   setMediaSelected: React.Dispatch<React.SetStateAction<string>>;
   isVideoPlaying: boolean;
   setIsVideoPlaying: React.Dispatch<React.SetStateAction<boolean>>;
-  mediaClickType: string;
-  setMediaClickType: React.Dispatch<React.SetStateAction<string>>;
+  mediaClickType: MediaClickType;
+  setMediaClickType: React.Dispatch<React.SetStateAction<MediaClickType>>;
+  setLastSelectedMedia: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const VideoPlayer = ({
@@ -36,13 +38,13 @@ const VideoPlayer = ({
   setIsVideoPlaying,
   mediaClickType,
   setMediaClickType,
+  setLastSelectedMedia,
 }: VideoPlayerProps) => {
   // insert react components
   const videoPlayer = useRef<HTMLVideoElement | null>(null);
   const [currentVideoIndex, setCurrentVideoIndex] = useState<number>(0);
   const [videoDuration, setVideoDuration] = useState<number>(0);
   const [currentProgress, setCurrentProgress] = useState<number>(0);
-  const [click, setClick] = useState(0);
 
   const [bufferProgress, setBufferProgress] = useState<number>(0);
 
@@ -103,7 +105,7 @@ const VideoPlayer = ({
     if (mediaSelected === 'video') {
       console.log('selected video');
       // option 1a: clicked on video module
-      if (mediaClickType === 'module') {
+      if (mediaClickType.clickType === 'videoModule') {
         console.log('module clicked');
         if (currentModuleIndex === 1) {
           // play/pause conditions
@@ -118,13 +120,14 @@ const VideoPlayer = ({
         
       }
       // option 1b: clicked on play/pause button
-      else if (mediaClickType === 'player') {
+      else if (mediaClickType.button === 'play' && mediaClickType.clickType === 'player') {
         if (isVideoPlaying) videoPlayer.current?.play();
         else videoPlayer.current?.pause();
       }
-      // option 1c: video navigated to with no marked click
-      // (i.e. - end of song, next/prev button)
-      // can't be "if mediaSelected is empty", since this would cause a loop
+      // option 1c: video navigated to from another song
+      else if (mediaClickType.button === 'next' || mediaClickType.button === 'prev') {
+        if (currentModuleIndex === 1) handleVideoPauseResume('play');
+      }
     }
     // option 2: audio selected, stop video entirely
     else if (mediaSelected === 'audio') {
@@ -132,7 +135,8 @@ const VideoPlayer = ({
       handleVideoPauseResume('pause');
       if (videoPlayer.current) videoPlayer.current.currentTime = 0;
     }
-    setMediaClickType('');
+
+    if (mediaClickType.button !== 'none' || mediaClickType.clickType !== 'none') setMediaClickType({button: 'none', clickType: 'none'});
   }, [currentModuleIndex, mediaSelected, mediaClickType]);
 
   // volume change
@@ -187,9 +191,9 @@ const VideoPlayer = ({
             ref={videoPlayer}
             onClick={() => {
               setCurrentModuleIndex(1);
+              setLastSelectedMedia(1);
               setMediaSelected('video');
-              setMediaClickType('module');
-              setClick(click + 1);
+              setMediaClickType({button: 'module', clickType: 'videoModule'});
             }}
             preload="metadata"
             onDurationChange={(e) => setVideoDuration(e.currentTarget.duration)}

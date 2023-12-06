@@ -23,6 +23,13 @@ import processItem from '@/components/Helper Functions/processItem';
 import getTapeInfoJSON from '@/components/Helper Functions/getTapeInfoJSON';
 import { Akord } from '@akord/akord-js';
 
+export type MediaClickType = {
+  button: 'init' | 'play' | 'prev' | 'next' | 'module' | 'none';
+  clickType: 'none' | 'player' | 'audioModule' | 'videoModule';
+};
+
+const initialClickState: MediaClickType = { button: 'init', clickType: 'none' }
+
 const Tape = () => {
   const [sortedImageFiles, setSortedImagesFiles] = useState<
     ImageFileWithUrls[]
@@ -34,8 +41,10 @@ const Tape = () => {
   });
   const [currentModuleIndex, setCurrentModuleIndex] = useState<number>(-1);
   const [mediaSelected, setMediaSelected] = useState<string>('');
-  const [mediaClickType, setMediaClickType] = useState<string>('');
+  const [mediaClickType, setMediaClickType] = useState<MediaClickType>(initialClickState);
   const [isVideoPlaying, setIsVideoPlaying] = useState<boolean>(false);
+  const [lastSelectedMedia, setLastSelectedMedia] = useState<number>(-1);
+
 
   const [volume, setVolume] = useState<number>(1);
   const [mediaProgress, setMediaProgress] = useState<number>(0);
@@ -207,7 +216,9 @@ const Tape = () => {
                         className={styles.profileModule}
                         onClick={() => {
                           setCurrentModuleIndex(0);
+                          setLastSelectedMedia(0);
                           setMediaSelected('audio');
+                          setMediaClickType({button: 'module', clickType: 'audioModule'});
                         }}
                       >
                         {renderFirstImage(1)}
@@ -236,6 +247,7 @@ const Tape = () => {
                           setMediaSelected={setMediaSelected}
                           mediaClickType={mediaClickType}
                           setMediaClickType={setMediaClickType}
+                          setLastSelectedMedia={setLastSelectedMedia}
                         />
                       </div>
 
@@ -247,7 +259,9 @@ const Tape = () => {
                                 className={styles.profileModule}
                                 onClick={() => {
                                   setCurrentModuleIndex(image.moduleId - 1);
+                                  setLastSelectedMedia(image.moduleId - 1);
                                   setMediaSelected('audio');
+                                  setMediaClickType({button: 'module', clickType: 'audioModule'});
                                 }}
                                 key={image.moduleId}
                                 style={{ aspectRatio: 1 / 1 }}
@@ -285,6 +299,7 @@ const Tape = () => {
                   setMediaSelected={setMediaSelected}
                   mediaClickType={mediaClickType}
                   setMediaClickType={setMediaClickType}
+                  lastSelectedMedia={lastSelectedMedia}
                 />
               </div>
             </div>

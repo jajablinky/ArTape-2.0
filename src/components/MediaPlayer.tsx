@@ -1,18 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
-import styles from '@/styles/Home.module.css';
+import React, { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import styles from "@/styles/Home.module.css";
 
-import Loader from './Loader';
+import Loader from "./Loader";
 
-import PrevIcon from './Images/UI/PrevIcon';
-import NextIcon from './Images/UI/NextIcon';
-import PlayIcon from './Images/UI/PlayIcon';
-import PauseIcon from './Images/UI/PauseIcon';
-import { AudioFileWithFiles } from '@/types/TapeInfo';
+import PrevIcon from "./Images/UI/PrevIcon";
+import NextIcon from "./Images/UI/NextIcon";
+import PlayIcon from "./Images/UI/PlayIcon";
+import PauseIcon from "./Images/UI/PauseIcon";
+import { AudioFileWithFiles } from "@/types/TapeInfo";
+import { MediaClickType } from "@/pages/tape/[id]";
 
-import Image from 'next/image';
-import VolumeSlider from './VolumeSlider';
-import MediaProgressBar from './MediaProgressBar';
+import Image from "next/image";
+import VolumeSlider from "./VolumeSlider";
+import MediaProgressBar from "./MediaProgressBar";
 
 interface MediaPlayerProps {
   color: string;
@@ -27,8 +28,9 @@ interface MediaPlayerProps {
   setMediaSelected: React.Dispatch<React.SetStateAction<string>>;
   setIsVideoPlaying: React.Dispatch<React.SetStateAction<boolean>>;
   isVideoPlaying: boolean;
-  mediaClickType: string;
-  setMediaClickType: React.Dispatch<React.SetStateAction<string>>;
+  mediaClickType: MediaClickType;
+  setMediaClickType: React.Dispatch<React.SetStateAction<MediaClickType>>;
+  lastSelectedMedia: number;
 }
 
 const MediaPlayer = ({
@@ -46,16 +48,14 @@ const MediaPlayer = ({
   setIsVideoPlaying,
   mediaClickType,
   setMediaClickType,
+  lastSelectedMedia,
 }: MediaPlayerProps) => {
   const [audioFetched, setAudioFetched] = useState<boolean>(true);
 
   // need to raise this to [id] file
   const [isMediaPlaying, setIsMediaPlaying] = useState<boolean>(false);
-  
+
   const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
-  const [currentSong, setCurrentSong] = useState<AudioFileWithFiles | null>(
-    null
-  );
   const audioPlayer = useRef<HTMLAudioElement | null>(null);
   const [songDuration, setSongDuration] = useState<number>(0);
   const [bufferProgress, setBufferProgress] = useState<number>(0);
@@ -75,32 +75,36 @@ const MediaPlayer = ({
       audioPlayer.current = new Audio();
     }
 
-    if (mediaSelected === 'audio') {
-      console.log('selected audio');
-      setCurrentSong(audioFiles[currentModuleIndex]);
+    console.log('last vs current module');
+    console.log('last =', lastSelectedMedia);
+    console.log('current =', currentModuleIndex);
+    // load music
+    if (
+      (mediaSelected === "audio" &&
+        mediaClickType.clickType === "audioModule" && lastSelectedMedia === currentModuleIndex) ||
+      (mediaClickType.clickType === "player" &&
+        (mediaClickType.button === "prev" || mediaClickType.button === "next"))
+    ) {
+      console.log("selected audio");
+      //setCurrentSong(currentModuleIndex);
 
-      if (
-        audioPlayer.current &&
-        currentModuleIndex !== -1 &&
-        audioFiles
-      ) {
-        console.log('audio player/files exist, module index is not -1');
+      if (audioPlayer.current && currentModuleIndex !== -1 && audioFiles) {
+        console.log("audio player/files exist, module index is not -1");
         const currentAudioUrl = audioFiles[currentModuleIndex].audioUrl;
         if (currentAudioUrl) {
-          console.log('audio url retrieved');
-          audioPlayer.current.removeEventListener('ended', handleEnded);
+          console.log("audio url retrieved");
+          audioPlayer.current.removeEventListener("ended", handleEnded);
           audioPlayer.current.src = currentAudioUrl;
-          audioPlayer.current.addEventListener('ended', handleEnded);
+          audioPlayer.current.addEventListener("ended", handleEnded);
         }
 
         if (currentModuleIndex !== 1) {
-          console.log('index selected is for audio');
+          console.log("index selected is for audio");
           setIsAudioPlaying(true);
           setIsMediaPlaying(true);
           audioPlayer.current.play();
-        }
-        else {
-          console.log('index selected is for video')
+        } else {
+          console.log("index selected is for video");
           setIsAudioPlaying(false);
           setIsMediaPlaying(true);
           audioPlayer.current.pause();
@@ -111,15 +115,16 @@ const MediaPlayer = ({
 
       return () => {
         if (audioPlayer.current) {
-          audioPlayer.current.removeEventListener('ended', handleEnded);
+          audioPlayer.current.removeEventListener("ended", handleEnded);
         }
       };
-    }
-    else if (mediaSelected === 'video') {
+    } else if (mediaSelected === "video") {
       setIsAudioPlaying(false);
-      handleAudioPauseResume('pause');
+      handleAudioPauseResume("pause");
     }
-  }, [currentModuleIndex, mediaSelected]);
+    if (mediaClickType.button !== "none" || mediaClickType.clickType !== "none")
+      setMediaClickType({ button: "none", clickType: "none" });
+  }, [currentModuleIndex, mediaSelected, mediaClickType]);
 
   /* Media Player Logic */
 
@@ -169,81 +174,75 @@ const MediaPlayer = ({
 
   const handleAudioPauseResume = (input?: string): void => {
     if (!audioPlayer.current) {
-      console.log('no audio player');
+      console.log("no audio player");
       return;
     }
-    if (isAudioPlaying || input === 'pause' || mediaSelected !== 'audio') {
+    if (isAudioPlaying || input === "pause" || mediaSelected !== "audio") {
       //seekTime = audioPlayer.current.currentTime;
       audioPlayer.current?.pause();
       setIsAudioPlaying(false);
     } else if (
       (!isAudioPlaying && audioPlayer.current.readyState >= 2) ||
-      input === 'play'
+      input === "play"
     ) {
       //audioPlayer.current.currentTime = seekTime;
-      console.log('play');
+      console.log("audio play");
       audioPlayer.current?.play();
       setIsAudioPlaying(true);
     }
   };
 
   const handlePauseResume = () => {
-    if (mediaSelected === 'video') {
+    if (mediaSelected === "video") {
       if (isVideoPlaying) {
         setIsVideoPlaying(false);
         setIsMediaPlaying(false);
-      }
-      else {
+      } else {
         setIsVideoPlaying(true);
         setIsMediaPlaying(true);
-      }      
-    }
-    else if (mediaSelected === 'audio') {
-      if (isAudioPlaying) {
-        handleAudioPauseResume('pause');
-        setIsMediaPlaying(false);
       }
-      else {
-        handleAudioPauseResume('play');
+    } else if (mediaSelected === "audio") {
+      if (isAudioPlaying) {
+        handleAudioPauseResume("pause");
+        setIsMediaPlaying(false);
+      } else {
+        handleAudioPauseResume("play");
         setIsMediaPlaying(true);
       }
     }
-    setMediaClickType('player');
+    setMediaClickType({ button: "play", clickType: "player" });
   };
 
   // Create handle next Media
 
-  const handleNextSong = (): void => {
+  const handleNextMedia = (): void => {
     const tapeLength = audioFiles.length - 1;
 
-    if (currentModuleIndex !== tapeLength) {
-      console.log('setting index:', currentModuleIndex);
-      setCurrentModuleIndex(currentModuleIndex + 1);
-      console.log('index is now', currentModuleIndex);
-    }
-    else if (currentModuleIndex === tapeLength) {
-      console.log('setting index:', currentModuleIndex);
-      setCurrentModuleIndex(0);
-      console.log('index is now', currentModuleIndex);
-    }
     if (currentModuleIndex === 0) {
-      setMediaSelected('video');
+      setMediaSelected("video");
       audioPlayer.current?.pause();
       setIsAudioPlaying(false);
-      console.log('media selected video');
+      console.log("media selected video");
     } else {
-      setMediaSelected('audio');
-      console.log('media selected audio');
-      if (!isAudioPlaying) {
-        setIsAudioPlaying(true);
-      }
+      setMediaSelected("audio");
+      console.log("media selected audio");
     }
-    setIsAudioPlaying(true);
+    if (currentModuleIndex !== tapeLength) {
+      console.log("setting index:", currentModuleIndex);
+      setCurrentModuleIndex(currentModuleIndex + 1);
+      console.log("index is now", currentModuleIndex);
+    } else if (currentModuleIndex === tapeLength) {
+      console.log("setting index:", currentModuleIndex);
+      setCurrentModuleIndex(0);
+      console.log("index is now", currentModuleIndex);
+    }
+    if (mediaSelected === "audio") setIsAudioPlaying(true);
+    setMediaClickType({ button: "next", clickType: "player" });
   };
 
   // Create handle prev media
 
-  const handlePrevSong = (): void => {
+  const handlePrevMedia = (): void => {
     if (currentModuleIndex === 0) {
       if (audioPlayer.current) {
         audioPlayer.current.currentTime = 0;
@@ -252,12 +251,12 @@ const MediaPlayer = ({
         }
       }
     } else if (currentModuleIndex === 1) {
-      setMediaSelected('audio');
+      setMediaSelected("audio");
       setCurrentModuleIndex(0);
       setIsAudioPlaying(true);
     } else if (currentModuleIndex === 2) {
       // if current module index is one after video player
-      setMediaSelected('video');
+      setMediaSelected("video");
       if (audioPlayer.current) {
         audioPlayer.current?.pause();
         audioPlayer.current.currentTime = 0;
@@ -269,12 +268,13 @@ const MediaPlayer = ({
       setIsAudioPlaying(true);
     }
 
-    console.log('prev', currentModuleIndex);
+    console.log("prev", currentModuleIndex);
+    setMediaClickType({ button: "prev", clickType: "player" });
   };
 
   const handleEnded = (): void => {
-    console.log('song ended');
-    handleNextSong();
+    console.log("song ended");
+    handleNextMedia();
   };
 
   return (
@@ -310,8 +310,8 @@ const MediaPlayer = ({
             onProgress={handleBufferProgress}
           />
           <div className={styles.musicControls}>
-            <button onClick={() => handlePrevSong()}>
-              <PrevIcon height={18} width={21} color={'var(--artape-black)'} />
+            <button onClick={() => handlePrevMedia()}>
+              <PrevIcon height={18} width={21} color={"var(--artape-black)"} />
             </button>
 
             {isMediaPlaying ? (
@@ -319,7 +319,7 @@ const MediaPlayer = ({
                 <PauseIcon
                   height={21}
                   width={21}
-                  color={'var(--artape-black)'}
+                  color={"var(--artape-black)"}
                 />
               </button>
             ) : (
@@ -327,15 +327,15 @@ const MediaPlayer = ({
                 <PlayIcon
                   height={21}
                   width={21}
-                  color={'var(--artape-black)'}
+                  color={"var(--artape-black)"}
                 />
               </button>
             )}
             <button
-              onClick={() => handleNextSong()}
-              style={{ color: 'var(--artape-black)' }}
+              onClick={() => handleNextMedia()}
+              style={{ color: "var(--artape-black)" }}
             >
-              <NextIcon height={18} width={21} color={'var(--artape-black)'} />
+              <NextIcon height={18} width={21} color={"var(--artape-black)"} />
             </button>
           </div>
           <div className={styles.progressBarWrapper}>
