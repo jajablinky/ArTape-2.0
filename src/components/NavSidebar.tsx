@@ -100,7 +100,7 @@ const NavSidebar = ({ setLoading, router }: NavSidebarProps) => {
                   <div
                     className={`${styles.module} ${styles.artape}`}
                     onClick={() => handleVaultSelection(i)}
-                    key={tape.tapeName}
+                    key={i}
                   >
                     <div className={styles.artapeName}>{tape.tapeName}</div>
                   </div>
