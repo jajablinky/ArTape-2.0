@@ -73,6 +73,20 @@ const MediaPlayer = ({
     setMouseDown(false);
   };
 
+  // get song name
+  const getCurrentMediaName = (): string => {
+    if (mediaSelected === 'audio') return audioFiles[currentModuleIndex].name;
+    else if (mediaSelected === 'video') return "placeholder text";
+    else return "-----";
+  };
+
+  // get artist name
+  const getArtistName = (): string => {
+    if (mediaSelected === 'audio') return audioFiles[currentModuleIndex].artistName;
+    else if (mediaSelected === 'video') return "artist name";
+    else return "-----";
+  };
+
   useEffect(() => {
     // This useEffect is for audio only
     if (!audioPlayer.current) {
@@ -327,8 +341,8 @@ const MediaPlayer = ({
             /> */}
           </div>
           <div className={styles.musicPlayerText}>
-            <p className={styles.songName}>Song Name</p>
-            <p className={styles.artistName}>Artist Name</p>
+            <p className={styles.songName}>{getCurrentMediaName()}</p>
+            <p className={styles.artistName}>{getArtistName()}</p>
           </div>
         </div>
         <div className={styles.musicPlayerMiddle}>
