@@ -26,8 +26,10 @@ interface MediaPlayerProps {
   setCurrentModuleIndex: React.Dispatch<React.SetStateAction<number>>;
   mediaSelected: string;
   setMediaSelected: React.Dispatch<React.SetStateAction<string>>;
-  setIsVideoPlaying: React.Dispatch<React.SetStateAction<boolean>>;
   isVideoPlaying: boolean;
+  setIsVideoPlaying: React.Dispatch<React.SetStateAction<boolean>>;
+  isMediaPlaying: boolean;
+  setIsMediaPlaying: React.Dispatch<React.SetStateAction<boolean>>;
   mediaClickType: MediaClickType;
   setMediaClickType: React.Dispatch<React.SetStateAction<MediaClickType>>;
   lastSelectedMedia: number;
@@ -46,6 +48,8 @@ const MediaPlayer = ({
   setMediaSelected,
   isVideoPlaying,
   setIsVideoPlaying,
+  isMediaPlaying,
+  setIsMediaPlaying,
   mediaClickType,
   setMediaClickType,
   lastSelectedMedia,
@@ -53,7 +57,7 @@ const MediaPlayer = ({
   const [audioFetched, setAudioFetched] = useState<boolean>(true);
 
   // need to raise this to [id] file
-  const [isMediaPlaying, setIsMediaPlaying] = useState<boolean>(false);
+  //const [isMediaPlaying, setIsMediaPlaying] = useState<boolean>(false);
 
   const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
   const audioPlayer = useRef<HTMLAudioElement | null>(null);
@@ -75,24 +79,19 @@ const MediaPlayer = ({
       audioPlayer.current = new Audio();
     }
 
-    console.log('last vs current module');
-    console.log('last =', lastSelectedMedia);
-    console.log('current =', currentModuleIndex);
     // load music
     if (
       (mediaSelected === "audio" &&
-        mediaClickType.clickType === "audioModule" && lastSelectedMedia === currentModuleIndex) ||
+        mediaClickType.clickType === "audioModule" &&
+        lastSelectedMedia !== currentModuleIndex) ||
       (mediaClickType.clickType === "player" &&
         (mediaClickType.button === "prev" || mediaClickType.button === "next"))
     ) {
-      console.log("selected audio");
       //setCurrentSong(currentModuleIndex);
 
       if (audioPlayer.current && currentModuleIndex !== -1 && audioFiles) {
-        console.log("audio player/files exist, module index is not -1");
         const currentAudioUrl = audioFiles[currentModuleIndex].audioUrl;
         if (currentAudioUrl) {
-          console.log("audio url retrieved");
           audioPlayer.current.removeEventListener("ended", handleEnded);
           audioPlayer.current.src = currentAudioUrl;
           audioPlayer.current.addEventListener("ended", handleEnded);
@@ -117,13 +116,47 @@ const MediaPlayer = ({
         if (audioPlayer.current) {
           audioPlayer.current.removeEventListener("ended", handleEnded);
         }
+        // if (
+        //   mediaClickType.button !== "none" ||
+        //   mediaClickType.clickType !== "none"
+        // )
+        //   setMediaClickType({ button: "none", clickType: "none" });
       };
-    } else if (mediaSelected === "video") {
+    } else if (
+      lastSelectedMedia === currentModuleIndex &&
+      mediaClickType.button !== "none" &&
+      mediaClickType.button !== "init" &&
+      mediaClickType.clickType === 'audioModule'
+    ) {
+      if (isAudioPlaying) {
+        audioPlayer.current?.pause();
+        setIsAudioPlaying(false);
+        setIsMediaPlaying(false);
+      } else {
+        audioPlayer.current?.play();
+        setIsAudioPlaying(true);
+        setIsMediaPlaying(true);
+      }
+      // return () => {
+      //   if (
+      //     mediaClickType.button !== "none" ||
+      //     mediaClickType.clickType !== "none"
+      //   )
+      //     setMediaClickType({ button: "none", clickType: "none" });
+      // };
+    } else if (mediaSelected === "video" && lastSelectedMedia === currentModuleIndex) {
       setIsAudioPlaying(false);
       handleAudioPauseResume("pause");
+      // return () => {
+      //   if (
+      //     mediaClickType.button !== "none" ||
+      //     mediaClickType.clickType !== "none"
+      //   )
+      //     setMediaClickType({ button: "none", clickType: "none" });
+      // };
     }
-    if (mediaClickType.button !== "none" || mediaClickType.clickType !== "none")
-      setMediaClickType({ button: "none", clickType: "none" });
+    // console.log('end info from MediaPlayer:');
+    // console.log('current module:', currentModuleIndex, ', mediaSelected:', mediaSelected, ', clickType:', mediaClickType);
   }, [currentModuleIndex, mediaSelected, mediaClickType]);
 
   /* Media Player Logic */
@@ -195,6 +228,7 @@ const MediaPlayer = ({
   const handlePauseResume = () => {
     if (mediaSelected === "video") {
       if (isVideoPlaying) {
+        console.log('pausing video');
         setIsVideoPlaying(false);
         setIsMediaPlaying(false);
       } else {

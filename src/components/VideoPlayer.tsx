@@ -1,9 +1,10 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import styles from '@/styles/Home.module.css';
+import React, { useRef, useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import styles from "@/styles/Home.module.css";
 
-import { VideoFileWithFiles } from '@/types/TapeInfo';
-import { MediaClickType } from '@/pages/tape/[id]';
+import { VideoFileWithFiles } from "@/types/TapeInfo";
+import { MediaClickType } from "@/pages/tape/[id]";
+import { handleSetModuleAndLastSelected } from "./Helper Functions/handleSetModuleAndLastSelected";
 
 interface VideoPlayerProps {
   color: string;
@@ -18,6 +19,8 @@ interface VideoPlayerProps {
   setMediaSelected: React.Dispatch<React.SetStateAction<string>>;
   isVideoPlaying: boolean;
   setIsVideoPlaying: React.Dispatch<React.SetStateAction<boolean>>;
+  isMediaPlaying: boolean;
+  setIsMediaPlaying: React.Dispatch<React.SetStateAction<boolean>>;
   mediaClickType: MediaClickType;
   setMediaClickType: React.Dispatch<React.SetStateAction<MediaClickType>>;
   setLastSelectedMedia: React.Dispatch<React.SetStateAction<number>>;
@@ -36,6 +39,8 @@ const VideoPlayer = ({
   setMediaSelected,
   isVideoPlaying,
   setIsVideoPlaying,
+  isMediaPlaying,
+  setIsMediaPlaying,
   mediaClickType,
   setMediaClickType,
   setLastSelectedMedia,
@@ -50,23 +55,26 @@ const VideoPlayer = ({
 
   const handleVideoPauseResume = (input?: string): void => {
     if (!videoPlayer.current) {
-      console.log('no video player');
+      console.log("no video player");
       return;
     }
 
-    if (isVideoPlaying || input === 'pause') {
+    if (isVideoPlaying || input === "pause") {
       //seekTime = audioPlayer.current.currentTime;
-      console.log('pause');
+      console.log("pause");
       videoPlayer.current?.pause();
       // may need to implement pause check (see audio player)
       setIsVideoPlaying(false);
-    }
-
-    else if ((!isVideoPlaying && videoPlayer.current.readyState >= 2) || input === 'play') {
+      setIsMediaPlaying(false);
+    } else if (
+      (!isVideoPlaying && videoPlayer.current.readyState >= 2) ||
+      input === "play"
+    ) {
       //audioPlayer.current.currentTime = seekTime;
-      console.log('play');
+      console.log("play");
       videoPlayer.current?.play();
       setIsVideoPlaying(true);
+      setIsMediaPlaying(true);
     }
   };
 
@@ -80,15 +88,15 @@ const VideoPlayer = ({
       const currentVideoUrl = videoFiles[0].videoUrl;
       if (currentVideoUrl) {
         console.log(videoFiles[0].fileName, "'s duration:", videoDuration);
-        videoPlayer.current.removeEventListener('ended', handleEnded);
+        videoPlayer.current.removeEventListener("ended", handleEnded);
         videoPlayer.current.src = currentVideoUrl;
-        videoPlayer.current.addEventListener('ended', handleEnded);
+        videoPlayer.current.addEventListener("ended", handleEnded);
       }
     }
 
     return () => {
       if (videoPlayer.current) {
-        videoPlayer.current.removeEventListener('ended', handleEnded);
+        videoPlayer.current.removeEventListener("ended", handleEnded);
       }
     };
   }, []);
@@ -102,41 +110,54 @@ const VideoPlayer = ({
 
   useEffect(() => {
     // option 1: video selected
-    if (mediaSelected === 'video') {
-      console.log('selected video');
+    if (mediaSelected === "video" && mediaClickType.clickType !== 'none') {
+      console.log("selected video");
       // option 1a: clicked on video module
-      if (mediaClickType.clickType === 'videoModule') {
-        console.log('module clicked');
+      if (mediaClickType.clickType === "videoModule") {
+        console.log("module clicked");
         if (currentModuleIndex === 1) {
           // play/pause conditions
-          if (isVideoPlaying) handleVideoPauseResume('pause');
-          else handleVideoPauseResume('play');
-        }
-        else {
+          if (isVideoPlaying) handleVideoPauseResume("pause");
+          else handleVideoPauseResume("play");
+        } else {
           // cannot play
-          handleVideoPauseResume('pause');
+          handleVideoPauseResume("pause");
           if (videoPlayer.current) videoPlayer.current.currentTime = 0;
         }
-        
       }
       // option 1b: clicked on play/pause button
-      else if (mediaClickType.button === 'play' && mediaClickType.clickType === 'player') {
+      else if (
+        mediaClickType.button === "play" &&
+        mediaClickType.clickType === "player"
+      ) {
         if (isVideoPlaying) videoPlayer.current?.play();
         else videoPlayer.current?.pause();
       }
       // option 1c: video navigated to from another song
-      else if (mediaClickType.button === 'next' || mediaClickType.button === 'prev') {
-        if (currentModuleIndex === 1) handleVideoPauseResume('play');
+      else if (
+        mediaClickType.button === "next" ||
+        mediaClickType.button === "prev"
+      ) {
+        if (currentModuleIndex === 1) handleVideoPauseResume("play");
       }
     }
     // option 2: audio selected, stop video entirely
-    else if (mediaSelected === 'audio') {
+    else if (mediaSelected === "audio") {
       setIsVideoPlaying(false);
-      handleVideoPauseResume('pause');
+      handleVideoPauseResume("pause");
       if (videoPlayer.current) videoPlayer.current.currentTime = 0;
     }
 
-    if (mediaClickType.button !== 'none' || mediaClickType.clickType !== 'none') setMediaClickType({button: 'none', clickType: 'none'});
+    if (
+      (mediaClickType.clickType === "player" ||
+      mediaClickType.clickType === "videoModule") &&
+      mediaClickType.button !== 'none' &&
+      mediaClickType.button !== 'init'
+    )
+      return () => {setMediaClickType({ button: "none", clickType: "none" });};
+
+    console.log('end info from VideoPlayer:');
+    console.log('current module:', currentModuleIndex, ', mediaSelected:', mediaSelected, ', clickType:', mediaClickType);
   }, [currentModuleIndex, mediaSelected, mediaClickType]);
 
   // volume change
@@ -168,14 +189,14 @@ const VideoPlayer = ({
 
   // next media is currently always audio
   const handleNextMedia = (): void => {
-    console.log('current video index:', currentVideoIndex);
+    console.log("current video index:", currentVideoIndex);
     setIsVideoPlaying(false);
     setCurrentModuleIndex(currentModuleIndex + 1);
-    setMediaSelected('audio');
+    setMediaSelected("audio");
   };
 
   const handleEnded = (): void => {
-    console.log('video ended');
+    console.log("video ended");
     handleNextMedia();
   };
 
@@ -190,10 +211,14 @@ const VideoPlayer = ({
             onEnded={handleEnded}
             ref={videoPlayer}
             onClick={() => {
-              setCurrentModuleIndex(1);
-              setLastSelectedMedia(1);
-              setMediaSelected('video');
-              setMediaClickType({button: 'module', clickType: 'videoModule'});
+              handleSetModuleAndLastSelected(
+                1,
+                setLastSelectedMedia,
+                currentModuleIndex,
+                setCurrentModuleIndex
+              );
+              setMediaSelected("video");
+              setMediaClickType({ button: "module", clickType: "videoModule" });
             }}
             preload="metadata"
             onDurationChange={(e) => setVideoDuration(e.currentTarget.duration)}
@@ -202,7 +227,7 @@ const VideoPlayer = ({
               handleBufferProgress(e);
             }}
             onProgress={handleBufferProgress}
-            style={{ width: '100%' }}
+            style={{ width: "100%" }}
           />
         </div>
       </motion.div>

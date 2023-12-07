@@ -21,14 +21,15 @@ import FadeInAndOut from '@/components/FadeInAndOut';
 import InfoIcon from '@/components/Images/UI/InfoIcon';
 import processItem from '@/components/Helper Functions/processItem';
 import getTapeInfoJSON from '@/components/Helper Functions/getTapeInfoJSON';
+import { handleSetModuleAndLastSelected } from '@/components/Helper Functions/handleSetModuleAndLastSelected';
 import { Akord } from '@akord/akord-js';
 
 export type MediaClickType = {
   button: 'init' | 'play' | 'prev' | 'next' | 'module' | 'none';
-  clickType: 'none' | 'player' | 'audioModule' | 'videoModule';
+  clickType: 'init' | 'none' | 'player' | 'audioModule' | 'videoModule';
 };
 
-const initialClickState: MediaClickType = { button: 'init', clickType: 'none' }
+const initialClickState: MediaClickType = { button: 'init', clickType: 'init' }
 
 const Tape = () => {
   const [sortedImageFiles, setSortedImagesFiles] = useState<
@@ -43,6 +44,7 @@ const Tape = () => {
   const [mediaSelected, setMediaSelected] = useState<string>('');
   const [mediaClickType, setMediaClickType] = useState<MediaClickType>(initialClickState);
   const [isVideoPlaying, setIsVideoPlaying] = useState<boolean>(false);
+  const [isMediaPlaying, setIsMediaPlaying] = useState<boolean>(false);
   const [lastSelectedMedia, setLastSelectedMedia] = useState<number>(-1);
 
 
@@ -215,8 +217,7 @@ const Tape = () => {
                       <div
                         className={styles.profileModule}
                         onClick={() => {
-                          setCurrentModuleIndex(0);
-                          setLastSelectedMedia(0);
+                          handleSetModuleAndLastSelected(0, setLastSelectedMedia, currentModuleIndex, setCurrentModuleIndex);
                           setMediaSelected('audio');
                           setMediaClickType({button: 'module', clickType: 'audioModule'});
                         }}
@@ -248,6 +249,8 @@ const Tape = () => {
                           mediaClickType={mediaClickType}
                           setMediaClickType={setMediaClickType}
                           setLastSelectedMedia={setLastSelectedMedia}
+                          isMediaPlaying={isMediaPlaying}
+                          setIsMediaPlaying={setIsMediaPlaying}
                         />
                       </div>
 
@@ -258,8 +261,7 @@ const Tape = () => {
                               <div
                                 className={styles.profileModule}
                                 onClick={() => {
-                                  setCurrentModuleIndex(image.moduleId - 1);
-                                  setLastSelectedMedia(image.moduleId - 1);
+                                  handleSetModuleAndLastSelected(image.moduleId - 1, setLastSelectedMedia, currentModuleIndex, setCurrentModuleIndex);
                                   setMediaSelected('audio');
                                   setMediaClickType({button: 'module', clickType: 'audioModule'});
                                 }}
@@ -300,6 +302,8 @@ const Tape = () => {
                   mediaClickType={mediaClickType}
                   setMediaClickType={setMediaClickType}
                   lastSelectedMedia={lastSelectedMedia}
+                  isMediaPlaying={isMediaPlaying}
+                  setIsMediaPlaying={setIsMediaPlaying}
                 />
               </div>
             </div>
