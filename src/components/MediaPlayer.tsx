@@ -8,7 +8,7 @@ import PrevIcon from "./Images/UI/PrevIcon";
 import NextIcon from "./Images/UI/NextIcon";
 import PlayIcon from "./Images/UI/PlayIcon";
 import PauseIcon from "./Images/UI/PauseIcon";
-import { AudioFileWithFiles } from "@/types/TapeInfo";
+import { AudioFileWithFiles, VideoFileWithFiles } from "@/types/TapeInfo";
 import { MediaClickType } from "@/pages/tape/[id]";
 
 import Image from "next/image";
@@ -18,6 +18,7 @@ import MediaProgressBar from "./MediaProgressBar";
 interface MediaPlayerProps {
   color: string;
   audioFiles: AudioFileWithFiles[];
+  videoFiles: VideoFileWithFiles[];
   volume: number;
   setVolume: React.Dispatch<React.SetStateAction<number>>;
   mediaProgress: number;
@@ -38,6 +39,7 @@ interface MediaPlayerProps {
 const MediaPlayer = ({
   color,
   audioFiles,
+  videoFiles,
   volume,
   setVolume,
   mediaProgress,
@@ -76,14 +78,14 @@ const MediaPlayer = ({
   // get song name
   const getCurrentMediaName = (): string => {
     if (mediaSelected === 'audio') return audioFiles[currentModuleIndex].name;
-    else if (mediaSelected === 'video') return "placeholder text";
+    else if (mediaSelected === 'video') return videoFiles[0].name;
     else return "-----";
   };
 
   // get artist name
   const getArtistName = (): string => {
     if (mediaSelected === 'audio') return audioFiles[currentModuleIndex].artistName;
-    else if (mediaSelected === 'video') return "artist name";
+    else if (mediaSelected === 'video') return videoFiles[0].artistName;
     else return "-----";
   };
 
