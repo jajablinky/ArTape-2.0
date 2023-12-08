@@ -1,7 +1,17 @@
 import React from 'react';
 import styles from '@/styles/Home.module.css';
 
-const MediaProgressBar = ({mediaProgress, setMediaProgress, songDuration}) => {
+interface MediaProgressBarProps {
+	mediaProgress: number;
+	setMediaProgress: React.Dispatch<React.SetStateAction<number>>;
+	songDuration: number;
+}
+
+const MediaProgressBar = ({
+	mediaProgress, 
+	setMediaProgress, 
+	songDuration,
+}: MediaProgressBarProps) => {
 	const getMediaProgress = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		const newMediaProgress = parseFloat(e.target.value);
 		console.log("current media progress:", mediaProgress);
