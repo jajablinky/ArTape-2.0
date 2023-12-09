@@ -22,6 +22,8 @@ interface MediaPlayerProps {
   setVolume: React.Dispatch<React.SetStateAction<number>>;
   mediaProgress: number;
   setMediaProgress: React.Dispatch<React.SetStateAction<number>>;
+  storedMediaProgress: number;
+  setStoredMediaProgress: React.Dispatch<React.SetStateAction<number>>;
   currentModuleIndex: number;
   setCurrentModuleIndex: React.Dispatch<React.SetStateAction<number>>;
   mediaSelected: string;
@@ -42,6 +44,8 @@ const MediaPlayer = ({
   setVolume,
   mediaProgress,
   setMediaProgress,
+  storedMediaProgress,
+  setStoredMediaProgress,
   currentModuleIndex,
   setCurrentModuleIndex,
   mediaSelected,
@@ -75,6 +79,7 @@ const MediaPlayer = ({
 
   useEffect(() => {
     // This useEffect is for audio only
+    console.log('sample text');
     if (!audioPlayer.current) {
       audioPlayer.current = new Audio();
     }
@@ -219,14 +224,21 @@ const MediaPlayer = ({
       input === "play"
     ) {
       //audioPlayer.current.currentTime = seekTime;
-      console.log("audio play");
+      console.log("audioPauseResume play");
       audioPlayer.current?.play();
       setIsAudioPlaying(true);
     }
   };
 
-  const handlePauseResume = () => {
-    if (mediaSelected === "video") {
+  const handlePauseResume = (input?: string) => {
+    if (input === 'pause') {
+      console.log('pausing everything');
+      setIsAudioPlaying(false);
+      handleAudioPauseResume('pause');
+      setIsVideoPlaying(false);
+      setIsMediaPlaying(false);
+    }
+    else if (mediaSelected === "video") {
       if (isVideoPlaying) {
         console.log('pausing video');
         setIsVideoPlaying(false);
@@ -244,6 +256,8 @@ const MediaPlayer = ({
         setIsMediaPlaying(true);
       }
     }
+    console.log('mediaProgress:', mediaProgress);
+    console.log('storedMediaProgress:', storedMediaProgress);
     setMediaClickType({ button: "play", clickType: "player" });
   };
 
@@ -339,6 +353,7 @@ const MediaPlayer = ({
             onDurationChange={(e) => setSongDuration(e.currentTarget.duration)}
             onTimeUpdate={(e) => {
               setMediaProgress(e.currentTarget.currentTime);
+              setStoredMediaProgress(e.currentTarget.currentTime);
               handleBufferProgress(e);
             }}
             onProgress={handleBufferProgress}
@@ -377,7 +392,15 @@ const MediaPlayer = ({
             <MediaProgressBar
               mediaProgress={mediaProgress}
               setMediaProgress={setMediaProgress}
+              storedMediaProgress={storedMediaProgress}
               songDuration={songDuration}
+              isAudioPlaying={isAudioPlaying}
+              setIsAudioPlaying={setIsAudioPlaying}
+              isVideoPlaying={isVideoPlaying}
+              setIsVideoPlaying={setIsVideoPlaying}
+              isMediaPlaying={isMediaPlaying}
+              setIsMediaPlaying={setIsMediaPlaying}
+              handlePauseResume={handlePauseResume}
             />
             <p className={styles.progressTime}>2:45</p>
           </div>

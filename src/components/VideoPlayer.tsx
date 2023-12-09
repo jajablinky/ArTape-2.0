@@ -13,6 +13,8 @@ interface VideoPlayerProps {
   setVolume: React.Dispatch<React.SetStateAction<number>>;
   mediaProgress: number;
   setMediaProgress: React.Dispatch<React.SetStateAction<number>>;
+  storedMediaProgress: number;
+  setStoredMediaProgress: React.Dispatch<React.SetStateAction<number>>;
   currentModuleIndex: number;
   setCurrentModuleIndex: React.Dispatch<React.SetStateAction<number>>;
   mediaSelected: string;
@@ -33,6 +35,8 @@ const VideoPlayer = ({
   setVolume,
   mediaProgress,
   setMediaProgress,
+  storedMediaProgress,
+  setStoredMediaProgress,
   currentModuleIndex,
   setCurrentModuleIndex,
   mediaSelected,
@@ -61,11 +65,11 @@ const VideoPlayer = ({
 
     if (isVideoPlaying || input === "pause") {
       //seekTime = audioPlayer.current.currentTime;
-      console.log("pause");
+      console.log("videoPauseResume pause");
       videoPlayer.current?.pause();
       // may need to implement pause check (see audio player)
       setIsVideoPlaying(false);
-      setIsMediaPlaying(false);
+      if (mediaSelected !== 'audio') setIsMediaPlaying(false);
     } else if (
       (!isVideoPlaying && videoPlayer.current.readyState >= 2) ||
       input === "play"
@@ -224,6 +228,7 @@ const VideoPlayer = ({
             onDurationChange={(e) => setVideoDuration(e.currentTarget.duration)}
             onTimeUpdate={(e) => {
               setMediaProgress(e.currentTarget.currentTime);
+              setStoredMediaProgress(e.currentTarget.currentTime);
               handleBufferProgress(e);
             }}
             onProgress={handleBufferProgress}

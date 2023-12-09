@@ -50,6 +50,7 @@ const Tape = () => {
 
   const [volume, setVolume] = useState<number>(1);
   const [mediaProgress, setMediaProgress] = useState<number>(0);
+  const [storedMediaProgress, setStoredMediaProgress] = useState<number>(0);
 
   const router = useRouter();
 
@@ -242,6 +243,8 @@ const Tape = () => {
                           setVolume={setVolume}
                           mediaProgress={mediaProgress}
                           setMediaProgress={setMediaProgress}
+                          storedMediaProgress={storedMediaProgress}
+                          setStoredMediaProgress={setStoredMediaProgress}
                           currentModuleIndex={currentModuleIndex}
                           setCurrentModuleIndex={setCurrentModuleIndex}
                           mediaSelected={mediaSelected}
@@ -295,6 +298,8 @@ const Tape = () => {
                   setVolume={setVolume}
                   mediaProgress={mediaProgress}
                   setMediaProgress={setMediaProgress}
+                  storedMediaProgress={storedMediaProgress}
+                  setStoredMediaProgress={setStoredMediaProgress}
                   currentModuleIndex={currentModuleIndex}
                   setCurrentModuleIndex={setCurrentModuleIndex}
                   mediaSelected={mediaSelected}
