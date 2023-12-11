@@ -239,19 +239,22 @@ const MediaPlayer = ({
       setIsMediaPlaying(false);
     }
     else if (mediaSelected === "video") {
-      if (isVideoPlaying) {
+      if (isVideoPlaying && input !== 'play') {
         console.log('pausing video');
         setIsVideoPlaying(false);
         setIsMediaPlaying(false);
       } else {
+        console.log('resuming video');
         setIsVideoPlaying(true);
         setIsMediaPlaying(true);
       }
     } else if (mediaSelected === "audio") {
-      if (isAudioPlaying) {
+      if (isAudioPlaying && input !== 'play') {
+        console.log('pausing audio');
         handleAudioPauseResume("pause");
         setIsMediaPlaying(false);
       } else {
+        console.log('resuming audio');
         handleAudioPauseResume("play");
         setIsMediaPlaying(true);
       }

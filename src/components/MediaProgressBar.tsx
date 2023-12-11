@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import styles from '@/styles/Home.module.css';
 
 interface MediaProgressBarProps {
@@ -30,22 +30,35 @@ const MediaProgressBar = ({
 }: MediaProgressBarProps) => {
 	let wasPlaying: boolean | null = null;
 	const sliderRef = useRef(null);
+	const [newMediaProgress, setNewMediaProgress] = useState<number | null>(null);
 	
 	const handleMediaProgressChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		const sliderElement = document.getElementsByClassName(styles.slider);
 
 		if (sliderElement.length > 0) {
 			sliderElement[0].addEventListener("mousedown", (event) => {
-				console.log('mouseDown event');
+				console.log('wasPlaying precheck:', wasPlaying);
 				if (wasPlaying === null) {
 					wasPlaying = isMediaPlaying;
-					console.log('wasPlaying:', wasPlaying);
+					console.log('mouseDown wasPlaying:', wasPlaying);
 					handlePauseResume('pause');
 				}
 
 				// pt 2
-				const newMediaProgress = e.target.value;
-				console.log('newMediaProgress:', newMediaProgress);
+				setNewMediaProgress(parseFloat(e.target.value));
+				console.log('mouseDown newMediaProgress:', newMediaProgress);
+			});
+			sliderElement[0].addEventListener("mouseup", (event) => {
+				console.log('mouseUp newMediaProgress:', newMediaProgress);
+				if (newMediaProgress) {
+					setMediaProgress(newMediaProgress);
+					setNewMediaProgress(null);
+				}
+				console.log('mouseUp wasPlaying:', wasPlaying);
+				if (wasPlaying) {
+					handlePauseResume('play');
+					wasPlaying = null;
+				}
 			});
 		}
 		
