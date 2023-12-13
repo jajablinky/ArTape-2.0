@@ -226,11 +226,11 @@ const VideoPlayer = ({
             }}
             preload="metadata"
             onDurationChange={(e) => setVideoDuration(e.currentTarget.duration)}
-            onTimeUpdate={(e) => {
-              setMediaProgress(e.currentTarget.currentTime);
-              setStoredMediaProgress(e.currentTarget.currentTime);
-              handleBufferProgress(e);
-            }}
+            // onTimeUpdate={(e) => {
+            //   setMediaProgress(e.currentTarget.currentTime);
+            //   setStoredMediaProgress(e.currentTarget.currentTime);
+            //   handleBufferProgress(e);
+            // }}
             onProgress={handleBufferProgress}
             style={{ width: "100%" }}
           />

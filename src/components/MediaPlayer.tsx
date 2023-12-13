@@ -24,6 +24,8 @@ interface MediaPlayerProps {
   setMediaProgress: React.Dispatch<React.SetStateAction<number>>;
   storedMediaProgress: number;
   setStoredMediaProgress: React.Dispatch<React.SetStateAction<number>>;
+  seekMediaProgress: number;
+  setSeekMediaProgress: React.Dispatch<React.SetStateAction<number>>;
   currentModuleIndex: number;
   setCurrentModuleIndex: React.Dispatch<React.SetStateAction<number>>;
   mediaSelected: string;
@@ -46,6 +48,8 @@ const MediaPlayer = ({
   setMediaProgress,
   storedMediaProgress,
   setStoredMediaProgress,
+  seekMediaProgress,
+  setSeekMediaProgress,
   currentModuleIndex,
   setCurrentModuleIndex,
   mediaSelected,
@@ -182,12 +186,19 @@ const MediaPlayer = ({
 
   // seek bar change
   // note: this currently pauses media if mouse is held down anywhere on screen
-  // useEffect(() => {
-  //   if (audioPlayer.current && mouseDown) {
-  //     handleAudioPauseResume('pause');
-  //     audioPlayer.current.currentTime = mediaProgress;
-  //   }
-  // }, [mediaProgress]);
+  // note: meant to update currently playing audio to match time selected in the slider
+  // i.e. - change in slider updates this useEffect, which updates currentTime
+  useEffect(() => {
+    if (
+      audioPlayer.current && 
+      mediaSelected === 'audio' &&
+      seekMediaProgress !== -1
+      ) {
+      //handleAudioPauseResume('pause');
+      console.log('seekMediaProgress changed!');
+      audioPlayer.current.currentTime = seekMediaProgress;
+    }
+  }, [seekMediaProgress]);
 
   const handleBufferProgress: React.ReactEventHandler<HTMLAudioElement> = (
     e
@@ -354,11 +365,11 @@ const MediaPlayer = ({
             ref={audioPlayer}
             preload="metadata"
             onDurationChange={(e) => setSongDuration(e.currentTarget.duration)}
-            onTimeUpdate={(e) => {
-              setMediaProgress(e.currentTarget.currentTime);
-              setStoredMediaProgress(e.currentTarget.currentTime);
-              handleBufferProgress(e);
-            }}
+            // onTimeUpdate={(e) => {
+            //   setMediaProgress(e.currentTarget.currentTime);
+            //   setStoredMediaProgress(e.currentTarget.currentTime);
+            //   handleBufferProgress(e);
+            // }}
             onProgress={handleBufferProgress}
           />
           <div className={styles.musicControls}>
@@ -395,12 +406,10 @@ const MediaPlayer = ({
             <MediaProgressBar
               mediaProgress={mediaProgress}
               setMediaProgress={setMediaProgress}
+              seekMediaProgress={seekMediaProgress}
+              setSeekMediaProgress={setSeekMediaProgress}
               storedMediaProgress={storedMediaProgress}
               songDuration={songDuration}
-              isAudioPlaying={isAudioPlaying}
-              setIsAudioPlaying={setIsAudioPlaying}
-              isVideoPlaying={isVideoPlaying}
-              setIsVideoPlaying={setIsVideoPlaying}
               isMediaPlaying={isMediaPlaying}
               setIsMediaPlaying={setIsMediaPlaying}
               handlePauseResume={handlePauseResume}

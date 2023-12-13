@@ -1,15 +1,13 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import styles from '@/styles/Home.module.css';
 
 interface MediaProgressBarProps {
 	mediaProgress: number;
 	setMediaProgress: React.Dispatch<React.SetStateAction<number>>;
+	seekMediaProgress: number;
+	setSeekMediaProgress: React.Dispatch<React.SetStateAction<number>>;
 	storedMediaProgress: number;
 	songDuration: number;
-	isVideoPlaying: boolean;
-	setIsVideoPlaying: React.Dispatch<React.SetStateAction<boolean>>;
-	isAudioPlaying: boolean;
-	setIsAudioPlaying: React.Dispatch<React.SetStateAction<boolean>>;
 	isMediaPlaying: boolean;
 	setIsMediaPlaying: React.Dispatch<React.SetStateAction<boolean>>;
 	handlePauseResume: (input?: string) => void;
@@ -18,71 +16,70 @@ interface MediaProgressBarProps {
 const MediaProgressBar = ({
 	mediaProgress, 
 	setMediaProgress,
+	seekMediaProgress,
+	setSeekMediaProgress,
 	storedMediaProgress,
 	songDuration,
-	isAudioPlaying,
-	setIsAudioPlaying,
-	isVideoPlaying,
-	setIsVideoPlaying,
 	isMediaPlaying,
 	setIsMediaPlaying,
 	handlePauseResume,
 }: MediaProgressBarProps) => {
-	let wasPlaying: boolean | null = null;
+	const [mouseState, setMouseState] = useState<string>('');
+	const [wasPlaying, setWasPlaying] = useState<boolean | null>(null);
 	const sliderRef = useRef(null);
-	const [newMediaProgress, setNewMediaProgress] = useState<number | null>(null);
 	
+	const handleWasPlaying = async (
+		isMediaPlaying: boolean | null,
+	) => {
+		const setWasPlayingPromise = new Promise((resolve) => {
+			setWasPlaying(() => {
+				resolve(isMediaPlaying);
+				return isMediaPlaying;
+			});
+		});
+
+		await setWasPlayingPromise;
+		console.log('promise resolved');
+	};
+
+	useEffect(() => {
+		console.log('wasPlaying changed to:', wasPlaying);
+
+		handlePauseResume('pause');
+
+		console.log('current state:', wasPlaying, mouseState);
+
+		if (wasPlaying === null && mouseState === 'up') handlePauseResume('play');
+	}, [wasPlaying]);
+
 	const handleMediaProgressChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		const sliderElement = document.getElementsByClassName(styles.slider);
 
 		if (sliderElement.length > 0) {
 			sliderElement[0].addEventListener("mousedown", (event) => {
-				console.log('wasPlaying precheck:', wasPlaying);
-				if (wasPlaying === null) {
-					wasPlaying = isMediaPlaying;
-					console.log('mouseDown wasPlaying:', wasPlaying);
-					handlePauseResume('pause');
-				}
+				setMouseState('down');
+				//console.log('wasPlaying precheck:', wasPlaying);
+				if (wasPlaying === null) handleWasPlaying(isMediaPlaying);
 
 				// pt 2
-				setNewMediaProgress(parseFloat(e.target.value));
-				console.log('mouseDown newMediaProgress:', newMediaProgress);
+				setSeekMediaProgress(parseFloat(e.target.value));
+				setMediaProgress(parseFloat(e.target.value));
+				//console.log('mouseDown seekMediaProgress:', seekMediaProgress);
 			});
 			sliderElement[0].addEventListener("mouseup", (event) => {
-				console.log('mouseUp newMediaProgress:', newMediaProgress);
-				if (newMediaProgress) {
-					setMediaProgress(newMediaProgress);
-					setNewMediaProgress(null);
-				}
-				console.log('mouseUp wasPlaying:', wasPlaying);
+				setMouseState('up');
+				setSeekMediaProgress(-1);
+				//console.log('mouseUp seekMediaProgress:', seekMediaProgress);
+				
+				//console.log('mouseUp wasPlaying:', wasPlaying);
 				if (wasPlaying) {
-					handlePauseResume('play');
-					wasPlaying = null;
+					console.log("was playing true, resuming audio");
+					handleWasPlaying(null);
 				}
 			});
 		}
 		
 	}
-	
-	
-
-	const doOnInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
-		console.log('on input');
-		const newMediaProgress = parseFloat(e.target.value);
-		console.log("current media progress:", mediaProgress);
-		setMediaProgress(newMediaProgress);
-	}
-
-	const doOnChange = (): void => {
-		console.log('on change');
-		if (wasPlaying) handlePauseResume();
-	}
-
-	// const getMediaProgress = (e: React.ChangeEvent<HTMLInputElement>): void => {
-	// 	const newMediaProgress = parseFloat(e.target.value);
-	// 	console.log("current media progress:", mediaProgress);
-	// 	setMediaProgress(newMediaProgress);
-	// }
 
 	// possible steps
 	// onBeforeInput: pause media (if not already paused)
@@ -96,11 +93,7 @@ const MediaProgressBar = ({
               min="0"
               max={songDuration}
               step="0.01"
-              value={ isMediaPlaying ? (
-				mediaProgress
-			  ) : (
-				storedMediaProgress
-			  )}
+              //value={ () => {mediaProgress} }
 			  onChange={(e) => handleMediaProgressChange(e)}
               className={`${styles.progressBar} ${styles.slider}`}
 			  ref={sliderRef}
