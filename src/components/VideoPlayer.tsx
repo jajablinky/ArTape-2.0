@@ -13,6 +13,7 @@ interface VideoPlayerProps {
   setVolume: React.Dispatch<React.SetStateAction<number>>;
   mediaProgress: number;
   setMediaProgress: React.Dispatch<React.SetStateAction<number>>;
+  seekMediaProgress: number;
   storedMediaProgress: number;
   setStoredMediaProgress: React.Dispatch<React.SetStateAction<number>>;
   currentModuleIndex: number;
@@ -37,6 +38,7 @@ const VideoPlayer = ({
   setMediaProgress,
   storedMediaProgress,
   setStoredMediaProgress,
+  seekMediaProgress,
   currentModuleIndex,
   setCurrentModuleIndex,
   mediaSelected,
@@ -103,22 +105,17 @@ const VideoPlayer = ({
     };
   }, []);
 
-  // Video Player Logic
-
-  // useEffect(()=>{
-  //   //
-  //   handleVideoPauseResume();
-  // }, [isVideoPlaying]);
-
   useEffect(() => {
     // option 1: video selected
     if (mediaSelected === 'video' && mediaClickType.clickType !== 'none') {
       // option 1a: clicked on video module
       if (mediaClickType.clickType === 'videoModule') {
         if (currentModuleIndex === 1) {
+          // play/pause conditions
           if (isVideoPlaying) handleVideoPauseResume('pause');
           else handleVideoPauseResume('play');
         } else {
+          // cannot play
           handleVideoPauseResume('pause');
           if (videoPlayer.current) videoPlayer.current.currentTime = 0;
         }
@@ -184,6 +181,41 @@ const VideoPlayer = ({
     }
   };
 
+  // Video Seeking
+  useEffect(() => {
+    if (
+      videoPlayer.current &&
+      mediaSelected === 'video' &&
+      seekMediaProgress !== -1
+    ) {
+      videoPlayer.current.currentTime = seekMediaProgress;
+    }
+  }, [seekMediaProgress]);
+
+  // Video Value
+  useEffect(() => {
+    if (videoPlayer.current) {
+    }
+    // Function to update media progress if video updating as time is progressing in video
+    const handleTimeUpdate = () => {
+      if (mediaSelected === 'video' && videoPlayer.current) {
+        setMediaProgress(videoPlayer.current.currentTime);
+        console.log('video', mediaProgress);
+      }
+    };
+
+    // Attach event listener based on it being video
+    if (mediaSelected === 'video' && videoPlayer.current) {
+      videoPlayer.current.addEventListener('timeupdate', handleTimeUpdate);
+    }
+    // Cleanup function
+    return () => {
+      if (videoPlayer.current) {
+        videoPlayer.current.removeEventListener('timeupdate', handleTimeUpdate);
+      }
+    };
+  }, [mediaSelected]);
+
   // next media is currently always audio
   const handleNextMedia = (): void => {
     setIsVideoPlaying(false);
@@ -217,11 +249,6 @@ const VideoPlayer = ({
             }}
             preload="metadata"
             onDurationChange={(e) => setVideoDuration(e.currentTarget.duration)}
-            // onTimeUpdate={(e) => {
-            //   setMediaProgress(e.currentTarget.currentTime);
-            //   setStoredMediaProgress(e.currentTarget.currentTime);
-            //   handleBufferProgress(e);
-            // }}
             onProgress={handleBufferProgress}
             style={{ width: '100%' }}
           />

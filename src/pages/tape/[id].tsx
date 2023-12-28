@@ -29,7 +29,7 @@ export type MediaClickType = {
   clickType: 'init' | 'none' | 'player' | 'audioModule' | 'videoModule';
 };
 
-const initialClickState: MediaClickType = { button: 'init', clickType: 'init' }
+const initialClickState: MediaClickType = { button: 'init', clickType: 'init' };
 
 const Tape = () => {
   const [sortedImageFiles, setSortedImagesFiles] = useState<
@@ -42,11 +42,11 @@ const Tape = () => {
   });
   const [currentModuleIndex, setCurrentModuleIndex] = useState<number>(-1);
   const [mediaSelected, setMediaSelected] = useState<string>('');
-  const [mediaClickType, setMediaClickType] = useState<MediaClickType>(initialClickState);
+  const [mediaClickType, setMediaClickType] =
+    useState<MediaClickType>(initialClickState);
   const [isVideoPlaying, setIsVideoPlaying] = useState<boolean>(false);
   const [isMediaPlaying, setIsMediaPlaying] = useState<boolean>(false);
   const [lastSelectedMedia, setLastSelectedMedia] = useState<number>(-1);
-
 
   const [volume, setVolume] = useState<number>(1);
   const [mediaProgress, setMediaProgress] = useState<number>(0);
@@ -219,9 +219,17 @@ const Tape = () => {
                       <div
                         className={styles.profileModule}
                         onClick={() => {
-                          handleSetModuleAndLastSelected(0, setLastSelectedMedia, currentModuleIndex, setCurrentModuleIndex);
+                          handleSetModuleAndLastSelected(
+                            0,
+                            setLastSelectedMedia,
+                            currentModuleIndex,
+                            setCurrentModuleIndex
+                          );
                           setMediaSelected('audio');
-                          setMediaClickType({button: 'module', clickType: 'audioModule'});
+                          setMediaClickType({
+                            button: 'module',
+                            clickType: 'audioModule',
+                          });
                         }}
                       >
                         {renderFirstImage(1)}
@@ -239,6 +247,7 @@ const Tape = () => {
                           isVideoPlaying={isVideoPlaying}
                           setIsVideoPlaying={setIsVideoPlaying}
                           videoFiles={videoFiles}
+                          seekMediaProgress={seekMediaProgress}
                           color={color}
                           volume={volume}
                           setVolume={setVolume}
@@ -265,9 +274,17 @@ const Tape = () => {
                               <div
                                 className={styles.profileModule}
                                 onClick={() => {
-                                  handleSetModuleAndLastSelected(image.moduleId - 1, setLastSelectedMedia, currentModuleIndex, setCurrentModuleIndex);
+                                  handleSetModuleAndLastSelected(
+                                    image.moduleId - 1,
+                                    setLastSelectedMedia,
+                                    currentModuleIndex,
+                                    setCurrentModuleIndex
+                                  );
                                   setMediaSelected('audio');
-                                  setMediaClickType({button: 'module', clickType: 'audioModule'});
+                                  setMediaClickType({
+                                    button: 'module',
+                                    clickType: 'audioModule',
+                                  });
                                 }}
                                 key={image.moduleId}
                                 style={{ aspectRatio: 1 / 1 }}

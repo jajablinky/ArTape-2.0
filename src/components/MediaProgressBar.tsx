@@ -16,12 +16,9 @@ interface MediaProgressBarProps {
 const MediaProgressBar = ({
   mediaProgress,
   setMediaProgress,
-  seekMediaProgress,
   setSeekMediaProgress,
-  storedMediaProgress,
   songDuration,
   isMediaPlaying,
-  setIsMediaPlaying,
   handlePauseResume,
 }: MediaProgressBarProps) => {
   const [wasPlaying, setWasPlaying] = useState<boolean | null>(null);

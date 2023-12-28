@@ -96,8 +96,6 @@ const MediaPlayer = ({
       (mediaClickType.clickType === 'player' &&
         (mediaClickType.button === 'prev' || mediaClickType.button === 'next'))
     ) {
-      //setCurrentSong(currentModuleIndex);
-
       if (audioPlayer.current && currentModuleIndex !== -1 && audioFiles) {
         const currentAudioUrl = audioFiles[currentModuleIndex].audioUrl;
         if (currentAudioUrl) {
@@ -155,6 +153,26 @@ const MediaPlayer = ({
     if (audioPlayer.current) audioPlayer.current.volume = volume;
   }, [volume]);
 
+  useEffect(() => {
+    // Function to update media progress if audio
+    const handleTimeUpdate = () => {
+      if (mediaSelected === 'audio' && audioPlayer.current) {
+        setMediaProgress(audioPlayer.current.currentTime);
+      }
+    };
+
+    // Attach event listener based on it being audio
+    if (mediaSelected === 'audio' && audioPlayer.current) {
+      audioPlayer.current.addEventListener('timeupdate', handleTimeUpdate);
+    }
+    // Cleanup function
+    return () => {
+      if (audioPlayer.current) {
+        audioPlayer.current.removeEventListener('timeupdate', handleTimeUpdate);
+      }
+    };
+  }, [mediaSelected]);
+
   // seeking
   useEffect(() => {
     if (
@@ -162,9 +180,8 @@ const MediaPlayer = ({
       mediaSelected === 'audio' &&
       seekMediaProgress !== -1
     ) {
-      //handleAudioPauseResume('pause');
-
       audioPlayer.current.currentTime = seekMediaProgress;
+      console.log('audio seeking');
     }
   }, [seekMediaProgress]);
 
@@ -287,26 +304,6 @@ const MediaPlayer = ({
   const handleEnded = (): void => {
     handleNextMedia();
   };
-
-  useEffect(() => {
-    // Function to update media progress if audio
-    const handleTimeUpdate = () => {
-      if (mediaSelected === 'audio' && audioPlayer.current) {
-        setMediaProgress(audioPlayer.current.currentTime);
-      }
-    };
-
-    // Attach event listener based on it being audio
-    if (mediaSelected === 'audio' && audioPlayer.current) {
-      audioPlayer.current.addEventListener('timeupdate', handleTimeUpdate);
-    }
-    // Cleanup function
-    return () => {
-      if (audioPlayer.current) {
-        audioPlayer.current.removeEventListener('timeupdate', handleTimeUpdate);
-      }
-    };
-  }, [mediaSelected]);
 
   return (
     <>
