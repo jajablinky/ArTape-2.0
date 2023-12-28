@@ -83,7 +83,7 @@ const MediaPlayer = ({
 
   useEffect(() => {
     // This useEffect is for audio only
-    console.log('sample text');
+
     if (!audioPlayer.current) {
       audioPlayer.current = new Audio();
     }
@@ -107,12 +107,10 @@ const MediaPlayer = ({
         }
 
         if (currentModuleIndex !== 1) {
-          console.log('index selected is for audio');
           setIsAudioPlaying(true);
           setIsMediaPlaying(true);
           audioPlayer.current.play();
         } else {
-          console.log('index selected is for video');
           setIsAudioPlaying(false);
           setIsMediaPlaying(true);
           audioPlayer.current.pause();
@@ -125,11 +123,6 @@ const MediaPlayer = ({
         if (audioPlayer.current) {
           audioPlayer.current.removeEventListener('ended', handleEnded);
         }
-        // if (
-        //   mediaClickType.button !== "none" ||
-        //   mediaClickType.clickType !== "none"
-        // )
-        //   setMediaClickType({ button: "none", clickType: "none" });
       };
     } else if (
       lastSelectedMedia === currentModuleIndex &&
@@ -146,51 +139,23 @@ const MediaPlayer = ({
         setIsAudioPlaying(true);
         setIsMediaPlaying(true);
       }
-      // return () => {
-      //   if (
-      //     mediaClickType.button !== "none" ||
-      //     mediaClickType.clickType !== "none"
-      //   )
-      //     setMediaClickType({ button: "none", clickType: "none" });
-      // };
     } else if (
       mediaSelected === 'video' &&
       lastSelectedMedia === currentModuleIndex
     ) {
       setIsAudioPlaying(false);
       handleAudioPauseResume('pause');
-      // return () => {
-      //   if (
-      //     mediaClickType.button !== "none" ||
-      //     mediaClickType.clickType !== "none"
-      //   )
-      //     setMediaClickType({ button: "none", clickType: "none" });
-      // };
     }
-    // console.log('end info from MediaPlayer:');
-    // console.log('current module:', currentModuleIndex, ', mediaSelected:', mediaSelected, ', clickType:', mediaClickType);
   }, [currentModuleIndex, mediaSelected, mediaClickType]);
 
   /* Media Player Logic */
 
-  // useEffect(() => {
-  //   if (currentModuleIndex !== 1) {
-  //     handlePauseResume('play');
-  //   } else {
-  //     handlePauseResume('pause');
-  //     audioPlayer.current.currentTime = 0;
-  //   }
-  // }, [currentModuleIndex, mediaSelected]);
-
-  // volume change
+  // volume update
   useEffect(() => {
     if (audioPlayer.current) audioPlayer.current.volume = volume;
   }, [volume]);
 
-  // seek bar change
-  // note: this currently pauses media if mouse is held down anywhere on screen
-  // note: meant to update currently playing audio to match time selected in the slider
-  // i.e. - change in slider updates this useEffect, which updates currentTime
+  // seeking
   useEffect(() => {
     if (
       audioPlayer.current &&
@@ -198,7 +163,7 @@ const MediaPlayer = ({
       seekMediaProgress !== -1
     ) {
       //handleAudioPauseResume('pause');
-      console.log('seekMediaProgress changed!');
+
       audioPlayer.current.currentTime = seekMediaProgress;
     }
   }, [seekMediaProgress]);
@@ -226,19 +191,15 @@ const MediaPlayer = ({
 
   const handleAudioPauseResume = (input?: string): void => {
     if (!audioPlayer.current) {
-      console.log('no audio player');
       return;
     }
     if (isAudioPlaying || input === 'pause' || mediaSelected !== 'audio') {
-      //seekTime = audioPlayer.current.currentTime;
       audioPlayer.current?.pause();
       setIsAudioPlaying(false);
     } else if (
       (!isAudioPlaying && audioPlayer.current.readyState >= 2) ||
       input === 'play'
     ) {
-      //audioPlayer.current.currentTime = seekTime;
-      console.log('audioPauseResume play');
       audioPlayer.current?.play();
       setIsAudioPlaying(true);
     }
@@ -246,34 +207,28 @@ const MediaPlayer = ({
 
   const handlePauseResume = (input?: string) => {
     if (input === 'pause') {
-      console.log('pausing everything');
       setIsAudioPlaying(false);
       handleAudioPauseResume('pause');
       setIsVideoPlaying(false);
       setIsMediaPlaying(false);
     } else if (mediaSelected === 'video') {
       if (isVideoPlaying && input !== 'play') {
-        console.log('pausing video');
         setIsVideoPlaying(false);
         setIsMediaPlaying(false);
       } else {
-        console.log('resuming video');
         setIsVideoPlaying(true);
         setIsMediaPlaying(true);
       }
     } else if (mediaSelected === 'audio') {
       if (isAudioPlaying && input !== 'play') {
-        console.log('pausing audio');
         handleAudioPauseResume('pause');
         setIsMediaPlaying(false);
       } else {
-        console.log('resuming audio');
         handleAudioPauseResume('play');
         setIsMediaPlaying(true);
       }
     }
-    console.log('mediaProgress:', mediaProgress);
-    console.log('storedMediaProgress:', storedMediaProgress);
+
     setMediaClickType({ button: 'play', clickType: 'player' });
   };
 
@@ -286,19 +241,13 @@ const MediaPlayer = ({
       setMediaSelected('video');
       audioPlayer.current?.pause();
       setIsAudioPlaying(false);
-      console.log('media selected video');
     } else {
       setMediaSelected('audio');
-      console.log('media selected audio');
     }
     if (currentModuleIndex !== tapeLength) {
-      console.log('setting index:', currentModuleIndex);
       setCurrentModuleIndex(currentModuleIndex + 1);
-      console.log('index is now', currentModuleIndex);
     } else if (currentModuleIndex === tapeLength) {
-      console.log('setting index:', currentModuleIndex);
       setCurrentModuleIndex(0);
-      console.log('index is now', currentModuleIndex);
     }
     if (mediaSelected === 'audio') setIsAudioPlaying(true);
     setMediaClickType({ button: 'next', clickType: 'player' });
@@ -332,14 +281,32 @@ const MediaPlayer = ({
       setIsAudioPlaying(true);
     }
 
-    console.log('prev', currentModuleIndex);
     setMediaClickType({ button: 'prev', clickType: 'player' });
   };
 
   const handleEnded = (): void => {
-    console.log('song ended');
     handleNextMedia();
   };
+
+  useEffect(() => {
+    // Function to update media progress if audio
+    const handleTimeUpdate = () => {
+      if (mediaSelected === 'audio' && audioPlayer.current) {
+        setMediaProgress(audioPlayer.current.currentTime);
+      }
+    };
+
+    // Attach event listener based on it being audio
+    if (mediaSelected === 'audio' && audioPlayer.current) {
+      audioPlayer.current.addEventListener('timeupdate', handleTimeUpdate);
+    }
+    // Cleanup function
+    return () => {
+      if (audioPlayer.current) {
+        audioPlayer.current.removeEventListener('timeupdate', handleTimeUpdate);
+      }
+    };
+  }, [mediaSelected]);
 
   return (
     <>

@@ -24,26 +24,8 @@ const MediaProgressBar = ({
   setIsMediaPlaying,
   handlePauseResume,
 }: MediaProgressBarProps) => {
-  const [mouseState, setMouseState] = useState<string>('');
   const [wasPlaying, setWasPlaying] = useState<boolean | null>(null);
   const sliderRef = useRef(null);
-
-  //   const handleWasPlaying = async (isMediaPlaying: boolean | null) => {
-  //     const setWasPlayingPromise = new Promise((resolve) => {
-  //       setWasPlaying(() => {
-  //         resolve(isMediaPlaying);
-  //         return isMediaPlaying;
-  //       });
-  //     });
-
-  //     await setWasPlayingPromise;
-  //     console.log('promise resolved');
-  //   };
-
-  //   useEffect(() => {
-  //     handlePauseResume('pause');
-  //     if (wasPlaying === null && mouseState === 'up') handlePauseResume('play');
-  //   }, [wasPlaying]);
 
   const handleMediaProgressChange = (
     e: React.ChangeEvent<HTMLInputElement>
