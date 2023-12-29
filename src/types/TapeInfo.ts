@@ -13,6 +13,17 @@ export interface TapeInfoJSON {
   videoFiles: VideoFile[];
 }
 
+interface Modules{
+  module1: AudioFileWithFiles[];
+  module2: VideoFileWithUrls[];
+  module3: AudioFileWithFiles[];
+  module4: AudioFileWithFiles[];
+  module5: AudioFileWithFiles[];
+  module6: AudioFileWithFiles[];
+  module7: AudioFileWithFiles[];
+  module8: AudioFileWithFiles[];
+}
+
 export interface Tape extends Omit<TapeInfoJSON, 'audioFiles' | 'imageFiles' | 'profilePicture'> {
   audioFiles: AudioFileWithUrls[];
   imageFiles: ImageFileWithUrls[];
