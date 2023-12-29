@@ -160,27 +160,6 @@ const VideoPlayer = ({
       videoPlayer.current.volume = volume;
   }, [volume]);
 
-  const handleBufferProgress: React.ReactEventHandler<HTMLAudioElement> = (
-    e
-  ) => {
-    const video = e.currentTarget;
-    const dur = video.duration;
-    if (dur > 0) {
-      for (let i = 0; i < video.buffered.length; i++) {
-        if (
-          video.buffered.start(video.buffered.length - 1 - i) <
-          video.currentTime
-        ) {
-          const bufferedLength = video.buffered.end(
-            video.buffered.length - 1 - i
-          );
-          setBufferProgress(bufferedLength);
-          break;
-        }
-      }
-    }
-  };
-
   // Video Seeking
   useEffect(() => {
     if (
@@ -194,13 +173,10 @@ const VideoPlayer = ({
 
   // Video Value
   useEffect(() => {
-    if (videoPlayer.current) {
-    }
     // Function to update media progress if video updating as time is progressing in video
     const handleTimeUpdate = () => {
       if (mediaSelected === 'video' && videoPlayer.current) {
         setMediaProgress(videoPlayer.current.currentTime);
-        console.log('video', mediaProgress);
       }
     };
 
@@ -248,8 +224,6 @@ const VideoPlayer = ({
               setMediaClickType({ button: 'module', clickType: 'videoModule' });
             }}
             preload="metadata"
-            onDurationChange={(e) => setVideoDuration(e.currentTarget.duration)}
-            onProgress={handleBufferProgress}
             style={{ width: '100%' }}
           />
         </div>

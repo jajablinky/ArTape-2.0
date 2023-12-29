@@ -21,8 +21,10 @@ const MediaProgressBar = ({
   isMediaPlaying,
   handlePauseResume,
 }: MediaProgressBarProps) => {
+  useEffect(() => {
+    console.log(mediaProgress);
+  }, [mediaProgress]);
   const [wasPlaying, setWasPlaying] = useState<boolean | null>(null);
-  const sliderRef = useRef(null);
 
   const handleMediaProgressChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -30,6 +32,7 @@ const MediaProgressBar = ({
     const newValue = parseFloat(e.target.value);
     setSeekMediaProgress(newValue);
     setMediaProgress(newValue);
+    console.log('handleMediaProgressChange', newValue);
   };
 
   return (
@@ -43,7 +46,6 @@ const MediaProgressBar = ({
         value={mediaProgress}
         onChange={handleMediaProgressChange}
         className={`${styles.progressBar} ${styles.slider}`}
-        ref={sliderRef}
         onMouseDown={() => {
           setWasPlaying(isMediaPlaying);
           if (isMediaPlaying) handlePauseResume('pause');

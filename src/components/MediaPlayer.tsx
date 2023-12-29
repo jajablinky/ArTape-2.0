@@ -181,7 +181,6 @@ const MediaPlayer = ({
       seekMediaProgress !== -1
     ) {
       audioPlayer.current.currentTime = seekMediaProgress;
-      console.log('audio seeking');
     }
   }, [seekMediaProgress]);
 
