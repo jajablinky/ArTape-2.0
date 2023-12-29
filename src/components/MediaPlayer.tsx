@@ -116,7 +116,6 @@ const MediaPlayer = ({
       }
 
       // make a case for mediaSelected being video to make sure audio isn't playing
-
       return () => {
         if (audioPlayer.current) {
           audioPlayer.current.removeEventListener('ended', handleEnded);

@@ -5,14 +5,13 @@ export type TapeInfo = {
   };
 
 export interface TapeInfoJSON {
-    audioFiles: AudioFile[];
-    color: string;
-    imageFiles: ImageFile[];
-    tapeArtistName: string;
-    type: string;
-    videoFiles: VideoFile[];
+  tapeArtistName: string;
+  type: string;
+  color: string;
+  audioFiles: AudioFile[];
+  imageFiles: ImageFile[];
+  videoFiles: VideoFile[];
 }
-
 
 export interface Tape extends Omit<TapeInfoJSON, 'audioFiles' | 'imageFiles' | 'profilePicture'> {
   audioFiles: AudioFileWithUrls[];

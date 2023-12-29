@@ -21,9 +21,6 @@ const MediaProgressBar = ({
   isMediaPlaying,
   handlePauseResume,
 }: MediaProgressBarProps) => {
-  useEffect(() => {
-    console.log(mediaProgress);
-  }, [mediaProgress]);
   const [wasPlaying, setWasPlaying] = useState<boolean | null>(null);
 
   const handleMediaProgressChange = (
