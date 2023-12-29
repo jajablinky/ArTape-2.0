@@ -1,0 +1,132 @@
+{
+  "tapeArtistName": "Fousheé",
+  "type": "Musician",
+  "color": "#B89675",
+  "modules": [
+    { "module": 1,
+      "track": {
+        "type": "audio",
+        "metadata": {
+          "name": "Deep End",
+          "artistName": "Fousheé",
+          "duration": 141.316644,
+          "fileName": "01-deep end.mp3"
+        }
+      },
+      "additional": []
+    },
+    { "module": 2,
+      "track": {
+        "type": "video",
+        "metadata": {
+          "name": "Supernova - Colors (Live)",
+          "artistName": "Fousheé",
+          "duration": 141.316644,
+          "fileName": "02-foushee-colors-live.mp4"
+        }
+      },
+      "additional": []
+    }
+  ]
+
+  "audioFiles": [
+    {
+      "trackNumber": 1,
+      "name": "Deep End",
+      "artistName": "Fousheé",
+      "duration": 141.316644,
+      "fileName": "01-deep end.mp3"
+    },
+    {
+      "trackNumber": 2,
+      "name": "Supernova",
+      "artistName": "Fousheé",
+      "duration": 91.718821,
+      "fileName": "02-supernova.mp3"
+    },
+    {
+      "trackNumber": 3,
+      "name": "Spend The Money",
+      "artistName": "Fousheé",
+      "duration": 198.344853,
+      "fileName": "03-spend the money.mp3"
+    },
+    {
+      "trackNumber": 4,
+      "name": "Clap For Him",
+      "artistName": "Fousheé",
+      "duration": 180,
+      "fileName": "04-clap for him.mp3"
+    },
+    {
+      "trackNumber": 5,
+      "name": "Gold Fronts",
+      "artistName": "Fousheé",
+      "duration": 243,
+      "fileName": "05-gold fronts.mp3"
+    },
+    {
+      "trackNumber": 6,
+      "name": "My Slime",
+      "artistName": "Fousheé",
+      "duration": 220,
+      "fileName": "06-my slime.mp3"
+    },
+    {
+      "trackNumber": 7,
+      "name": "Single AF",
+      "artistName": "Fousheé",
+      "duration": 279,
+      "fileName": "07-single af.mp3"
+    },
+    {
+      "trackNumber": 8,
+      "name": "Double Standard",
+      "artistName": "Fousheé",
+      "duration": 205,
+      "fileName": "08-double standard.mp3"
+    }
+  ],
+  "imageFiles": [
+    {
+      "name": "01-foushee-fro.png",
+      "alt": "01-foushee-fro",
+      "moduleId": 1
+    },
+    {
+      "name": "02-foushee-colors-live.mp4",
+      "alt": "03-foushee",
+      "moduleId": 3
+    },
+    {
+      "name": "03-foushee.png",
+      "alt": "03-foushee",
+      "moduleId": 3
+    },
+    {
+      "name": "04-foushee-live.png",
+      "alt": "04-foushee-live",
+      "moduleId": 4
+    },
+    {
+      "name": "05-foushee.png",
+      "alt": "05-foushee",
+      "moduleId": 5
+    },
+    {
+      "name": "06-foushee.png",
+      "alt": "06-foushee",
+      "moduleId": 6
+    },
+    {
+      "name": "07-foushee.png",
+      "alt": "07-foushee",
+      "moduleId": 7
+    },
+    {
+      "name": "08-foushee.png",
+      "alt": "08-foushee",
+      "moduleId": 8
+    }
+  ]
+}
