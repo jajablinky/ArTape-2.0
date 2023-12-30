@@ -71,6 +71,7 @@ const Tape = () => {
         setLoading(true);
         const akord = new Akord(); // a public instance
         const singleVaultId = Array.isArray(id) ? id[0] : id;
+
         if (akord && singleVaultId) {
           // List all items inside the tape
           const items = await akord.stack.listAll(singleVaultId);
@@ -83,17 +84,11 @@ const Tape = () => {
             videoFiles: [],
           };
 
-          // commented out because its public and there is no profile
-          // const profile = await akord.profile.get();
-          // const profileEmail = profile.email;
-          // const profileName = profile.name;
-          // const profileAvatar = profile.avatar;
-
+          //Get tapeInfoJson
           const tapeInfoPromises: Promise<TapeInfoJSON | null>[] = [];
           items.forEach((item) => {
             tapeInfoPromises.push(getTapeInfoJSON(item, akord));
           });
-
           const tapeInfoJSONs = await Promise.all(tapeInfoPromises);
           // Merge all the TapeInfoJSONs into tapeInfoJSON
           tapeInfoJSONs.forEach((tapeInfo) => {
@@ -101,19 +96,17 @@ const Tape = () => {
               tapeInfoJSON = { ...tapeInfoJSON, ...tapeInfo };
             }
           });
+
+          //process
           const processPromises: Promise<{
             audioFiles?: AudioFileWithUrls[];
             imageFiles?: ImageFileWithUrls[];
             videoFiles?: VideoFileWithUrls[];
-            profilePicture?: { name: string; url: string };
           }>[] = [];
-
           items.forEach((item) => {
             processPromises.push(processItem(item, tapeInfoJSON, akord));
           });
-
           const processResults = await Promise.all(processPromises);
-
           const audioFiles: AudioFileWithUrls[] = [];
           const imageFiles: ImageFileWithUrls[] = [];
           const videoFiles: VideoFileWithUrls[] = [];
@@ -130,16 +123,12 @@ const Tape = () => {
               videoFiles.push(...result.videoFiles);
             }
           });
-
           console.log('collected songs');
           console.log('collected images');
           console.log('collected videos');
 
           setTape({
             akord,
-            // profileAvatar,
-            // profileEmail,
-            // profileName,
             audioFiles,
             color: tapeInfoJSON?.color,
             imageFiles,
