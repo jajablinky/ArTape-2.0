@@ -13,7 +13,7 @@ export interface TapeInfoJSON {
   videoFiles: VideoFile[];
 }
 
-interface Modules{
+export interface Modules{
   module1: AudioFileWithFiles[];
   module2: VideoFileWithUrls[];
   module3: AudioFileWithFiles[];
