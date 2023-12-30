@@ -2,12 +2,17 @@ import React from 'react';
 import styles from '@/styles/volumeSlider.module.css';
 import VolumeIcon from './Images/UI/Volume';
 
-const VolumeSlider = ({ volume, setVolume }) => {
+interface volumeTypes {
+  volume: number;
+  setVolume: React.Dispatch<React.SetStateAction<number>>;
+}
+
+const VolumeSlider = ({ volume, setVolume }: volumeTypes) => {
   const getNewVolume = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const newVolume = parseFloat(e.target.value);
-    console.log("changing volume to", newVolume);
+    console.log('changing volume to', newVolume);
     setVolume(newVolume);
-  }
+  };
 
   return (
     <>
