@@ -7,12 +7,7 @@ import { useEffect, useState } from 'react';
 import VideoPlayer from '@/components/VideoPlayer';
 import MediaPlayer from '@/components/MediaPlayer';
 
-import {
-  AudioFileWithUrls,
-  ImageFileWithUrls,
-  VideoFileWithUrls,
-  TapeInfoJSON,
-} from '@/types/TapeInfo';
+import { TapeInfoJSON } from '@/types/TapeInfo';
 import NavSidebar from '@/components/NavSidebar';
 
 import LoadingOverlay from '@/components/LoadingOverlay';
@@ -23,6 +18,16 @@ import processItem from '@/components/Helper Functions/processItem';
 import getTapeInfoJSON from '@/components/Helper Functions/getTapeInfoJSON';
 import { handleSetModuleAndLastSelected } from '@/components/Helper Functions/handleSetModuleAndLastSelected';
 import { Akord } from '@akord/akord-js';
+
+interface Image {
+  moduleId: number | string | null;
+}
+interface folderIdProps {
+  name: string;
+  folderId: string;
+  trackId: string;
+  additionalId: string;
+}
 
 export type MediaClickType = {
   button: 'init' | 'play' | 'prev' | 'next' | 'module' | 'none';
@@ -58,11 +63,7 @@ const Tape = () => {
   const { id } = router.query;
   const { tape, setTape } = useTape();
 
-  const { imageFiles, audioFiles, videoFiles, color } = tape || {};
-
-  interface Image {
-    moduleId: number | string | null;
-  }
+  const { modules, color } = tape || {};
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,18 +74,23 @@ const Tape = () => {
         const singleVaultId = Array.isArray(id) ? id[0] : id;
 
         if (akord && singleVaultId) {
-          // List all items inside the tape
-          const items = await akord.stack.listAll(singleVaultId);
+          // List all folders - done
+          const folder = await akord.folder.listAll(singleVaultId);
+          console.log('All Folders retrieved: ', folder);
+
+          // Search through all folders that name's equal module1 to module8 putting them in order and filling in the folderId array below
+          const folderIds: folderIdProps[] = [
+            { name: '', folderId: '', trackId: '', additionalId: '' },
+          ];
+
           let tapeInfoJSON: TapeInfoJSON = {
-            audioFiles: [],
-            color: '',
-            imageFiles: [],
             tapeArtistName: '',
             type: '',
-            videoFiles: [],
+            color: '',
+            modules: [],
           };
 
-          //Get tapeInfoJson
+          // Get tapeInfoJson from Akord Vault
           const tapeInfoPromises: Promise<TapeInfoJSON | null>[] = [];
           items.forEach((item) => {
             tapeInfoPromises.push(getTapeInfoJSON(item, akord));
