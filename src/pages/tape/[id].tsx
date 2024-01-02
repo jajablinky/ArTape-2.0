@@ -74,14 +74,43 @@ const Tape = () => {
         const singleVaultId = Array.isArray(id) ? id[0] : id;
 
         if (akord && singleVaultId) {
-          // List all folders - done
-          const folder = await akord.folder.listAll(singleVaultId);
-          console.log('All Folders retrieved: ', folder);
+          // Retrieve all folders from the specified vault
+          const folders = await akord.folder.listAll(singleVaultId);
+          console.log('All Folders retrieved: ', folders);
 
-          // Search through all folders that name's equal module1 to module8 putting them in order and filling in the folderId array below
-          const folderIds: folderIdProps[] = [
-            { name: '', folderId: '', trackId: '', additionalId: '' },
-          ];
+          // Creating a Map to store each folder for quick access by folder ID
+          const folderMap = new Map();
+          folders.forEach((folder) => {
+            folderMap.set(folder.id, {
+              ...folder,
+              trackId: '',
+              additionalId: '',
+            });
+          });
+
+          // Filtering and transforming the folders that start with 'module' into the desired structure
+          const folderIds = folders
+            .filter((folder) => folder.name.startsWith('module')) // Filter out only folders starting with 'module'
+            .map((folder) => {
+              // Find the associated 'Track' and 'Additional' folders by checking the parentId
+              const trackFolder = folders.find(
+                (f) => f.parentId === folder.id && f.name === 'Track'
+              );
+              const additionalFolder = folders.find(
+                (f) => f.parentId === folder.id && f.name === 'Additional'
+              );
+
+              // Return the transformed object with all required properties
+              return {
+                name: folder.name,
+                folderId: folder.id,
+                trackId: trackFolder ? trackFolder.id : '',
+                additionalId: additionalFolder ? additionalFolder.id : '',
+              };
+            });
+
+          // Logging the final array of folder IDs with their associated Track and Additional IDs
+          console.log('Updated module folder ids: ', folderIds);
 
           let tapeInfoJSON: TapeInfoJSON = {
             tapeArtistName: '',
