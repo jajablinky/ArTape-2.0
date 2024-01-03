@@ -111,11 +111,12 @@ const Tape = () => {
 
           // Logging the final array of folder IDs with their associated Track and Additional IDs
           console.log('Updated module folder ids: ', folderIds);
-
-          const folderExample = await akord.stack.listAll(
-            folderIds[0].folderId
-          );
-          console.log('folder example: ', folderExample);
+          const items = await akord.stack.listAll(singleVaultId, {
+            parentId: folderIds[0].trackId,
+          });
+          const itemFile = items[0].versions[0];
+          const itemName = items[0].name;
+          console.log('items in folder: ', items);
 
           let tapeInfoJSON: TapeInfoJSON = {
             tapeArtistName: '',
