@@ -17,7 +17,8 @@ import InfoIcon from '@/components/Images/UI/InfoIcon';
 import processItem from '@/components/Helper Functions/processItem';
 import getTapeInfoJSON from '@/components/Helper Functions/getTapeInfoJSON';
 import { handleSetModuleAndLastSelected } from '@/components/Helper Functions/handleSetModuleAndLastSelected';
-import { Akord } from '@akord/akord-js';
+import { Akord, FileVersion } from '@akord/akord-js';
+import { File } from 'buffer';
 
 interface Image {
   moduleId: number | string | null;
@@ -111,59 +112,94 @@ const Tape = () => {
 
           // Logging the final array of folder IDs with their associated Track and Additional IDs
           console.log('Updated module folder ids: ', folderIds);
-          const items = await akord.stack.listAll(singleVaultId, {
-            parentId: folderIds[0].trackId,
-          });
-          const itemFile = items[0].versions[0];
-          const itemName = items[0].name;
-          console.log('items in folder: ', items);
 
-          let tapeInfoJSON: TapeInfoJSON = {
-            tapeArtistName: '',
-            type: '',
-            color: '',
-            modules: [],
+          // Listing all tracks
+
+          const fetchItemDetails = async (
+            vaultId: string,
+            parentId: string
+          ) => {
+            const items = await akord.stack.listAll(vaultId, { parentId });
+            if (items.length > 0) {
+              const itemFile = items[0].versions[0];
+              const itemName = items[0].name;
+              return { file: itemFile, fileName: itemName };
+            }
+            return { file: null, fileName: '' };
           };
 
-          // Get tapeInfoJson from Akord Vault
-          const tapeInfoPromises: Promise<TapeInfoJSON | null>[] = [];
-          items.forEach((item) => {
-            tapeInfoPromises.push(getTapeInfoJSON(item, akord));
-          });
-          const tapeInfoJSONs = await Promise.all(tapeInfoPromises);
-          // Merge all the TapeInfoJSONs into tapeInfoJSON
-          tapeInfoJSONs.forEach((tapeInfo) => {
-            if (tapeInfo) {
-              tapeInfoJSON = { ...tapeInfoJSON, ...tapeInfo };
-            }
-          });
+          // Initialize an array to store the module data
+          const tape = [];
 
-          //process
-          const processPromises: Promise<{
-            audioFiles?: AudioFileWithUrls[];
-            imageFiles?: ImageFileWithUrls[];
-            videoFiles?: VideoFileWithUrls[];
-          }>[] = [];
-          items.forEach((item) => {
-            processPromises.push(processItem(item, tapeInfoJSON, akord));
-          });
-          const processResults = await Promise.all(processPromises);
-          const audioFiles: AudioFileWithUrls[] = [];
-          const imageFiles: ImageFileWithUrls[] = [];
-          const videoFiles: VideoFileWithUrls[] = [];
-          console.log('before processing');
-          // Merge all the process results into audioFiles, imageFiles, and profilePicture
-          processResults.forEach((result) => {
-            if (result.audioFiles) {
-              audioFiles.push(...result.audioFiles);
+          for (let i = 0; i < folderIds.length; i++) {
+            // Skip additionalId for folderIds[1]
+            let additionalItemDetails = { file: null, fileName: '' };
+            if (i !== 1) {
+              additionalItemDetails = await fetchItemDetails(
+                singleVaultId,
+                folderIds[i].additionalId
+              );
             }
-            if (result.imageFiles) {
-              imageFiles.push(...result.imageFiles);
-            }
-            if (result.videoFiles) {
-              videoFiles.push(...result.videoFiles);
-            }
-          });
+
+            const trackItemDetails = await fetchItemDetails(
+              singleVaultId,
+              folderIds[i].trackId
+            );
+
+            tape.push({
+              moduleName: folderIds[i].name,
+              trackItem: trackItemDetails,
+              additionalItem: additionalItemDetails,
+            });
+          }
+
+          console.log(tape);
+          // let tapeInfoJSON: TapeInfoJSON = {
+          //   tapeArtistName: '',
+          //   type: '',
+          //   color: '',
+          //   modules: [],
+          // };
+
+          // // Get tapeInfoJson from Akord Vault
+          // const tapeInfoPromises: Promise<TapeInfoJSON | null>[] = [];
+          // items.forEach((item) => {
+          //   tapeInfoPromises.push(getTapeInfoJSON(item, akord));
+          // });
+          // const tapeInfoJSONs = await Promise.all(tapeInfoPromises);
+          // // Merge all the TapeInfoJSONs into tapeInfoJSON
+          // tapeInfoJSONs.forEach((tapeInfo) => {
+          //   if (tapeInfo) {
+          //     tapeInfoJSON = { ...tapeInfoJSON, ...tapeInfo };
+          //   }
+          // });
+
+          // //process
+          // const processPromises: Promise<{
+          //   audioFiles?: AudioFileWithUrls[];
+          //   imageFiles?: ImageFileWithUrls[];
+          //   videoFiles?: VideoFileWithUrls[];
+          // }>[] = [];
+          // items.forEach((item) => {
+          //   processPromises.push(processItem(item, tapeInfoJSON, akord));
+          // });
+          // const processResults = await Promise.all(processPromises);
+          // const audioFiles: AudioFileWithUrls[] = [];
+          // const imageFiles: ImageFileWithUrls[] = [];
+          // const videoFiles: VideoFileWithUrls[] = [];
+          // console.log('before processing');
+          // // Merge all the process results into audioFiles, imageFiles, and profilePicture
+          // processResults.forEach((result) => {
+          //   if (result.audioFiles) {
+          //     audioFiles.push(...result.audioFiles);
+          //   }
+          //   if (result.imageFiles) {
+          //     imageFiles.push(...result.imageFiles);
+          //   }
+          //   if (result.videoFiles) {
+          //     videoFiles.push(...result.videoFiles);
+          //   }
+          // });
           console.log('collected songs');
           console.log('collected images');
           console.log('collected videos');
