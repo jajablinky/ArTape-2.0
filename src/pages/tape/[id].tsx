@@ -29,7 +29,7 @@ export type MediaClickType = {
   clickType: 'init' | 'none' | 'player' | 'audioModule' | 'videoModule';
 };
 
-const initialClickState: MediaClickType = { button: 'init', clickType: 'init' }
+const initialClickState: MediaClickType = { button: 'init', clickType: 'init' };
 
 const Tape = () => {
   const [sortedImageFiles, setSortedImagesFiles] = useState<
@@ -42,14 +42,16 @@ const Tape = () => {
   });
   const [currentModuleIndex, setCurrentModuleIndex] = useState<number>(-1);
   const [mediaSelected, setMediaSelected] = useState<string>('');
-  const [mediaClickType, setMediaClickType] = useState<MediaClickType>(initialClickState);
+  const [mediaClickType, setMediaClickType] =
+    useState<MediaClickType>(initialClickState);
   const [isVideoPlaying, setIsVideoPlaying] = useState<boolean>(false);
   const [isMediaPlaying, setIsMediaPlaying] = useState<boolean>(false);
   const [lastSelectedMedia, setLastSelectedMedia] = useState<number>(-1);
 
-
   const [volume, setVolume] = useState<number>(1);
   const [mediaProgress, setMediaProgress] = useState<number>(0);
+  const [storedMediaProgress, setStoredMediaProgress] = useState<number>(0);
+  const [seekMediaProgress, setSeekMediaProgress] = useState<number>(-1);
 
   const router = useRouter();
 
@@ -69,6 +71,7 @@ const Tape = () => {
         setLoading(true);
         const akord = new Akord(); // a public instance
         const singleVaultId = Array.isArray(id) ? id[0] : id;
+
         if (akord && singleVaultId) {
           // List all items inside the tape
           const items = await akord.stack.listAll(singleVaultId);
@@ -81,17 +84,11 @@ const Tape = () => {
             videoFiles: [],
           };
 
-          // commented out because its public and there is no profile
-          // const profile = await akord.profile.get();
-          // const profileEmail = profile.email;
-          // const profileName = profile.name;
-          // const profileAvatar = profile.avatar;
-
+          //Get tapeInfoJson
           const tapeInfoPromises: Promise<TapeInfoJSON | null>[] = [];
           items.forEach((item) => {
             tapeInfoPromises.push(getTapeInfoJSON(item, akord));
           });
-
           const tapeInfoJSONs = await Promise.all(tapeInfoPromises);
           // Merge all the TapeInfoJSONs into tapeInfoJSON
           tapeInfoJSONs.forEach((tapeInfo) => {
@@ -99,19 +96,17 @@ const Tape = () => {
               tapeInfoJSON = { ...tapeInfoJSON, ...tapeInfo };
             }
           });
+
+          //process
           const processPromises: Promise<{
             audioFiles?: AudioFileWithUrls[];
             imageFiles?: ImageFileWithUrls[];
             videoFiles?: VideoFileWithUrls[];
-            profilePicture?: { name: string; url: string };
           }>[] = [];
-
           items.forEach((item) => {
             processPromises.push(processItem(item, tapeInfoJSON, akord));
           });
-
           const processResults = await Promise.all(processPromises);
-
           const audioFiles: AudioFileWithUrls[] = [];
           const imageFiles: ImageFileWithUrls[] = [];
           const videoFiles: VideoFileWithUrls[] = [];
@@ -128,16 +123,12 @@ const Tape = () => {
               videoFiles.push(...result.videoFiles);
             }
           });
-
           console.log('collected songs');
           console.log('collected images');
           console.log('collected videos');
 
           setTape({
             akord,
-            // profileAvatar,
-            // profileEmail,
-            // profileName,
             audioFiles,
             color: tapeInfoJSON?.color,
             imageFiles,
@@ -217,9 +208,17 @@ const Tape = () => {
                       <div
                         className={styles.profileModule}
                         onClick={() => {
-                          handleSetModuleAndLastSelected(0, setLastSelectedMedia, currentModuleIndex, setCurrentModuleIndex);
+                          handleSetModuleAndLastSelected(
+                            0,
+                            setLastSelectedMedia,
+                            currentModuleIndex,
+                            setCurrentModuleIndex
+                          );
                           setMediaSelected('audio');
-                          setMediaClickType({button: 'module', clickType: 'audioModule'});
+                          setMediaClickType({
+                            button: 'module',
+                            clickType: 'audioModule',
+                          });
                         }}
                       >
                         {renderFirstImage(1)}
@@ -237,11 +236,14 @@ const Tape = () => {
                           isVideoPlaying={isVideoPlaying}
                           setIsVideoPlaying={setIsVideoPlaying}
                           videoFiles={videoFiles}
+                          seekMediaProgress={seekMediaProgress}
                           color={color}
                           volume={volume}
                           setVolume={setVolume}
                           mediaProgress={mediaProgress}
                           setMediaProgress={setMediaProgress}
+                          storedMediaProgress={storedMediaProgress}
+                          setStoredMediaProgress={setStoredMediaProgress}
                           currentModuleIndex={currentModuleIndex}
                           setCurrentModuleIndex={setCurrentModuleIndex}
                           mediaSelected={mediaSelected}
@@ -261,9 +263,17 @@ const Tape = () => {
                               <div
                                 className={styles.profileModule}
                                 onClick={() => {
-                                  handleSetModuleAndLastSelected(image.moduleId - 1, setLastSelectedMedia, currentModuleIndex, setCurrentModuleIndex);
+                                  handleSetModuleAndLastSelected(
+                                    image.moduleId - 1,
+                                    setLastSelectedMedia,
+                                    currentModuleIndex,
+                                    setCurrentModuleIndex
+                                  );
                                   setMediaSelected('audio');
-                                  setMediaClickType({button: 'module', clickType: 'audioModule'});
+                                  setMediaClickType({
+                                    button: 'module',
+                                    clickType: 'audioModule',
+                                  });
                                 }}
                                 key={image.moduleId}
                                 style={{ aspectRatio: 1 / 1 }}
@@ -296,6 +306,10 @@ const Tape = () => {
                   setVolume={setVolume}
                   mediaProgress={mediaProgress}
                   setMediaProgress={setMediaProgress}
+                  storedMediaProgress={storedMediaProgress}
+                  setStoredMediaProgress={setStoredMediaProgress}
+                  seekMediaProgress={seekMediaProgress}
+                  setSeekMediaProgress={setSeekMediaProgress}
                   currentModuleIndex={currentModuleIndex}
                   setCurrentModuleIndex={setCurrentModuleIndex}
                   mediaSelected={mediaSelected}
