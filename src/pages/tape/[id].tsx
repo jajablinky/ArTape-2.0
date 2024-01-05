@@ -300,6 +300,7 @@ const Tape = () => {
                   setIsVideoPlaying={setIsVideoPlaying}
                   isVideoPlaying={isVideoPlaying}
                   audioFiles={audioFiles}
+                  videoFiles={videoFiles}
                   color={color}
                   volume={volume}
                   setVolume={setVolume}
