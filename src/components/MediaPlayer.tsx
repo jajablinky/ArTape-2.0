@@ -4,14 +4,12 @@ import styles from '@/styles/Home.module.css';
 
 import Loader from './Loader';
 
-
-import PrevIcon from "./Images/UI/PrevIcon";
-import NextIcon from "./Images/UI/NextIcon";
-import PlayIcon from "./Images/UI/PlayIcon";
-import PauseIcon from "./Images/UI/PauseIcon";
-import { AudioFileWithFiles, VideoFileWithFiles } from "@/types/TapeInfo";
-import { MediaClickType } from "@/pages/tape/[id]";
-
+import PrevIcon from './Images/UI/PrevIcon';
+import NextIcon from './Images/UI/NextIcon';
+import PlayIcon from './Images/UI/PlayIcon';
+import PauseIcon from './Images/UI/PauseIcon';
+import { AudioFileWithFiles, VideoFileWithFiles } from '@/types/TapeInfo';
+import { MediaClickType } from '@/pages/tape/[id]';
 
 import Image from 'next/image';
 import VolumeSlider from './VolumeSlider';
@@ -89,14 +87,15 @@ const MediaPlayer = ({
   const getCurrentMediaName = (): string => {
     if (mediaSelected === 'audio') return audioFiles[currentModuleIndex].name;
     else if (mediaSelected === 'video') return videoFiles[0].name;
-    else return "-----";
+    else return '-----';
   };
 
   // get artist name
   const getArtistName = (): string => {
-    if (mediaSelected === 'audio') return audioFiles[currentModuleIndex].artistName;
+    if (mediaSelected === 'audio')
+      return audioFiles[currentModuleIndex].artistName;
     else if (mediaSelected === 'video') return videoFiles[0].artistName;
-    else return "-----";
+    else return '-----';
   };
 
   useEffect(() => {
@@ -328,14 +327,14 @@ const MediaPlayer = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className={styles.musicPlayerLeft}>
-          <div className={styles.musicPlayerArtwork}>
-            {/* <Image
+          {/* <div className={styles.musicPlayerArtwork}> */}
+          {/* <Image
               // src={image.url}
               // alt={image.name}
               height={60}
               width={60}
             /> */}
-          </div>
+          {/* </div> */}
           <div className={styles.musicPlayerText}>
             <p className={styles.songName}>{getCurrentMediaName()}</p>
             <p className={styles.artistName}>{getArtistName()}</p>
