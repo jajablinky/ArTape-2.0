@@ -8,7 +8,7 @@ import PrevIcon from './Images/UI/PrevIcon';
 import NextIcon from './Images/UI/NextIcon';
 import PlayIcon from './Images/UI/PlayIcon';
 import PauseIcon from './Images/UI/PauseIcon';
-import { AudioFileWithFiles } from '@/types/TapeInfo';
+import { AudioFileWithFiles, VideoFileWithFiles } from '@/types/TapeInfo';
 import { MediaClickType } from '@/pages/tape/[id]';
 
 import Image from 'next/image';
@@ -18,6 +18,7 @@ import MediaProgressBar from './MediaProgressBar';
 interface MediaPlayerProps {
   color: string;
   audioFiles: AudioFileWithFiles[];
+  videoFiles: VideoFileWithFiles[];
   volume: number;
   setVolume: React.Dispatch<React.SetStateAction<number>>;
   mediaProgress: number;
@@ -42,6 +43,7 @@ interface MediaPlayerProps {
 const MediaPlayer = ({
   color,
   audioFiles,
+  videoFiles,
   volume,
   setVolume,
   mediaProgress,
@@ -79,6 +81,21 @@ const MediaPlayer = ({
   };
   onmouseup = function () {
     setMouseDown(false);
+  };
+
+  // get song name
+  const getCurrentMediaName = (): string => {
+    if (mediaSelected === 'audio') return audioFiles[currentModuleIndex].name;
+    else if (mediaSelected === 'video') return videoFiles[0].name;
+    else return '-----';
+  };
+
+  // get artist name
+  const getArtistName = (): string => {
+    if (mediaSelected === 'audio')
+      return audioFiles[currentModuleIndex].artistName;
+    else if (mediaSelected === 'video') return videoFiles[0].artistName;
+    else return '-----';
   };
 
   useEffect(() => {
@@ -310,17 +327,17 @@ const MediaPlayer = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className={styles.musicPlayerLeft}>
-          <div className={styles.musicPlayerArtwork}>
-            {/* <Image
+          {/* <div className={styles.musicPlayerArtwork}> */}
+          {/* <Image
               // src={image.url}
               // alt={image.name}
               height={60}
               width={60}
             /> */}
-          </div>
+          {/* </div> */}
           <div className={styles.musicPlayerText}>
-            <p className={styles.songName}>Song Name</p>
-            <p className={styles.artistName}>Artist Name</p>
+            <p className={styles.songName}>{getCurrentMediaName()}</p>
+            <p className={styles.artistName}>{getArtistName()}</p>
           </div>
         </div>
         <div className={styles.musicPlayerMiddle}>
