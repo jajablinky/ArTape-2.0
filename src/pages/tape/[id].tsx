@@ -13,26 +13,13 @@ import LoadingOverlay from '@/components/LoadingOverlay';
 import FadeInAndOut from '@/components/FadeInAndOut';
 
 import InfoIcon from '@/components/Images/UI/InfoIcon';
-import getTapeInfoJSON from '@/components/Helper Functions/getTapeInfoJSON';
 import { handleSetModuleAndLastSelected } from '@/components/Helper Functions/handleSetModuleAndLastSelected';
-import { Akord, FileVersion } from '@akord/akord-js';
-import fetchItemFile from '@/components/Helper Functions/fetchItemFile';
-import getFolderIds from './getFolderIds';
-import {
-  ImageWithFile,
-  ModuleAudioFile,
-  ModuleVideoFile,
-  ModulesWithFiles,
-} from '@/types/TapeInfo';
+
+import fetchData from '@/components/Helper Functions/fetchData';
+import renderFirstModuleAdditional from '@/components/Helper Functions/renderFirstModuleAdditional';
 
 interface Image {
   moduleId: number | string | null;
-}
-interface folderIdProps {
-  name: string;
-  folderId: string;
-  trackId: string;
-  additionalId: string;
 }
 
 export type MediaClickType = {
@@ -43,9 +30,6 @@ export type MediaClickType = {
 const initialClickState: MediaClickType = { button: 'init', clickType: 'init' };
 
 const Tape = () => {
-  const [sortedImageFiles, setSortedImagesFiles] = useState<
-    ImageFileWithUrls[]
-  >([]);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState({
     percentage: 0,
@@ -63,7 +47,8 @@ const Tape = () => {
   const [mediaProgress, setMediaProgress] = useState<number>(0);
   const [storedMediaProgress, setStoredMediaProgress] = useState<number>(0);
   const [seekMediaProgress, setSeekMediaProgress] = useState<number>(-1);
-
+  const [audioFiles, setAudioFiles] = useState(null);
+  const [videoFiles, setVideoFiles] = useState(null);
   const router = useRouter();
 
   const { id } = router.query;
@@ -72,145 +57,17 @@ const Tape = () => {
   const { modules, color } = tape || {};
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        console.log('fetching');
-        setLoading(true);
-        const akord = new Akord(); // a public instance
-
-        // retrieve single vault Id
-        const singleVaultId = Array.isArray(id) ? id[0] : id;
-
-        if (akord && singleVaultId) {
-          /* 
-          Step 1:
-          Retrieving folder ids from vault and storing in an array 
-          */
-          const { mediaFolderIds, tapeInfoFolderId } = await getFolderIds(
-            akord,
-            singleVaultId
-          );
-
-          /* 
-          Step 2:
-          Get files, and urls from modules
-          */
-
-          let tapeInfoDetails = await fetchItemFile(
-            singleVaultId,
-            tapeInfoFolderId,
-            akord
-          );
-
-          // Get tapeInfo.json
-          const tapeInfoFile = tapeInfoDetails[0].arrayBuffer;
-          const tapeInfoJSON = getTapeInfoJSON(tapeInfoFile);
-
-          if (!tapeInfoJSON) {
-            console.error('Tape info JSON is invalid');
-            return;
-          }
-
-          const modulePromises = mediaFolderIds.map(async (folder, i) => {
-            let additionalItemFiles =
-              i !== 1
-                ? await fetchItemFile(singleVaultId, folder.additionalId, akord)
-                : [];
-            let trackItemFile = await fetchItemFile(
-              singleVaultId,
-              folder.trackId,
-              akord
-            );
-
-            const additional = additionalItemFiles.map((file) => ({
-              name: file.fileName,
-              time: tapeInfoJSON.modules[i].additional[0].time,
-              url: file.url,
-              file: file.file,
-              alt: file.fileName,
-            }));
-
-            const track = {
-              type: tapeInfoJSON.modules[i].track.type,
-              metadata: {
-                name: tapeInfoJSON.modules[i].track.metadata.name,
-                artistName: tapeInfoJSON.modules[i].track.metadata.artistName,
-                duration: tapeInfoJSON.modules[i].track.metadata.duration,
-                fileName: trackItemFile[0].fileName,
-              },
-              url: trackItemFile[0].url,
-              file: trackItemFile[0].file,
-            };
-
-            return {
-              moduleName: folder.name,
-              trackItem: track,
-              additionalItem: additional,
-            };
-          });
-
-          const modules = await Promise.all(modulePromises);
-          console.log('modules: ', modules);
-          /*
-          Step 4:
-          Set Tape Context
-          */
-
-          setTape({
-            akord,
-            color: tapeInfoJSON.color,
-            modules,
-            tapeInfoJSON,
-          });
-        }
-
-        // [
-        //   {
-        //     name: modules[i].moduleName,
-        //     trackItem:{
-        //       name: ,
-        //       artistName: ,
-        //       duration: ,
-        //       fileName: modules[],
-        //       file: ,
-        //       url: ,
-        //     }
-        //     additionalItem:[{
-
-        //     }]
-        //   }
-        // ]
-
-        setLoading(false);
-      } catch (e) {
-        console.error(e);
-        console.log('error trying to fetch tape');
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    if (id) {
+      fetchData({
+        setLoading,
+        id,
+        setTape,
+        setAudioFiles,
+        setVideoFiles,
+        tape,
+      });
+    }
   }, [id]);
-
-  // const renderFirstImage = (targetModuleId: number) => {
-  //   const targetImage = imageFiles.find(
-  //     (image: Image) => image.moduleId === targetModuleId
-  //   );
-
-  //   if (targetImage) {
-  //     return (
-  //       <Image
-  //         className={`${targetImage.name} ${styles.objectFit}`}
-  //         src={targetImage.url || ''}
-  //         alt={targetImage.name}
-  //         fill={true}
-  //       />
-  //     );
-  //   } else {
-  //     // Handle the case when the image with the target moduleId is not found
-  //     return <div>No image found for the moduleId: {targetModuleId}</div>;
-  //   }
-  // };
 
   return (
     <>
@@ -227,18 +84,7 @@ const Tape = () => {
           <FadeInAndOut>
             <div className={styles.fullWrapper}>
               <div className={styles.fullContainer}>
-                <NavSidebar
-                  // profileAvatar={profileAvatar}
-                  // profileEmail={profileEmail}
-                  // profileName={profileName}
-                  // tapes={tapeInfoOptions}
-                  // akord={akord}
-                  setLoading={setLoading}
-                  setTape={setTape}
-                  tape={tape}
-                  router={router}
-                  setProgress={setProgress}
-                />
+                <NavSidebar setLoading={setLoading} router={router} />
                 <div className={styles.mainContainer}>
                   <div className={styles.scrollableContainer}>
                     <div className={styles.gridProfile}>
@@ -258,7 +104,7 @@ const Tape = () => {
                           });
                         }}
                       >
-                        {renderFirstImage(1)}
+                        {renderFirstModuleAdditional(tape)}
                         <div className={styles.infoIcon}>
                           <InfoIcon color={'var(--artape-black)'} />
                         </div>
@@ -272,7 +118,7 @@ const Tape = () => {
                         <VideoPlayer
                           isVideoPlaying={isVideoPlaying}
                           setIsVideoPlaying={setIsVideoPlaying}
-                          videoFiles={videoFiles}
+                          videoFiles={tape.modules[1]}
                           seekMediaProgress={seekMediaProgress}
                           color={color}
                           volume={volume}
@@ -293,40 +139,47 @@ const Tape = () => {
                         />
                       </div>
 
-                      {sortedImageFiles &&
-                        sortedImageFiles.map((image) => {
-                          if (image.url) {
-                            return image.moduleId === 1 ? null : (
-                              <div
-                                className={styles.profileModule}
-                                onClick={() => {
-                                  handleSetModuleAndLastSelected(
-                                    image.moduleId - 1,
-                                    setLastSelectedMedia,
-                                    currentModuleIndex,
-                                    setCurrentModuleIndex
-                                  );
-                                  setMediaSelected('audio');
-                                  setMediaClickType({
-                                    button: 'module',
-                                    clickType: 'audioModule',
-                                  });
-                                }}
-                                key={image.moduleId}
-                                style={{ aspectRatio: 1 / 1 }}
-                              >
-                                <Image
-                                  className={`${image.name} ${styles.objectFit}`}
-                                  src={image.url}
-                                  alt={image.name}
-                                  fill={true}
-                                />
-                                <div className={styles.infoIcon}>
-                                  <InfoIcon color={'var(--artape-black)'} />
+                      {tape.modules &&
+                        tape.modules.map((module, moduleIndex) => {
+                          return module.additionalItem.map(
+                            (image, imageIndex) => {
+                              if (!image.url || moduleIndex === 0) {
+                                // Assuming first module's images are not to be displayed
+                                return null;
+                              }
+
+                              return (
+                                <div
+                                  className={styles.profileModule}
+                                  onClick={() => {
+                                    handleSetModuleAndLastSelected(
+                                      moduleIndex, // Adjusted to use moduleIndex
+                                      setLastSelectedMedia,
+                                      currentModuleIndex,
+                                      setCurrentModuleIndex
+                                    );
+                                    setMediaSelected('audio');
+                                    setMediaClickType({
+                                      button: 'module',
+                                      clickType: 'audioModule',
+                                    });
+                                  }}
+                                  key={`${moduleIndex}-${imageIndex}`} // Combined key from module and image indices
+                                  style={{ aspectRatio: 1 / 1 }}
+                                >
+                                  <Image
+                                    className={`${image.name} ${styles.objectFit}`}
+                                    src={image.url}
+                                    alt={image.name}
+                                    fill={true}
+                                  />
+                                  <div className={styles.infoIcon}>
+                                    <InfoIcon color={'var(--artape-black)'} />
+                                  </div>
                                 </div>
-                              </div>
-                            );
-                          }
+                              );
+                            }
+                          );
                         })}
                     </div>
                   </div>

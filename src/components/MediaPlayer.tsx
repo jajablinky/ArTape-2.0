@@ -8,7 +8,7 @@ import PrevIcon from './Images/UI/PrevIcon';
 import NextIcon from './Images/UI/NextIcon';
 import PlayIcon from './Images/UI/PlayIcon';
 import PauseIcon from './Images/UI/PauseIcon';
-import { AudioFileWithFiles, VideoFileWithFiles } from '@/types/TapeInfo';
+import { TrackWithFiles } from '@/types/TapeInfo';
 import { MediaClickType } from '@/pages/tape/[id]';
 
 import Image from 'next/image';
@@ -17,8 +17,8 @@ import MediaProgressBar from './MediaProgressBar';
 
 interface MediaPlayerProps {
   color: string;
-  audioFiles: AudioFileWithFiles[];
-  videoFiles: VideoFileWithFiles[];
+  audioFiles: TrackWithFiles[];
+  videoFiles: TrackWithFiles[];
   volume: number;
   setVolume: React.Dispatch<React.SetStateAction<number>>;
   mediaProgress: number;
@@ -85,16 +85,18 @@ const MediaPlayer = ({
 
   // get song name
   const getCurrentMediaName = (): string => {
-    if (mediaSelected === 'audio') return audioFiles[currentModuleIndex].name;
-    else if (mediaSelected === 'video') return videoFiles[0].name;
+    if (mediaSelected === 'audio')
+      return audioFiles[currentModuleIndex].metadata.name;
+    else if (mediaSelected === 'video') return videoFiles[0].metadata.name;
     else return '-----';
   };
 
   // get artist name
   const getArtistName = (): string => {
     if (mediaSelected === 'audio')
-      return audioFiles[currentModuleIndex].artistName;
-    else if (mediaSelected === 'video') return videoFiles[0].artistName;
+      return audioFiles[currentModuleIndex].metadata.artistName;
+    else if (mediaSelected === 'video')
+      return videoFiles[0].metadata.artistName;
     else return '-----';
   };
 
@@ -114,7 +116,7 @@ const MediaPlayer = ({
         (mediaClickType.button === 'prev' || mediaClickType.button === 'next'))
     ) {
       if (audioPlayer.current && currentModuleIndex !== -1 && audioFiles) {
-        const currentAudioUrl = audioFiles[currentModuleIndex].audioUrl;
+        const currentAudioUrl = audioFiles[currentModuleIndex].url;
         if (currentAudioUrl) {
           audioPlayer.current.removeEventListener('ended', handleEnded);
           audioPlayer.current.src = currentAudioUrl;
