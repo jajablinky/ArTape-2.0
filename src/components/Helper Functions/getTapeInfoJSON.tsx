@@ -1,17 +1,21 @@
 import { TapeInfoJSON } from '@/types/TapeInfo';
 
-async function getTapeInfoJSON(
-  item: any,
-  akord: any
-): Promise<TapeInfoJSON | null> {
-  if (item.name !== 'tapeInfo.json') return null;
-  const { data: decryptedTapeInfo } = await akord.stack.getVersion(item.id, 2);
+const getTapeInfoJSON = (
+  tapeInfoFile: ArrayBuffer | null
+): TapeInfoJSON | null => {
+  if (!tapeInfoFile) {
+    console.error('No tapeInfoFile provided');
+    return null;
+  }
 
-  const tapeInfoString = new TextDecoder().decode(decryptedTapeInfo);
-  const tapeInfoJSON = JSON.parse(tapeInfoString) as TapeInfoJSON;
-  console.log(tapeInfoJSON);
-
-  return tapeInfoJSON;
-}
+  try {
+    const tapeInfoString = new TextDecoder().decode(tapeInfoFile);
+    const tapeInfoJSON = JSON.parse(tapeInfoString) as TapeInfoJSON;
+    return tapeInfoJSON;
+  } catch (error) {
+    console.error('Error parsing JSON:', error);
+    return null;
+  }
+};
 
 export default getTapeInfoJSON;

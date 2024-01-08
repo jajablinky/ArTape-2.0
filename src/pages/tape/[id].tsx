@@ -7,18 +7,23 @@ import { useEffect, useState } from 'react';
 import VideoPlayer from '@/components/VideoPlayer';
 import MediaPlayer from '@/components/MediaPlayer';
 
-import { TapeInfoJSON } from '@/types/TapeInfo';
 import NavSidebar from '@/components/NavSidebar';
 
 import LoadingOverlay from '@/components/LoadingOverlay';
 import FadeInAndOut from '@/components/FadeInAndOut';
 
 import InfoIcon from '@/components/Images/UI/InfoIcon';
-import processItem from '@/components/Helper Functions/processItem';
 import getTapeInfoJSON from '@/components/Helper Functions/getTapeInfoJSON';
 import { handleSetModuleAndLastSelected } from '@/components/Helper Functions/handleSetModuleAndLastSelected';
 import { Akord, FileVersion } from '@akord/akord-js';
-import { File } from 'buffer';
+import fetchItemFile from '@/components/Helper Functions/fetchItemFile';
+import getFolderIds from './getFolderIds';
+import {
+  ImageWithFile,
+  ModuleAudioFile,
+  ModuleVideoFile,
+  ModulesWithFiles,
+} from '@/types/TapeInfo';
 
 interface Image {
   moduleId: number | string | null;
@@ -72,159 +77,114 @@ const Tape = () => {
         console.log('fetching');
         setLoading(true);
         const akord = new Akord(); // a public instance
+
+        // retrieve single vault Id
         const singleVaultId = Array.isArray(id) ? id[0] : id;
 
         if (akord && singleVaultId) {
-          // Retrieve all folders from the specified vault
-          const folders = await akord.folder.listAll(singleVaultId);
-          console.log('All Folders retrieved: ', folders);
+          /* 
+          Step 1:
+          Retrieving folder ids from vault and storing in an array 
+          */
+          const { mediaFolderIds, tapeInfoFolderId } = await getFolderIds(
+            akord,
+            singleVaultId
+          );
 
-          // Creating a Map to store each folder for quick access by folder ID
-          const folderMap = new Map();
-          folders.forEach((folder) => {
-            folderMap.set(folder.id, {
-              ...folder,
-              trackId: '',
-              additionalId: '',
-            });
-          });
+          /* 
+          Step 2:
+          Get files, and urls from modules
+          */
 
-          // Filtering and transforming the folders that start with 'module' into the desired structure
-          const folderIds = folders
-            .filter((folder) => folder.name.startsWith('module')) // Filter out only folders starting with 'module'
-            .map((folder) => {
-              // Find the associated 'Track' and 'Additional' folders by checking the parentId
-              const trackFolder = folders.find(
-                (f) => f.parentId === folder.id && f.name === 'Track'
-              );
-              const additionalFolder = folders.find(
-                (f) => f.parentId === folder.id && f.name === 'Additional'
-              );
+          let tapeInfoDetails = await fetchItemFile(
+            singleVaultId,
+            tapeInfoFolderId,
+            akord
+          );
 
-              // Return the transformed object with all required properties
-              return {
-                name: folder.name,
-                folderId: folder.id,
-                trackId: trackFolder ? trackFolder.id : '',
-                additionalId: additionalFolder ? additionalFolder.id : '',
-              };
-            });
+          // Get tapeInfo.json
+          const tapeInfoFile = tapeInfoDetails[0].arrayBuffer;
+          const tapeInfoJSON = getTapeInfoJSON(tapeInfoFile);
 
-          // Logging the final array of folder IDs with their associated Track and Additional IDs
-          console.log('Updated module folder ids: ', folderIds);
-
-          // Listing all tracks
-
-          const fetchItemDetails = async (
-            vaultId: string,
-            parentId: string
-          ) => {
-            const items = await akord.stack.listAll(vaultId, { parentId });
-            if (items.length > 0) {
-              const itemFile = items[0].versions[0];
-              const itemName = items[0].name;
-              return { file: itemFile, fileName: itemName };
-            }
-            return { file: null, fileName: '' };
-          };
-
-          // Initialize an array to store the module data
-          const tape = [];
-
-          for (let i = 0; i < folderIds.length; i++) {
-            // Skip additionalId for folderIds[1]
-            let additionalItemDetails = { file: null, fileName: '' };
-            if (i !== 1) {
-              additionalItemDetails = await fetchItemDetails(
-                singleVaultId,
-                folderIds[i].additionalId
-              );
-            }
-
-            const trackItemDetails = await fetchItemDetails(
-              singleVaultId,
-              folderIds[i].trackId
-            );
-
-            tape.push({
-              moduleName: folderIds[i].name,
-              trackItem: trackItemDetails,
-              additionalItem: additionalItemDetails,
-            });
+          if (!tapeInfoJSON) {
+            console.error('Tape info JSON is invalid');
+            return;
           }
 
-          console.log(tape);
-          // let tapeInfoJSON: TapeInfoJSON = {
-          //   tapeArtistName: '',
-          //   type: '',
-          //   color: '',
-          //   modules: [],
-          // };
+          const modulePromises = mediaFolderIds.map(async (folder, i) => {
+            let additionalItemFiles =
+              i !== 1
+                ? await fetchItemFile(singleVaultId, folder.additionalId, akord)
+                : [];
+            let trackItemFile = await fetchItemFile(
+              singleVaultId,
+              folder.trackId,
+              akord
+            );
 
-          // // Get tapeInfoJson from Akord Vault
-          // const tapeInfoPromises: Promise<TapeInfoJSON | null>[] = [];
-          // items.forEach((item) => {
-          //   tapeInfoPromises.push(getTapeInfoJSON(item, akord));
-          // });
-          // const tapeInfoJSONs = await Promise.all(tapeInfoPromises);
-          // // Merge all the TapeInfoJSONs into tapeInfoJSON
-          // tapeInfoJSONs.forEach((tapeInfo) => {
-          //   if (tapeInfo) {
-          //     tapeInfoJSON = { ...tapeInfoJSON, ...tapeInfo };
-          //   }
-          // });
+            const additional = additionalItemFiles.map((file) => ({
+              name: file.fileName,
+              time: tapeInfoJSON.modules[i].additional[0].time,
+              url: file.url,
+              file: file.file,
+              alt: file.fileName,
+            }));
 
-          // //process
-          // const processPromises: Promise<{
-          //   audioFiles?: AudioFileWithUrls[];
-          //   imageFiles?: ImageFileWithUrls[];
-          //   videoFiles?: VideoFileWithUrls[];
-          // }>[] = [];
-          // items.forEach((item) => {
-          //   processPromises.push(processItem(item, tapeInfoJSON, akord));
-          // });
-          // const processResults = await Promise.all(processPromises);
-          // const audioFiles: AudioFileWithUrls[] = [];
-          // const imageFiles: ImageFileWithUrls[] = [];
-          // const videoFiles: VideoFileWithUrls[] = [];
-          // console.log('before processing');
-          // // Merge all the process results into audioFiles, imageFiles, and profilePicture
-          // processResults.forEach((result) => {
-          //   if (result.audioFiles) {
-          //     audioFiles.push(...result.audioFiles);
-          //   }
-          //   if (result.imageFiles) {
-          //     imageFiles.push(...result.imageFiles);
-          //   }
-          //   if (result.videoFiles) {
-          //     videoFiles.push(...result.videoFiles);
-          //   }
-          // });
-          console.log('collected songs');
-          console.log('collected images');
-          console.log('collected videos');
+            const track = {
+              type: tapeInfoJSON.modules[i].track.type,
+              metadata: {
+                name: tapeInfoJSON.modules[i].track.metadata.name,
+                artistName: tapeInfoJSON.modules[i].track.metadata.artistName,
+                duration: tapeInfoJSON.modules[i].track.metadata.duration,
+                fileName: trackItemFile[0].fileName,
+              },
+              url: trackItemFile[0].url,
+              file: trackItemFile[0].file,
+            };
+
+            return {
+              moduleName: folder.name,
+              trackItem: track,
+              additionalItem: additional,
+            };
+          });
+
+          const modules = await Promise.all(modulePromises);
+          console.log('modules: ', modules);
+          /*
+          Step 4:
+          Set Tape Context
+          */
 
           setTape({
             akord,
-            audioFiles,
-            color: tapeInfoJSON?.color,
-            imageFiles,
-            tapeArtistName: tapeInfoJSON?.tapeArtistName,
+            color: tapeInfoJSON.color,
+            modules,
             tapeInfoJSON,
-            videoFiles,
           });
-          if (imageFiles) {
-            const sortedImages = [...imageFiles].sort(
-              (a, b) => a.moduleId - b.moduleId
-            );
-            setSortedImagesFiles(sortedImages);
-          }
         }
-        console.log('fetching');
+
+        // [
+        //   {
+        //     name: modules[i].moduleName,
+        //     trackItem:{
+        //       name: ,
+        //       artistName: ,
+        //       duration: ,
+        //       fileName: modules[],
+        //       file: ,
+        //       url: ,
+        //     }
+        //     additionalItem:[{
+
+        //     }]
+        //   }
+        // ]
+
         setLoading(false);
       } catch (e) {
         console.error(e);
-        console.log('error');
+        console.log('error trying to fetch tape');
         setLoading(false);
       }
     };
@@ -232,25 +192,25 @@ const Tape = () => {
     fetchData();
   }, [id]);
 
-  const renderFirstImage = (targetModuleId: number) => {
-    const targetImage = imageFiles.find(
-      (image: Image) => image.moduleId === targetModuleId
-    );
+  // const renderFirstImage = (targetModuleId: number) => {
+  //   const targetImage = imageFiles.find(
+  //     (image: Image) => image.moduleId === targetModuleId
+  //   );
 
-    if (targetImage) {
-      return (
-        <Image
-          className={`${targetImage.name} ${styles.objectFit}`}
-          src={targetImage.url || ''}
-          alt={targetImage.name}
-          fill={true}
-        />
-      );
-    } else {
-      // Handle the case when the image with the target moduleId is not found
-      return <div>No image found for the moduleId: {targetModuleId}</div>;
-    }
-  };
+  //   if (targetImage) {
+  //     return (
+  //       <Image
+  //         className={`${targetImage.name} ${styles.objectFit}`}
+  //         src={targetImage.url || ''}
+  //         alt={targetImage.name}
+  //         fill={true}
+  //       />
+  //     );
+  //   } else {
+  //     // Handle the case when the image with the target moduleId is not found
+  //     return <div>No image found for the moduleId: {targetModuleId}</div>;
+  //   }
+  // };
 
   return (
     <>

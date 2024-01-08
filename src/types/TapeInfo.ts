@@ -1,5 +1,7 @@
 // -Tape Types - //
 
+import { Akord } from "@akord/akord-js";
+
 
 
 // TapeInfo Types
@@ -8,6 +10,7 @@ export type TapeInfo = {
     tapeName: string;
     vaultId: string;
     color: string;
+    modules: Modules[];
   };
 
 export interface TapeInfoJSON {
@@ -25,33 +28,33 @@ export type Module<T> = T[];
 
 export interface ModuleAudio {
   track: BaseAudio[];
-  additional: ImageArray[];
+  additional: BaseImage[];
 }
 
 export interface ModuleVideo {
   track: BaseVideo[];
-  additional: ImageArray[];
+  additional: BaseImage[];
 }
 
 export interface ModuleAudioURL {
   track: AudioWithUrl[];
-  additional: ImageArray[];
+  additional: ImageWithUrl[];
 }
 
 export interface ModuleVideoURL {
   track: VideoWithUrl[];
-  additional: ImageArray[];
+  additional: ImageWithUrl[];
 }
 
 export interface ModuleAudioFile {
   track: AudioWithFile[];
-  additional: ImageArray[];
+  additional: ImageWithFile[];
 }
 
 // There should be no additional for video files currently, this is module audio specific
 export interface ModuleVideoFile {
   track: VideoWithFile[];
-  additional: [];
+  additional: ImageWithFile[];
 }
 
 
@@ -79,7 +82,7 @@ export interface ModulesWithURLs{
   module8: Module<ModuleAudioURL>;
 }
 
-export interface ModulesWithFiles{
+export type ModulesWithFiles = {
   module1: Module<ModuleAudioFile>;
   module2: Module<ModuleVideoFile>;
   module3: Module<ModuleAudioFile>;
@@ -94,12 +97,18 @@ export interface ModulesWithFiles{
 
 // Full Tape Types
 
-export interface Tape extends Omit<TapeInfoJSON, 'audioFiles' | 'imageFiles' | 'profilePicture'> {
+export interface Tape {
+  akord: Akord;
+  color: string;
   modules: ModulesWithURLs[];
+  tapeArtistName: string;
   tapeInfoJSON: TapeInfoJSON | null;
 }
 
 export interface TapeWithFiles {
+  akord: Akord;
+  color: string;
+  tapeArtistName: string;
   modules: ModulesWithFiles[];
   tapeInfoJSON: TapeInfoJSON | null;
 }
@@ -116,21 +125,16 @@ export interface BaseAudio {
 }
 
 export interface AudioWithUrl extends BaseAudio {
-  audioUrl: string | null;
+  url: string | null;
 }
 
 export interface AudioWithFile extends AudioWithUrl {
-  audioFile: File | null;
-}
-
-export interface ImageArray {
-  Image: BaseImage;
+  file: File | null;
 }
 
 export interface BaseImage {
   name: string;
   alt: string;
-  moduleId: number;
 }
 
 export interface ImageWithUrl extends BaseImage{
@@ -143,17 +147,15 @@ export interface ImageWithFile extends ImageWithUrl{
 
 export interface BaseVideo {
   name: string;
-  alt: string;
   artistName: string;
-  moduleId: number;
   duration: number;
   fileName: string;
 }
 
 export interface VideoWithUrl extends BaseVideo {
-  videoUrl: string | null;
+  url: string | null;
 }
 
 export interface VideoWithFile extends VideoWithUrl {
-  videoFile: File | null;
+  file: File | null;
 }
