@@ -85,7 +85,12 @@ const MediaPlayer = ({
 
   // get song name
   const getCurrentMediaName = (): string => {
-    if (mediaSelected === 'audio') return audioFiles[currentModuleIndex].name;
+    console.log('current module index:', currentModuleIndex);
+    console.log('audio module struct:', audioFiles[currentModuleIndex]);
+    if (mediaSelected === 'audio') {
+      if (currentModuleIndex > 2) return audioFiles[currentModuleIndex - 1].name;
+      else return audioFiles[currentModuleIndex].name;
+    }
     else if (mediaSelected === 'video') return videoFiles[0].name;
     else return '-----';
   };
