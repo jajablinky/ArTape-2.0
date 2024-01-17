@@ -1,5 +1,5 @@
 import { Akord } from "@akord/akord-js";
-import { File } from 'buffer';
+
 // -Tape Types - //
 
 // TapeInfo Types
@@ -54,7 +54,7 @@ export type Module = {
 
 export type ModuleWithFiles = {
   moduleName: string;
-  trackItem: TrackWithFiles;
+  trackItem: TrackWithFiles | null;
   additionalItem: AdditionalWithFiles[];
 };
 

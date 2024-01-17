@@ -16,9 +16,19 @@
       },
       "additional": [
         {
-          "name": "01-foushee-fro.png",
-          "alt": "01-foushee-fro",
+          "name": "01-01-foushee.png",
+          "alt": "01-01-foushee",
           "time": 0
+        },
+        {
+          "name": "02-01-foushee.jpg",
+          "alt": "02-01-foushee",
+          "time": 5
+        },
+        {
+          "name": "03-01-foushee.jpg",
+          "alt": "03-01-foushee",
+          "time": 10
         }
       ]
     },
@@ -48,9 +58,19 @@
       },
       "additional": [
         {
-          "name": "03-foushee.png",
-          "alt": "03-foushee",
+          "name": "01-03-foushee.png",
+          "alt": "01-03-foushee",
           "time": 0
+        },
+        {
+          "name": "02-03-foushee.jpg",
+          "alt": "02-03-foushee",
+          "time": 5
+        },
+        {
+          "name": "03-03-foushee.png",
+          "alt": "03-03-foushee",
+          "time": 10
         }
       ]
     },
@@ -67,9 +87,19 @@
       },
       "additional": [
         {
-          "name": "04-foushee-live.png",
-          "alt": "04-foushee-live",
+          "name": "01-04-foushee.png",
+          "alt": "01-04-foushee",
           "time": 0
+        },
+        {
+          "name": "02-04-foushee.jpg",
+          "alt": "02-04-foushee",
+          "time": 5
+        },
+        {
+          "name": "03-04-foushee.jpg",
+          "alt": "03-04-foushee",
+          "time": 10
         }
       ]
     },
@@ -86,9 +116,19 @@
       },
       "additional": [
         {
-          "name": "05-foushee.png",
+          "name": "01-05-foushee.png",
           "alt": "05-foushee",
           "time": 0
+        },
+        {
+          "name": "02-05-foushee.jpg",
+          "alt": "02-05-foushee",
+          "time": 5
+        },
+        {
+          "name": "03-05-foushee.png",
+          "alt": "03-05-foushee",
+          "time": 10
         }
       ]
     },
@@ -105,9 +145,19 @@
       },
       "additional": [
         {
-          "name": "06-foushee.png",
-          "alt": "06-foushee",
+          "name": "01-06-foushee.png",
+          "alt": "01-06-foushee",
           "time": 0
+        },
+        {
+          "name": "02-06-foushee.png",
+          "alt": "02-06-foushee",
+          "time": 5
+        },
+        {
+          "name": "03-06-foushee.jpg",
+          "alt": "03-06-foushee",
+          "time": 10
         }
       ]
     },
@@ -124,9 +174,19 @@
       },
       "additional": [
         {
-          "name": "07-foushee.png",
-          "alt": "07-foushee",
+          "name": "01-07-foushee.png",
+          "alt": "01-07-foushee",
           "time": 0
+        },
+        {
+          "name": "02-07-foushee.png",
+          "alt": "02-07-foushee",
+          "time": 5
+        },
+        {
+          "name": "03-07-foushee.jpg",
+          "alt": "03-07-foushee",
+          "time": 10
         }
       ]
     },
@@ -143,9 +203,19 @@
       },
       "additional": [
         {
-          "name": "08-foushee.png",
-          "alt": "08-foushee",
+          "name": "01-08-foushee.png",
+          "alt": "01-08-foushee",
           "time": 0
+        },
+        {
+          "name": "02-08-foushee.png",
+          "alt": "02-08-foushee",
+          "time": 5
+        },
+        {
+          "name": "03-08-foushee.jpg",
+          "alt": "03-08-foushee",
+          "time": 10
         }
       ]
     }

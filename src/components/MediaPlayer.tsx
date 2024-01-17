@@ -17,8 +17,8 @@ import MediaProgressBar from './MediaProgressBar';
 
 interface MediaPlayerProps {
   color: string;
-  audioFiles: TrackWithFiles[];
-  videoFiles: TrackWithFiles[];
+  audioFiles: TrackWithFiles[] | null;
+  videoFiles: TrackWithFiles[] | null;
   volume: number;
   setVolume: React.Dispatch<React.SetStateAction<number>>;
   mediaProgress: number;
@@ -338,8 +338,8 @@ const MediaPlayer = ({
             /> */}
           {/* </div> */}
           <div className={styles.musicPlayerText}>
-            <p className={styles.songName}>{getCurrentMediaName()}</p>
-            <p className={styles.artistName}>{getArtistName()}</p>
+            {/* <p className={styles.songName}>{getCurrentMediaName()}</p> */}
+            {/* <p className={styles.artistName}>{getArtistName()}</p> */}
           </div>
         </div>
         <div className={styles.musicPlayerMiddle}>

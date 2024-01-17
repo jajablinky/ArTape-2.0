@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { useTape } from '@/components/TapeContext';
 import styles from '@/styles/Home.module.css';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import VideoPlayer from '@/components/VideoPlayer';
 import MediaPlayer from '@/components/MediaPlayer';
 
@@ -16,7 +16,9 @@ import InfoIcon from '@/components/Images/UI/InfoIcon';
 import { handleSetModuleAndLastSelected } from '@/components/Helper Functions/handleSetModuleAndLastSelected';
 
 import fetchData from '@/components/Helper Functions/fetchData';
-import renderFirstModuleAdditional from '@/components/Helper Functions/renderFirstModuleAdditional';
+
+import { ModuleWithFiles, TrackWithFiles } from '@/types/TapeInfo';
+import FirstModuleAdditional from '@/components/Helper Functions/FirstModuleAdditional';
 
 interface Image {
   moduleId: number | string | null;
@@ -47,8 +49,8 @@ const Tape = () => {
   const [mediaProgress, setMediaProgress] = useState<number>(0);
   const [storedMediaProgress, setStoredMediaProgress] = useState<number>(0);
   const [seekMediaProgress, setSeekMediaProgress] = useState<number>(-1);
-  const [audioFiles, setAudioFiles] = useState(null);
-  const [videoFiles, setVideoFiles] = useState(null);
+  const [audioFiles, setAudioFiles] = useState<TrackWithFiles[] | null>(null);
+  const [videoFiles, setVideoFiles] = useState<TrackWithFiles[] | null>(null);
   const router = useRouter();
 
   const { id } = router.query;
@@ -68,6 +70,10 @@ const Tape = () => {
       });
     }
   }, [id]);
+
+  useEffect(() => {
+    console.log('currentModuleIndex: ', currentModuleIndex);
+  }, [currentModuleIndex]);
 
   return (
     <>
@@ -104,7 +110,7 @@ const Tape = () => {
                           });
                         }}
                       >
-                        {renderFirstModuleAdditional(tape)}
+                        <FirstModuleAdditional tape={tape} />
                         <div className={styles.infoIcon}>
                           <InfoIcon color={'var(--artape-black)'} />
                         </div>
@@ -118,7 +124,7 @@ const Tape = () => {
                         <VideoPlayer
                           isVideoPlaying={isVideoPlaying}
                           setIsVideoPlaying={setIsVideoPlaying}
-                          videoFiles={tape.modules[1]}
+                          videoFiles={videoFiles}
                           seekMediaProgress={seekMediaProgress}
                           color={color}
                           volume={volume}
@@ -140,47 +146,47 @@ const Tape = () => {
                       </div>
 
                       {tape.modules &&
-                        tape.modules.map((module, moduleIndex) => {
-                          return module.additionalItem.map(
-                            (image, imageIndex) => {
-                              if (!image.url || moduleIndex === 0) {
-                                // Assuming first module's images are not to be displayed
-                                return null;
-                              }
-
-                              return (
-                                <div
-                                  className={styles.profileModule}
-                                  onClick={() => {
-                                    handleSetModuleAndLastSelected(
-                                      moduleIndex, // Adjusted to use moduleIndex
-                                      setLastSelectedMedia,
-                                      currentModuleIndex,
-                                      setCurrentModuleIndex
-                                    );
-                                    setMediaSelected('audio');
-                                    setMediaClickType({
-                                      button: 'module',
-                                      clickType: 'audioModule',
-                                    });
-                                  }}
-                                  key={`${moduleIndex}-${imageIndex}`} // Combined key from module and image indices
-                                  style={{ aspectRatio: 1 / 1 }}
-                                >
-                                  <Image
-                                    className={`${image.name} ${styles.objectFit}`}
-                                    src={image.url}
-                                    alt={image.name}
-                                    fill={true}
-                                  />
-                                  <div className={styles.infoIcon}>
-                                    <InfoIcon color={'var(--artape-black)'} />
+                        tape.modules.map(
+                          (module: ModuleWithFiles, moduleIndex: number) => {
+                            return module.additionalItem.map(
+                              (image, imageIndex) => {
+                                if (!image.url || moduleIndex === 0) {
+                                  // Assuming first module's images are not to be displayed
+                                  return null;
+                                }
+                                return (
+                                  <div
+                                    className={`${styles.profileModule} moduleIndex${moduleIndex}`}
+                                    onClick={() => {
+                                      handleSetModuleAndLastSelected(
+                                        moduleIndex,
+                                        setLastSelectedMedia,
+                                        currentModuleIndex,
+                                        setCurrentModuleIndex
+                                      );
+                                      setMediaSelected('audio');
+                                      setMediaClickType({
+                                        button: 'module',
+                                        clickType: 'audioModule',
+                                      });
+                                    }}
+                                    key={`${moduleIndex}-${imageIndex}`} // Combined key from module and image indices
+                                  >
+                                    <Image
+                                      className={`${image.name} ${styles.objectFit}`}
+                                      src={image.url}
+                                      alt={image.name}
+                                      fill={true}
+                                    />
+                                    <div className={styles.infoIcon}>
+                                      <InfoIcon color={'var(--artape-black)'} />
+                                    </div>
                                   </div>
-                                </div>
-                              );
-                            }
-                          );
-                        })}
+                                );
+                              }
+                            );
+                          }
+                        )}
                     </div>
                   </div>
                 </div>

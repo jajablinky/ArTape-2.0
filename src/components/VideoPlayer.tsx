@@ -8,7 +8,7 @@ import { handleSetModuleAndLastSelected } from './Helper Functions/handleSetModu
 
 interface VideoPlayerProps {
   color: string;
-  videoFiles: TrackWithFiles;
+  videoFiles: TrackWithFiles[] | null;
   volume: number;
   setVolume: React.Dispatch<React.SetStateAction<number>>;
   mediaProgress: number;
@@ -90,7 +90,7 @@ const VideoPlayer = ({
     }
 
     if (videoPlayer.current && videoFiles) {
-      const currentVideoUrl = videoFiles.url;
+      const currentVideoUrl = videoFiles[0].url;
       if (currentVideoUrl) {
         videoPlayer.current.removeEventListener('ended', handleEnded);
         videoPlayer.current.src = currentVideoUrl;
