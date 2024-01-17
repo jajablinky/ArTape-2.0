@@ -7,10 +7,14 @@ import Autoplay from 'embla-carousel-autoplay';
 
 interface FirstModuleAdditionalProps {
   tape: Tape;
+  currentModuleIndex: number;
+  isMediaPlaying: boolean;
 }
 
 const FirstModuleAdditional: React.FC<FirstModuleAdditionalProps> = ({
   tape,
+  currentModuleIndex,
+  isMediaPlaying,
 }) => {
   const options: EmblaOptionsType = { loop: true };
   const [emblaRef, emblaApi] = useEmblaCarousel(options);
@@ -26,9 +30,19 @@ const FirstModuleAdditional: React.FC<FirstModuleAdditionalProps> = ({
     }
   }, [emblaApi, isCarouselActive]);
 
+  const setCarouselState = () => {
+    if (currentModuleIndex === 0 && isMediaPlaying) setIsCarouselActive(true);
+    else setIsCarouselActive(false);
+    console.log('carousel state:', isCarouselActive);
+  };
+
   useEffect(() => {
     initializeCarousel();
   }, [isCarouselActive, initializeCarousel]);
+
+  useEffect(() => {
+    setCarouselState();
+  }, [currentModuleIndex, isMediaPlaying]);
 
   return (
     <div>

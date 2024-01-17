@@ -110,7 +110,7 @@ const Tape = () => {
                           });
                         }}
                       >
-                        <FirstModuleAdditional tape={tape} />
+                        <FirstModuleAdditional tape={tape} currentModuleIndex={currentModuleIndex} isMediaPlaying={isMediaPlaying} />
                         <div className={styles.infoIcon}>
                           <InfoIcon color={'var(--artape-black)'} />
                         </div>
