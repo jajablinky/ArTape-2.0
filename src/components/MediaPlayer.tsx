@@ -10,10 +10,13 @@ import PlayIcon from './Images/UI/PlayIcon';
 import PauseIcon from './Images/UI/PauseIcon';
 import { TrackWithFiles } from '@/types/TapeInfo';
 import { MediaClickType } from '@/pages/tape/[id]';
+import fallbackImage from './Images/Images/dummyProfilePhoto.png'
 
 import Image from 'next/image';
 import VolumeSlider from './VolumeSlider';
 import MediaProgressBar from './MediaProgressBar';
+import { useTape } from './TapeContext';
+import { StaticImport } from 'next/dist/shared/lib/get-img-props';
 
 interface MediaPlayerProps {
   color: string;
@@ -74,6 +77,8 @@ const MediaPlayer = ({
   const [songDuration, setSongDuration] = useState<number>(0);
   const [bufferProgress, setBufferProgress] = useState<number>(0);
 
+  const {tape} = useTape();
+
   // check if mouse button held
   const [mouseDown, setMouseDown] = useState<boolean>(false);
   onmousedown = function () {
@@ -99,6 +104,14 @@ const MediaPlayer = ({
       return videoFiles[0].metadata.artistName;
     else return '-----';
   };
+
+    // get media image
+    const getMediaImage = (): string | StaticImport => {
+      if (mediaSelected === 'audio' && audioFiles)
+        return tape.modules[currentModuleIndex].additionalItem[0].url;
+      else if (mediaSelected === 'video') return tape.modules[0].additionalItem[0].url;
+      else return fallbackImage;
+    };  
 
   useEffect(() => {
     // This useEffect is for audio only
@@ -270,6 +283,7 @@ const MediaPlayer = ({
 
   const handleNextMedia = (): void => {
     if (!audioFiles) return;
+
     const tapeLength = audioFiles.length - 1;
 
     if (currentModuleIndex === 0) {
@@ -330,14 +344,14 @@ const MediaPlayer = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className={styles.musicPlayerLeft}>
-          {/* <div className={styles.musicPlayerArtwork}> */}
-          {/* <Image
-              // src={image.url}
-              // alt={image.name}
+          <div className={styles.musicPlayerArtwork}>
+          <Image
+              src={getMediaImage()}
+              alt={'test'}
               height={60}
               width={60}
-            /> */}
-          {/* </div> */}
+            />
+          </div>
           <div className={styles.musicPlayerText}>
             <p className={styles.songName}>{getCurrentMediaName()}</p>
             <p className={styles.artistName}>{getArtistName()}</p>
