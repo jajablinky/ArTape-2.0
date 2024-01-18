@@ -10,11 +10,11 @@ import Home from './Images/UI/Home';
 import Explore from './Images/UI/Explore';
 
 interface NavSidebarProps {
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  // setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   router: NextRouter;
 }
 
-const NavSidebar = ({ setLoading, router }: NavSidebarProps) => {
+const NavSidebar = ({ router }: NavSidebarProps) => {
   const [sidebarMini, setSidebarMini] = useState(false);
   const [vaultId, setVaultId] = useState(0);
 
@@ -43,16 +43,16 @@ const NavSidebar = ({ setLoading, router }: NavSidebarProps) => {
   }, []);
 
   const handleVaultSelection = async (i: number) => {
-    try {
-      setLoading(true);
-      router.push({
-        pathname: `/tape/${[vaultId]}`,
-      });
-      setLoading(false);
-    } catch (e) {
-      console.error('error: ', e);
-      setLoading(false);
-    }
+    // try {
+    //   setLoading(true);
+    //   router.push({
+    //     pathname: `/tape/${[vaultId]}`,
+    //   });
+    //   setLoading(false);
+    // } catch (e) {
+    //   console.error('error: ', e);
+    //   setLoading(false);
+    // }
   };
 
   return (

@@ -15,65 +15,16 @@ import FadeInAndOut from '@/components/FadeInAndOut';
 import InfoIcon from '@/components/Images/UI/InfoIcon';
 import { handleSetModuleAndLastSelected } from '@/components/Helper Functions/handleSetModuleAndLastSelected';
 
-import fetchData from '@/components/Helper Functions/fetchData';
-
 import { ModuleWithFiles, TrackWithFiles } from '@/types/TapeInfo';
 import FirstModuleAdditional from '@/components/Helper Functions/FirstModuleAdditional';
 
-interface Image {
-  moduleId: number | string | null;
-}
-
-export type MediaClickType = {
-  button: 'init' | 'play' | 'prev' | 'next' | 'module' | 'none';
-  clickType: 'init' | 'none' | 'player' | 'audioModule' | 'videoModule';
-};
-
-const initialClickState: MediaClickType = { button: 'init', clickType: 'init' };
-
-const Tape = () => {
-  const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState({
-    percentage: 0,
-    state: 'Communicating with Akord',
-  });
-  const [currentModuleIndex, setCurrentModuleIndex] = useState<number>(-1);
-  const [mediaSelected, setMediaSelected] = useState<string>('');
-  const [mediaClickType, setMediaClickType] =
-    useState<MediaClickType>(initialClickState);
-  const [isVideoPlaying, setIsVideoPlaying] = useState<boolean>(false);
-  const [isMediaPlaying, setIsMediaPlaying] = useState<boolean>(false);
-  const [lastSelectedMedia, setLastSelectedMedia] = useState<number>(-1);
-
-  const [volume, setVolume] = useState<number>(1);
-  const [mediaProgress, setMediaProgress] = useState<number>(0);
-  const [storedMediaProgress, setStoredMediaProgress] = useState<number>(0);
-  const [seekMediaProgress, setSeekMediaProgress] = useState<number>(-1);
-  const [audioFiles, setAudioFiles] = useState<TrackWithFiles[] | null>(null);
-  const [videoFiles, setVideoFiles] = useState<TrackWithFiles[] | null>(null);
+const TapeModulePage = () => {
   const router = useRouter();
+  const { id, module } = router.query;
 
-  const { id } = router.query;
   const { tape, setTape } = useTape();
 
   const { modules, color } = tape || {};
-
-  useEffect(() => {
-    if (id) {
-      fetchData({
-        setLoading,
-        id,
-        setTape,
-        setAudioFiles,
-        setVideoFiles,
-        tape,
-      });
-    }
-  }, [id]);
-
-  useEffect(() => {
-    console.log(loading, 'loading');
-  }, [loading]);
 
   return (
     <>
@@ -206,4 +157,4 @@ const Tape = () => {
   );
 };
 
-export default Tape;
+export default TapeModulePage;

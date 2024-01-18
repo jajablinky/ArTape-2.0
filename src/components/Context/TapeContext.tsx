@@ -1,10 +1,10 @@
 import { ReactNode, createContext, useContext, useState } from 'react';
 
-import { Tape, TapeWithFiles } from '@/types/TapeInfo';
+import { Tape } from '@/types/TapeInfo';
 
 interface TapeContextType {
-  tape: null | TapeWithFiles;
-  setTape: (tape: TapeWithFiles | null) => void;
+  tape: null | Tape;
+  setTape: (tape: Tape | null) => void;
 }
 
 interface TapeProviderProps {
@@ -19,7 +19,7 @@ const TapeContext = createContext<TapeContextType>({
 export const useTape = () => useContext(TapeContext);
 
 export const TapeProvider: React.FC<TapeProviderProps> = ({ children }) => {
-  const [tape, setTape] = useState<TapeWithFiles | null>(null);
+  const [tape, setTape] = useState<Tape | null>(null);
   return (
     <TapeContext.Provider value={{ tape, setTape }}>
       {children}

@@ -9,8 +9,8 @@ type fetchDataProps = {
   setAudioFiles: React.Dispatch<React.SetStateAction<TrackWithFiles[] | null>>;
   setVideoFiles: React.Dispatch<React.SetStateAction<TrackWithFiles[] | null>>;
   id: string | string[];
-  setTape: React.Dispatch<React.SetStateAction<Tape>>;
-  tape: Tape;
+  tape: Tape | null;
+  setTape: (tape: Tape | null) => void;
 };
 
 const fetchData = async ({
