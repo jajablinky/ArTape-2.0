@@ -85,17 +85,17 @@ const MediaPlayer = ({
 
   // get song name
   const getCurrentMediaName = (): string => {
-    if (mediaSelected === 'audio')
-      return audioFiles[currentModuleIndex].metadata.name;
-    else if (mediaSelected === 'video') return videoFiles[0].metadata.name;
+    if (mediaSelected === 'audio' && audioFiles)
+      return currentModuleIndex === 0 ? audioFiles[currentModuleIndex].metadata.name : audioFiles[currentModuleIndex - 1].metadata.name;
+    else if (mediaSelected === 'video' && videoFiles) return videoFiles[0].metadata.name;
     else return '-----';
   };
 
   // get artist name
   const getArtistName = (): string => {
-    if (mediaSelected === 'audio')
-      return audioFiles[currentModuleIndex].metadata.artistName;
-    else if (mediaSelected === 'video')
+    if (mediaSelected === 'audio' && audioFiles)
+      return currentModuleIndex === 0 ? audioFiles[currentModuleIndex].metadata.artistName : audioFiles[currentModuleIndex - 1].metadata.artistName;
+    else if (mediaSelected === 'video' && videoFiles)
       return videoFiles[0].metadata.artistName;
     else return '-----';
   };
@@ -116,7 +116,7 @@ const MediaPlayer = ({
         (mediaClickType.button === 'prev' || mediaClickType.button === 'next'))
     ) {
       if (audioPlayer.current && currentModuleIndex !== -1 && audioFiles) {
-        const currentAudioUrl = audioFiles[currentModuleIndex].url;
+        const currentAudioUrl = currentModuleIndex === 0 ? audioFiles[currentModuleIndex].url : audioFiles[currentModuleIndex - 1].url;
         if (currentAudioUrl) {
           audioPlayer.current.removeEventListener('ended', handleEnded);
           audioPlayer.current.src = currentAudioUrl;
@@ -269,6 +269,7 @@ const MediaPlayer = ({
   // Create handle next Media
 
   const handleNextMedia = (): void => {
+    if (!audioFiles) return;
     const tapeLength = audioFiles.length - 1;
 
     if (currentModuleIndex === 0) {
@@ -338,8 +339,8 @@ const MediaPlayer = ({
             /> */}
           {/* </div> */}
           <div className={styles.musicPlayerText}>
-            {/* <p className={styles.songName}>{getCurrentMediaName()}</p> */}
-            {/* <p className={styles.artistName}>{getArtistName()}</p> */}
+            <p className={styles.songName}>{getCurrentMediaName()}</p>
+            <p className={styles.artistName}>{getArtistName()}</p>
           </div>
         </div>
         <div className={styles.musicPlayerMiddle}>
