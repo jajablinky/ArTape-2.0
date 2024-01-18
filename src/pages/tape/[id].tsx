@@ -18,7 +18,7 @@ import { handleSetModuleAndLastSelected } from '@/components/Helper Functions/ha
 import fetchData from '@/components/Helper Functions/fetchData';
 
 import { ModuleWithFiles, TrackWithFiles } from '@/types/TapeInfo';
-import FirstModuleAdditional from '@/components/Helper Functions/FirstModuleAdditional';
+import ModuleAdditional from '@/components/Helper Functions/ModuleAdditional';
 
 interface Image {
   moduleId: number | string | null;
@@ -110,7 +110,7 @@ const Tape = () => {
                           });
                         }}
                       >
-                        <FirstModuleAdditional tape={tape} currentModuleIndex={currentModuleIndex} isMediaPlaying={isMediaPlaying} />
+                        <ModuleAdditional tape={tape} currentModuleIndex={currentModuleIndex} isMediaPlaying={isMediaPlaying} moduleIndex={0} />
                         <div className={styles.infoIcon}>
                           <InfoIcon color={'var(--artape-black)'} />
                         </div>
@@ -148,43 +148,46 @@ const Tape = () => {
                       {tape.modules &&
                         tape.modules.map(
                           (module: ModuleWithFiles, moduleIndex: number) => {
-                            return module.additionalItem.map(
-                              (image, imageIndex) => {
-                                if (!image.url || moduleIndex === 0) {
-                                  // Assuming first module's images are not to be displayed
-                                  return null;
-                                }
-                                return (
-                                  <div
-                                    className={`${styles.profileModule} moduleIndex${moduleIndex}`}
-                                    onClick={() => {
-                                      handleSetModuleAndLastSelected(
-                                        moduleIndex,
-                                        setLastSelectedMedia,
-                                        currentModuleIndex,
-                                        setCurrentModuleIndex
-                                      );
-                                      setMediaSelected('audio');
-                                      setMediaClickType({
-                                        button: 'module',
-                                        clickType: 'audioModule',
-                                      });
-                                    }}
-                                    key={`${moduleIndex}-${imageIndex}`} // Combined key from module and image indices
-                                  >
-                                    <Image
-                                      className={`${image.name} ${styles.objectFit}`}
-                                      src={image.url}
-                                      alt={image.name}
-                                      fill={true}
-                                    />
-                                    <div className={styles.infoIcon}>
-                                      <InfoIcon color={'var(--artape-black)'} />
-                                    </div>
-                                  </div>
+                            if (moduleIndex < 2) return null; // skip ID 0 and 1
+                            return (
+                            <div
+                              className={`${styles.profileModule} moduleIndex${moduleIndex}`}
+                              onClick={() => {
+                                handleSetModuleAndLastSelected(
+                                  moduleIndex,
+                                  setLastSelectedMedia,
+                                  currentModuleIndex,
+                                  setCurrentModuleIndex
                                 );
-                              }
-                            );
+                                setMediaSelected('audio');
+                                setMediaClickType({
+                                  button: 'module',
+                                  clickType: 'audioModule',
+                                });
+                              }}
+                              key={`${moduleIndex}`}
+                            >
+                              <div className={styles.infoIcon}>
+                                <InfoIcon color={'var(--artape-black)'} />
+                              </div>
+                            {
+                              module.additionalItem.map(
+                                (image, imageIndex) => {
+                                  if (!image.url) {
+                                    return null;
+                                  }
+                                  return (
+                                    <div
+                                      key={`${moduleIndex}-${imageIndex}`} // Combined key from module and image indices
+                                    >
+                                      <ModuleAdditional tape={tape} currentModuleIndex={currentModuleIndex} isMediaPlaying={isMediaPlaying} moduleIndex={moduleIndex} />
+                                    </div>
+                                  );
+                                }
+                              )
+                            };
+                            </div>
+                            )
                           }
                         )}
                     </div>
