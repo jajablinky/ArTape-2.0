@@ -8,17 +8,20 @@ import PrevIcon from './Images/UI/PrevIcon';
 import NextIcon from './Images/UI/NextIcon';
 import PlayIcon from './Images/UI/PlayIcon';
 import PauseIcon from './Images/UI/PauseIcon';
-import { AudioFileWithFiles, VideoFileWithFiles } from '@/types/TapeInfo';
+import { TrackWithFiles } from '@/types/TapeInfo';
 import { MediaClickType } from '@/pages/tape/[id]';
+import fallbackImage from './Images/Images/dummyProfilePhoto.png'
 
 import Image from 'next/image';
 import VolumeSlider from './VolumeSlider';
 import MediaProgressBar from './MediaProgressBar';
+import { useTape } from './TapeContext';
+import { StaticImport } from 'next/dist/shared/lib/get-img-props';
 
 interface MediaPlayerProps {
   color: string;
-  audioFiles: AudioFileWithFiles[];
-  videoFiles: VideoFileWithFiles[];
+  audioFiles: TrackWithFiles[] | null;
+  videoFiles: TrackWithFiles[] | null;
   volume: number;
   setVolume: React.Dispatch<React.SetStateAction<number>>;
   mediaProgress: number;
@@ -74,6 +77,8 @@ const MediaPlayer = ({
   const [songDuration, setSongDuration] = useState<number>(0);
   const [bufferProgress, setBufferProgress] = useState<number>(0);
 
+  const {tape} = useTape();
+
   // check if mouse button held
   const [mouseDown, setMouseDown] = useState<boolean>(false);
   onmousedown = function () {
@@ -85,18 +90,28 @@ const MediaPlayer = ({
 
   // get song name
   const getCurrentMediaName = (): string => {
-    if (mediaSelected === 'audio') return audioFiles[currentModuleIndex].name;
-    else if (mediaSelected === 'video') return videoFiles[0].name;
+    if (mediaSelected === 'audio' && audioFiles)
+      return currentModuleIndex === 0 ? audioFiles[currentModuleIndex].metadata.name : audioFiles[currentModuleIndex - 1].metadata.name;
+    else if (mediaSelected === 'video' && videoFiles) return videoFiles[0].metadata.name;
     else return '-----';
   };
 
   // get artist name
   const getArtistName = (): string => {
-    if (mediaSelected === 'audio')
-      return audioFiles[currentModuleIndex].artistName;
-    else if (mediaSelected === 'video') return videoFiles[0].artistName;
+    if (mediaSelected === 'audio' && audioFiles)
+      return currentModuleIndex === 0 ? audioFiles[currentModuleIndex].metadata.artistName : audioFiles[currentModuleIndex - 1].metadata.artistName;
+    else if (mediaSelected === 'video' && videoFiles)
+      return videoFiles[0].metadata.artistName;
     else return '-----';
   };
+
+    // get media image
+    const getMediaImage = (): string | StaticImport => {
+      if (mediaSelected === 'audio' && audioFiles)
+        return tape.modules[currentModuleIndex].additionalItem[0].url;
+      else if (mediaSelected === 'video') return tape.modules[0].additionalItem[0].url;
+      else return fallbackImage;
+    };  
 
   useEffect(() => {
     // This useEffect is for audio only
@@ -114,7 +129,7 @@ const MediaPlayer = ({
         (mediaClickType.button === 'prev' || mediaClickType.button === 'next'))
     ) {
       if (audioPlayer.current && currentModuleIndex !== -1 && audioFiles) {
-        const currentAudioUrl = audioFiles[currentModuleIndex].audioUrl;
+        const currentAudioUrl = currentModuleIndex === 0 ? audioFiles[currentModuleIndex].url : audioFiles[currentModuleIndex - 1].url;
         if (currentAudioUrl) {
           audioPlayer.current.removeEventListener('ended', handleEnded);
           audioPlayer.current.src = currentAudioUrl;
@@ -267,6 +282,8 @@ const MediaPlayer = ({
   // Create handle next Media
 
   const handleNextMedia = (): void => {
+    if (!audioFiles) return;
+
     const tapeLength = audioFiles.length - 1;
 
     if (currentModuleIndex === 0) {
@@ -327,14 +344,14 @@ const MediaPlayer = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className={styles.musicPlayerLeft}>
-          {/* <div className={styles.musicPlayerArtwork}> */}
-          {/* <Image
-              // src={image.url}
-              // alt={image.name}
+          <div className={styles.musicPlayerArtwork}>
+          <Image
+              src={getMediaImage()}
+              alt={'test'}
               height={60}
               width={60}
-            /> */}
-          {/* </div> */}
+            />
+          </div>
           <div className={styles.musicPlayerText}>
             <p className={styles.songName}>{getCurrentMediaName()}</p>
             <p className={styles.artistName}>{getArtistName()}</p>

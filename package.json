@@ -9,11 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@akord/akord-js": "4.19.1-beta.0",
+    "@akord/akord-js": "latest",
     "@rive-app/react-canvas": "^3.0.55",
     "@types/node": "^20.4.4",
     "base64-js": "^1.5.1",
     "dotenv": "^16.3.1",
+    "embla-carousel": "^8.0.0-rc19",
+    "embla-carousel-autoplay": "^8.0.0-rc19",
+    "embla-carousel-react": "^8.0.0-rc19",
     "framer-motion": "^10.13.0",
     "next": "13.4.12",
     "react": "18.2.0",

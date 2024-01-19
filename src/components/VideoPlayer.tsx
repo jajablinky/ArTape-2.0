@@ -2,13 +2,13 @@ import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import styles from '@/styles/Home.module.css';
 
-import { VideoFileWithFiles } from '@/types/TapeInfo';
+import { TrackWithFiles } from '@/types/TapeInfo';
 import { MediaClickType } from '@/pages/tape/[id]';
 import { handleSetModuleAndLastSelected } from './Helper Functions/handleSetModuleAndLastSelected';
 
 interface VideoPlayerProps {
   color: string;
-  videoFiles: VideoFileWithFiles[];
+  videoFiles: TrackWithFiles[] | null;
   volume: number;
   setVolume: React.Dispatch<React.SetStateAction<number>>;
   mediaProgress: number;
@@ -90,7 +90,7 @@ const VideoPlayer = ({
     }
 
     if (videoPlayer.current && videoFiles) {
-      const currentVideoUrl = videoFiles[0].videoUrl;
+      const currentVideoUrl = videoFiles[0].url;
       if (currentVideoUrl) {
         videoPlayer.current.removeEventListener('ended', handleEnded);
         videoPlayer.current.src = currentVideoUrl;
