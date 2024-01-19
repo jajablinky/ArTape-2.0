@@ -24,12 +24,8 @@ interface Image {
   moduleId: number | string | null;
 }
 
-export type MediaClickType = {
-  button: 'init' | 'play' | 'prev' | 'next' | 'module' | 'none';
-  clickType: 'init' | 'none' | 'player' | 'audioModule' | 'videoModule';
-};
 
-const initialClickState: MediaClickType = { button: 'init', clickType: 'init' };
+
 
 const Tape = () => {
   const [loading, setLoading] = useState(false);
@@ -37,20 +33,9 @@ const Tape = () => {
     percentage: 0,
     state: 'Communicating with Akord',
   });
-  const [currentModuleIndex, setCurrentModuleIndex] = useState<number>(-1);
-  const [mediaSelected, setMediaSelected] = useState<string>('');
-  const [mediaClickType, setMediaClickType] =
-    useState<MediaClickType>(initialClickState);
-  const [isVideoPlaying, setIsVideoPlaying] = useState<boolean>(false);
-  const [isMediaPlaying, setIsMediaPlaying] = useState<boolean>(false);
-  const [lastSelectedMedia, setLastSelectedMedia] = useState<number>(-1);
 
-  const [volume, setVolume] = useState<number>(1);
-  const [mediaProgress, setMediaProgress] = useState<number>(0);
-  const [storedMediaProgress, setStoredMediaProgress] = useState<number>(0);
-  const [seekMediaProgress, setSeekMediaProgress] = useState<number>(-1);
-  const [audioFiles, setAudioFiles] = useState<TrackWithFiles[] | null>(null);
-  const [videoFiles, setVideoFiles] = useState<TrackWithFiles[] | null>(null);
+
+
   const router = useRouter();
 
   const { id } = router.query;
@@ -178,24 +163,35 @@ const Tape = () => {
             <MediaPlayer
               setIsVideoPlaying={setIsVideoPlaying}
               isVideoPlaying={isVideoPlaying}
+
               audioFiles={audioFiles}
               videoFiles={videoFiles}
+
               color={color}
+
               volume={volume}
               setVolume={setVolume}
+
               mediaProgress={mediaProgress}
               setMediaProgress={setMediaProgress}
+
               storedMediaProgress={storedMediaProgress}
               setStoredMediaProgress={setStoredMediaProgress}
+
               seekMediaProgress={seekMediaProgress}
               setSeekMediaProgress={setSeekMediaProgress}
+
               currentModuleIndex={currentModuleIndex}
               setCurrentModuleIndex={setCurrentModuleIndex}
+
               mediaSelected={mediaSelected}
               setMediaSelected={setMediaSelected}
+
               mediaClickType={mediaClickType}
               setMediaClickType={setMediaClickType}
+
               lastSelectedMedia={lastSelectedMedia}
+              
               isMediaPlaying={isMediaPlaying}
               setIsMediaPlaying={setIsMediaPlaying}
             />
