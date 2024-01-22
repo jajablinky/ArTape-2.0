@@ -66,7 +66,7 @@ const VideoPlayer = ({
   // update media duration when video duration changes
   useEffect(() => {
     if (mediaSelected === 'video') setMediaDuration(videoDuration);
-  }, [mediaSelected]);
+  }, [videoDuration, mediaSelected]);
 
   const handleVideoPauseResume = (input?: string): void => {
     if (!videoPlayer.current) {

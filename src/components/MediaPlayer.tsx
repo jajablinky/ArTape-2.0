@@ -126,8 +126,8 @@ const MediaPlayer = ({
 
   // update media duration when song duration changes
   useEffect(() => {
-    setMediaDuration(songDuration);
-  }, [songDuration]);
+    if (mediaSelected === 'audio') setMediaDuration(songDuration);
+  }, [songDuration, mediaSelected]);
 
   useEffect(() => {
     // This useEffect is for audio only
