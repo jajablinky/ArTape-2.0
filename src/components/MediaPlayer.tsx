@@ -17,6 +17,7 @@ import VolumeSlider from './VolumeSlider';
 import MediaProgressBar from './MediaProgressBar';
 import { useTape } from './TapeContext';
 import { StaticImport } from 'next/dist/shared/lib/get-img-props';
+import getTimeInMinutes from './Helper Functions/getTimeInMinutes';
 
 interface MediaPlayerProps {
   color: string;
@@ -105,13 +106,13 @@ const MediaPlayer = ({
     else return '-----';
   };
 
-    // get media image
-    const getMediaImage = (): string | StaticImport => {
-      if (mediaSelected === 'audio' && audioFiles)
-        return tape.modules[currentModuleIndex].additionalItem[0].url;
-      else if (mediaSelected === 'video') return tape.modules[0].additionalItem[0].url;
-      else return fallbackImage;
-    };  
+  // get media image
+  const getMediaImage = (): string | StaticImport => {
+    if (mediaSelected === 'audio' && audioFiles)
+      return tape.modules[currentModuleIndex].additionalItem[0].url;
+    else if (mediaSelected === 'video') return tape.modules[0].additionalItem[0].url;
+    else return fallbackImage;
+  };
 
   useEffect(() => {
     // This useEffect is for audio only
@@ -407,7 +408,7 @@ const MediaPlayer = ({
               setIsMediaPlaying={setIsMediaPlaying}
               handlePauseResume={handlePauseResume}
             />
-            <p className={styles.progressTime}>2:45</p>
+            <p className={styles.progressTime}>{getTimeInMinutes(songDuration)}</p>
           </div>
         </div>
         <div className={styles.musicPlayerRight}>
