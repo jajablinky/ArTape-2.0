@@ -11,6 +11,8 @@ interface VideoPlayerProps {
   videoFiles: TrackWithFiles[] | null;
   volume: number;
   setVolume: React.Dispatch<React.SetStateAction<number>>;
+  mediaDuration: number;
+  setMediaDuration: React.Dispatch<React.SetStateAction<number>>;
   mediaProgress: number;
   setMediaProgress: React.Dispatch<React.SetStateAction<number>>;
   seekMediaProgress: number;
@@ -34,6 +36,8 @@ const VideoPlayer = ({
   videoFiles,
   volume,
   setVolume,
+  mediaDuration,
+  setMediaDuration,
   mediaProgress,
   setMediaProgress,
   storedMediaProgress,
@@ -58,6 +62,11 @@ const VideoPlayer = ({
   const [currentProgress, setCurrentProgress] = useState<number>(0);
 
   const [bufferProgress, setBufferProgress] = useState<number>(0);
+
+  // update media duration when video duration changes
+  useEffect(() => {
+    if (mediaSelected === 'video') setMediaDuration(videoDuration);
+  }, [mediaSelected]);
 
   const handleVideoPauseResume = (input?: string): void => {
     if (!videoPlayer.current) {
@@ -224,6 +233,7 @@ const VideoPlayer = ({
               setMediaClickType({ button: 'module', clickType: 'videoModule' });
             }}
             preload="metadata"
+            onDurationChange={(e) => setVideoDuration(e.currentTarget.duration)}
             style={{ width: '100%' }}
           />
         </div>

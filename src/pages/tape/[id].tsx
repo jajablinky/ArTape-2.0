@@ -46,6 +46,7 @@ const Tape = () => {
   const [lastSelectedMedia, setLastSelectedMedia] = useState<number>(-1);
 
   const [volume, setVolume] = useState<number>(1);
+  const [mediaDuration, setMediaDuration] = useState<number>(0);
   const [mediaProgress, setMediaProgress] = useState<number>(0);
   const [storedMediaProgress, setStoredMediaProgress] = useState<number>(0);
   const [seekMediaProgress, setSeekMediaProgress] = useState<number>(-1);
@@ -129,6 +130,8 @@ const Tape = () => {
                           color={color}
                           volume={volume}
                           setVolume={setVolume}
+                          mediaDuration={mediaDuration}
+                          setMediaDuration={setMediaDuration}
                           mediaProgress={mediaProgress}
                           setMediaProgress={setMediaProgress}
                           storedMediaProgress={storedMediaProgress}
@@ -203,6 +206,8 @@ const Tape = () => {
                   color={color}
                   volume={volume}
                   setVolume={setVolume}
+                  mediaDuration={mediaDuration}
+                  setMediaDuration={setMediaDuration}
                   mediaProgress={mediaProgress}
                   setMediaProgress={setMediaProgress}
                   storedMediaProgress={storedMediaProgress}

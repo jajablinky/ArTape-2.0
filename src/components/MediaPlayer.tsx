@@ -25,6 +25,8 @@ interface MediaPlayerProps {
   videoFiles: TrackWithFiles[] | null;
   volume: number;
   setVolume: React.Dispatch<React.SetStateAction<number>>;
+  mediaDuration: number;
+  setMediaDuration: React.Dispatch<React.SetStateAction<number>>;
   mediaProgress: number;
   setMediaProgress: React.Dispatch<React.SetStateAction<number>>;
   storedMediaProgress: number;
@@ -50,6 +52,8 @@ const MediaPlayer = ({
   videoFiles,
   volume,
   setVolume,
+  mediaDuration,
+  setMediaDuration,
   mediaProgress,
   setMediaProgress,
   storedMediaProgress,
@@ -113,6 +117,11 @@ const MediaPlayer = ({
     else if (mediaSelected === 'video') return tape.modules[0].additionalItem[0].url;
     else return fallbackImage;
   };
+
+  // update media duration when song duration changes
+  useEffect(() => {
+    setMediaDuration(songDuration);
+  }, [songDuration]);
 
   useEffect(() => {
     // This useEffect is for audio only
@@ -408,7 +417,7 @@ const MediaPlayer = ({
               setIsMediaPlaying={setIsMediaPlaying}
               handlePauseResume={handlePauseResume}
             />
-            <p className={styles.progressTime}>{getTimeInMinutes(songDuration)}</p>
+            <p className={styles.progressTime}>{getTimeInMinutes(mediaDuration)}</p>
           </div>
         </div>
         <div className={styles.musicPlayerRight}>
