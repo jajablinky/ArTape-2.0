@@ -396,7 +396,7 @@ const MediaPlayer = ({
             </button>
           </div>
           <div className={styles.progressBarWrapper}>
-            <p className={styles.progressTime}>0:00</p>
+            <p className={styles.progressTime}>{getTimeInMinutes(mediaProgress)}</p>
             <MediaProgressBar
               mediaProgress={mediaProgress}
               setMediaProgress={setMediaProgress}
