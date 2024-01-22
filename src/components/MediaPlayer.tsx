@@ -112,11 +112,17 @@ const MediaPlayer = ({
 
   // get media image
   const getMediaImage = (): string | StaticImport => {
-    if (mediaSelected === 'audio' && audioFiles)
-      return tape.modules[currentModuleIndex].additionalItem[0].url;
+    if (mediaSelected === 'audio' && audioFiles) {
+      try { // try to get regular image, otherwise load the fallback
+        return tape.modules[currentModuleIndex].additionalItem[0].url;
+      }
+      catch (e) {
+        return fallbackImage;
+      }
+    }
     else if (mediaSelected === 'video') return tape.modules[0].additionalItem[0].url;
     else return fallbackImage;
-  };
+  };  
 
   // update media duration when song duration changes
   useEffect(() => {
