@@ -17,6 +17,7 @@ import VolumeSlider from './VolumeSlider';
 import MediaProgressBar from './MediaProgressBar';
 import { useTape } from './TapeContext';
 import { StaticImport } from 'next/dist/shared/lib/get-img-props';
+import getTimeInMinutes from './Helper Functions/getTimeInMinutes';
 
 interface MediaPlayerProps {
   color: string;
@@ -24,6 +25,8 @@ interface MediaPlayerProps {
   videoFiles: TrackWithFiles[] | null;
   volume: number;
   setVolume: React.Dispatch<React.SetStateAction<number>>;
+  mediaDuration: number;
+  setMediaDuration: React.Dispatch<React.SetStateAction<number>>;
   mediaProgress: number;
   setMediaProgress: React.Dispatch<React.SetStateAction<number>>;
   storedMediaProgress: number;
@@ -49,6 +52,8 @@ const MediaPlayer = ({
   videoFiles,
   volume,
   setVolume,
+  mediaDuration,
+  setMediaDuration,
   mediaProgress,
   setMediaProgress,
   storedMediaProgress,
@@ -105,19 +110,24 @@ const MediaPlayer = ({
     else return '-----';
   };
 
-    // get media image
-    const getMediaImage = (): string | StaticImport => {
-      if (mediaSelected === 'audio' && audioFiles) {
-        try { // try to get regular image, otherwise load the fallback
-          return tape.modules[currentModuleIndex].additionalItem[0].url;
-        }
-        catch (e) {
-          return fallbackImage;
-        }
+  // get media image
+  const getMediaImage = (): string | StaticImport => {
+    if (mediaSelected === 'audio' && audioFiles) {
+      try { // try to get regular image, otherwise load the fallback
+        return tape.modules[currentModuleIndex].additionalItem[0].url;
       }
-      else if (mediaSelected === 'video') return tape.modules[0].additionalItem[0].url;
-      else return fallbackImage;
-    };  
+      catch (e) {
+        return fallbackImage;
+      }
+    }
+    else if (mediaSelected === 'video') return tape.modules[0].additionalItem[0].url;
+    else return fallbackImage;
+  };  
+
+  // update media duration when song duration changes
+  useEffect(() => {
+    if (mediaSelected === 'audio') setMediaDuration(songDuration);
+  }, [songDuration, mediaSelected]);
 
   useEffect(() => {
     // This useEffect is for audio only
@@ -401,7 +411,7 @@ const MediaPlayer = ({
             </button>
           </div>
           <div className={styles.progressBarWrapper}>
-            <p className={styles.progressTime}>0:00</p>
+            <p className={styles.progressTime}>{getTimeInMinutes(mediaProgress)}</p>
             <MediaProgressBar
               mediaProgress={mediaProgress}
               setMediaProgress={setMediaProgress}
@@ -413,7 +423,7 @@ const MediaPlayer = ({
               setIsMediaPlaying={setIsMediaPlaying}
               handlePauseResume={handlePauseResume}
             />
-            <p className={styles.progressTime}>2:45</p>
+            <p className={styles.progressTime}>{getTimeInMinutes(mediaDuration)}</p>
           </div>
         </div>
         <div className={styles.musicPlayerRight}>
