@@ -1,4 +1,4 @@
-import getFolderIds from '@/pages/tape/getFolderIds';
+import getFolderIds from '@/components/Helper Functions/getFolderIds';
 import fetchItemFile from './fetchItemFile';
 import getTapeInfoJSON from './getTapeInfoJSON';
 import { Akord } from '@akord/akord-js';

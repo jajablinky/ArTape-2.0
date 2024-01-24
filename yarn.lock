@@ -5,31 +5,31 @@ __metadata:
   version: 8
   cacheKey: 10
 
-"@akord/akord-auth@npm:0.28.0":
-  version: 0.28.0
-  resolution: "@akord/akord-auth@npm:0.28.0"
+"@akord/akord-auth@npm:0.29.1":
+  version: 0.29.1
+  resolution: "@akord/akord-auth@npm:0.29.1"
   dependencies:
     "@akord/crypto": "npm:0.10.0"
     amazon-cognito-identity-js: "npm:6.1.2"
-  checksum: b0c330f102af4c2e0628473f01816d3b4b5160e5a645470f69eb86ce06c6ebf914fa8e145ebaeec2dda4a258ccbae5e1abfbb6934c65e971cedaf453ccde772a
+  checksum: 9ed26d14f1070f929079528c9b0f0c3b6bcfe05c9c0ea44940966f27b36268487675566f542819718e6fabe11977ee7f453d2606b3a77c3147cd523c6dcef3be
   languageName: node
   linkType: hard
 
-"@akord/akord-js@npm:4.19.1-beta.0":
-  version: 4.19.1-beta.0
-  resolution: "@akord/akord-js@npm:4.19.1-beta.0"
+"@akord/akord-js@npm:latest":
+  version: 4.23.8
+  resolution: "@akord/akord-js@npm:4.23.8"
   dependencies:
-    "@akord/akord-auth": "npm:0.28.0"
+    "@akord/akord-auth": "npm:0.29.1"
     "@akord/crypto": "npm:0.11.0"
-    "@akord/ts-cacheable": "npm:1.0.11"
-    axios: "npm:^0.24.0"
+    "@akord/ts-cacheable": "npm:1.0.13"
+    axios: "npm:^1.6.2"
     lodash: "npm:^4.17.21"
     mime-types: "npm:^2.1.35"
     rxjs: "npm:^7.5.6"
     streamsaver: "npm:^2.0.6"
     uuid: "npm:^8.3.2"
     web-streams-polyfill: "npm:^3.2.1"
-  checksum: 697989b410f3abdb63e2e2a2e6173ae679e5295e1668a527f76f6dd0dbfeb494c999b46c1cb80fdcd68f602fe54a04e0f87b1d6f01056386ca64781044cc489f
+  checksum: 6751d62237ad958a33b8769c2ef6b38c7ecada0f3bde6c185888ecaad93d452cc4a42e37948171c1b989afeeaec9a52f35b7b5eec91ffcb44f4e5e69524769b7
   languageName: node
   linkType: hard
 
@@ -75,14 +75,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@akord/ts-cacheable@npm:1.0.11":
-  version: 1.0.11
-  resolution: "@akord/ts-cacheable@npm:1.0.11"
+"@akord/ts-cacheable@npm:1.0.13":
+  version: 1.0.13
+  resolution: "@akord/ts-cacheable@npm:1.0.13"
   dependencies:
     rxjs: "npm:^7.5.6"
   peerDependencies:
     rxjs: ^6.6.0 || ^7.4.0
-  checksum: 9f7cb05b62b36a77f10f9e2d3ae2b3e5af1999bfeea09d37811eaabc6a4eb02d83940e45acfbbf7469226c66fecd4d9616ae808ddda46863470596e2f7d0c33e
+  checksum: a186d8577b2576ff4078b84d6194bee2626f83af5861a83edb3a09cdd7f5d3f991179a0debe8519087746b7ec6e6168d8a7fe134f46bdde30ecbbda93f0b3931
   languageName: node
   linkType: hard
 
@@ -2035,7 +2035,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "artape-2@workspace:."
   dependencies:
-    "@akord/akord-js": "npm:4.19.1-beta.0"
+    "@akord/akord-js": "npm:latest"
     "@rive-app/react-canvas": "npm:^3.0.55"
     "@svgr/webpack": "npm:^8.0.1"
     "@types/node": "npm:^20.4.4"
@@ -2056,12 +2056,21 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"axios@npm:^0.24.0":
-  version: 0.24.0
-  resolution: "axios@npm:0.24.0"
+"asynckit@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "asynckit@npm:0.4.0"
+  checksum: 3ce727cbc78f69d6a4722517a58ee926c8c21083633b1d3fdf66fd688f6c127a53a592141bd4866f9b63240a86e9d8e974b13919450bd17fa33c2d22c4558ad8
+  languageName: node
+  linkType: hard
+
+"axios@npm:^1.6.2":
+  version: 1.6.5
+  resolution: "axios@npm:1.6.5"
   dependencies:
-    follow-redirects: "npm:^1.14.4"
-  checksum: 4c5a7a5a45c909b4ce73fbf54b1fbc52a2290fc37cc51e64f8ef2ba8ac5f76a2e369a08ddfd7ec50317528d5aa55f5987cc56fb320923ef87e1b87f8ff05b5ba
+    follow-redirects: "npm:^1.15.4"
+    form-data: "npm:^4.0.0"
+    proxy-from-env: "npm:^1.1.0"
+  checksum: 465489d9bf8f039b9adbc8103b6299d6a5e26de77b27f0e4173d814d39bca8f4b4659d94e09ee40461aedccd8c2452f1e2b3edace1c9f81220060d2974ff9dc7
   languageName: node
   linkType: hard
 
@@ -2230,6 +2239,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"combined-stream@npm:^1.0.8":
+  version: 1.0.8
+  resolution: "combined-stream@npm:1.0.8"
+  dependencies:
+    delayed-stream: "npm:~1.0.0"
+  checksum: 2e969e637d05d09fa50b02d74c83a1186f6914aae89e6653b62595cc75a221464f884f55f231b8f4df7a49537fba60bdc0427acd2bf324c09a1dbb84837e36e4
+  languageName: node
+  linkType: hard
+
 "commander@npm:^7.2.0":
   version: 7.2.0
   resolution: "commander@npm:7.2.0"
@@ -2342,6 +2360,13 @@ __metadata:
   version: 4.3.1
   resolution: "deepmerge@npm:4.3.1"
   checksum: 058d9e1b0ff1a154468bf3837aea436abcfea1ba1d165ddaaf48ca93765fdd01a30d33c36173da8fbbed951dd0a267602bc782fe288b0fc4b7e1e7091afc4529
+  languageName: node
+  linkType: hard
+
+"delayed-stream@npm:~1.0.0":
+  version: 1.0.0
+  resolution: "delayed-stream@npm:1.0.0"
+  checksum: 46fe6e83e2cb1d85ba50bd52803c68be9bd953282fa7096f51fc29edd5d67ff84ff753c51966061e5ba7cb5e47ef6d36a91924eddb7f3f3483b1c560f77a0020
   languageName: node
   linkType: hard
 
@@ -2500,13 +2525,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"follow-redirects@npm:^1.14.4":
+"follow-redirects@npm:^1.15.4":
   version: 1.15.5
   resolution: "follow-redirects@npm:1.15.5"
   peerDependenciesMeta:
     debug:
       optional: true
   checksum: d467f13c1c6aa734599b8b369cd7a625b20081af358f6204ff515f6f4116eb440de9c4e0c49f10798eeb0df26c95dd05d5e0d9ddc5786ab1a8a8abefe92929b4
+  languageName: node
+  linkType: hard
+
+"form-data@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "form-data@npm:4.0.0"
+  dependencies:
+    asynckit: "npm:^0.4.0"
+    combined-stream: "npm:^1.0.8"
+    mime-types: "npm:^2.1.12"
+  checksum: 7264aa760a8cf09482816d8300f1b6e2423de1b02bba612a136857413fdc96d7178298ced106817655facc6b89036c6e12ae31c9eb5bdc16aabf502ae8a5d805
   languageName: node
   linkType: hard
 
@@ -2820,7 +2856,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mime-types@npm:^2.1.35":
+"mime-types@npm:^2.1.12, mime-types@npm:^2.1.35":
   version: 2.1.35
   resolution: "mime-types@npm:2.1.35"
   dependencies:
@@ -3001,6 +3037,13 @@ __metadata:
     picocolors: "npm:^1.0.0"
     source-map-js: "npm:^1.0.2"
   checksum: 1940e8d1da04a2ac3e518735ab3e9563e2255bfab14cecc8c11fee97b2a36ac5fee496bccfc7057aaae7ff3accae463cd800d746238cf691bd65a32dba5cb7be
+  languageName: node
+  linkType: hard
+
+"proxy-from-env@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "proxy-from-env@npm:1.1.0"
+  checksum: f0bb4a87cfd18f77bc2fba23ae49c3b378fb35143af16cc478171c623eebe181678f09439707ad80081d340d1593cd54a33a0113f3ccb3f4bc9451488780ee23
   languageName: node
   linkType: hard
 

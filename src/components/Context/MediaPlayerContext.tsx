@@ -7,11 +7,17 @@ export type MediaClickType = {
 };
 
 export type MediaPlayerContextProps = {
+  loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+
   isVideoPlaying: boolean;
   setIsVideoPlaying: React.Dispatch<React.SetStateAction<boolean>>;
 
   audioFiles: TrackWithFiles[] | null;
+  setAudioFiles: React.Dispatch<React.SetStateAction<TrackWithFiles[] | null>>;
+
   videoFiles: TrackWithFiles[] | null;
+  setVideoFiles: React.Dispatch<React.SetStateAction<TrackWithFiles[] | null>>;
 
   color: string;
 
@@ -37,17 +43,24 @@ export type MediaPlayerContextProps = {
   setMediaClickType: React.Dispatch<React.SetStateAction<MediaClickType>>;
 
   lastSelectedMedia: number;
+  setLastSelectedMedia: React.Dispatch<React.SetStateAction<number>>;
 
   isMediaPlaying: boolean;
   setIsMediaPlaying: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const defaultState = {
+  loading: false,
+  setLoading: () => {},
+
   isVideoPlaying: false,
   setIsVideoPlaying: () => {},
 
   audioFiles: null,
+  setAudioFiles: () => {},
+
   videoFiles: null,
+  setVideoFiles: () => {},
 
   color: '#000',
 
@@ -75,11 +88,14 @@ const defaultState = {
   >,
 
   lastSelectedMedia: -1,
+  setLastSelectedMedia: () => {},
 
   isMediaPlaying: false,
   setIsMediaPlaying: () => {},
 };
 
 const MediaPlayerContext = createContext<MediaPlayerContextProps>(defaultState);
+
+export const useMediaContext = () => useContext(MediaPlayerContext);
 
 export default MediaPlayerContext;

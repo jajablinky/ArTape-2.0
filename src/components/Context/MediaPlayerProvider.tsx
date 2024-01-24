@@ -11,6 +11,7 @@ type MediaPlayerProviderProps = {
 const MediaPlayerProvider: React.FC<MediaPlayerProviderProps> = ({
   children,
 }) => {
+  const [loading, setLoading] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [audioFiles, setAudioFiles] = useState(null);
   const [videoFiles, setVideoFiles] = useState(null);
@@ -54,6 +55,8 @@ const MediaPlayerProvider: React.FC<MediaPlayerProviderProps> = ({
     setLastSelectedMedia,
     isMediaPlaying,
     setIsMediaPlaying,
+    loading,
+    setLoading,
   };
 
   return (
