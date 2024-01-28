@@ -3,13 +3,16 @@ import styles from '@/styles/Home.module.css';
 import FadeInAndOut from '@/components/FadeInAndOut';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import NavSidebar from '@/components/NavSidebar';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTape } from '@/components/TapeContext';
 import { useRouter } from 'next/router';
 import MediaPlayer from '@/components/MediaPlayer';
 import { MediaClickType } from '../[id]';
 import { TrackWithFiles } from '@/types/TapeInfo';
 import { handleSetModuleAndLastSelected } from '@/components/Helper Functions/handleSetModuleAndLastSelected';
+import ModuleAdditional from '@/components/Helper Functions/ModuleAdditional';
+import InfoIcon from '@/components/Images/UI/InfoIcon';
+import fetchData from '@/components/Helper Functions/fetchData';
 
 const initialClickState: MediaClickType = { button: 'init', clickType: 'init' };
 
@@ -36,10 +39,27 @@ const Module = () => {
   const [videoFiles, setVideoFiles] = useState<TrackWithFiles[] | null>(null);
   const router = useRouter();
 
-  const { id } = router.query;
+  const { moduleNumber, id } = router.query;
 
   const { tape, setTape } = useTape();
   const { modules, color } = tape || {};
+
+  useEffect(() => {
+    if (id && !tape) {
+      fetchData({
+        setLoading,
+        id,
+        setTape,
+        setAudioFiles,
+        setVideoFiles,
+        tape,
+      });
+    }
+  }, [moduleNumber]);
+
+  useEffect(() => {
+    console.log(tape);
+  }, []);
 
   return (
     <>
@@ -64,7 +84,7 @@ const Module = () => {
                         className={styles.profileModule}
                         onClick={() => {
                           handleSetModuleAndLastSelected(
-                            0,
+                            Number(moduleNumber),
                             setLastSelectedMedia,
                             currentModuleIndex,
                             setCurrentModuleIndex
@@ -75,7 +95,17 @@ const Module = () => {
                             clickType: 'audioModule',
                           });
                         }}
-                      ></div>
+                      >
+                        <ModuleAdditional
+                          tape={tape}
+                          currentModuleIndex={currentModuleIndex}
+                          isMediaPlaying={isMediaPlaying}
+                          moduleIndex={Number(moduleNumber)}
+                        />
+                        <div className={styles.infoIcon}>
+                          <InfoIcon color={'var(--artape-black)'} />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

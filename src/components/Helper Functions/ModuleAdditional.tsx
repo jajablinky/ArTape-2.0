@@ -33,7 +33,8 @@ const ModuleAdditional: React.FC<ModuleAdditionalProps> = ({
   }, [emblaApi, isCarouselActive]);
 
   const setCarouselState = () => {
-    if (currentModuleIndex === moduleIndex && isMediaPlaying) setIsCarouselActive(true);
+    if (currentModuleIndex === moduleIndex && isMediaPlaying)
+      setIsCarouselActive(true);
     else setIsCarouselActive(false);
   };
 
@@ -46,8 +47,8 @@ const ModuleAdditional: React.FC<ModuleAdditionalProps> = ({
   }, [currentModuleIndex, isMediaPlaying]);
 
   useEffect(() => {
-	console.log('carousel state for module', moduleIndex, "is", isCarouselActive);
-  }, [isCarouselActive]);
+    console.log('');
+  }, [tape]);
 
   return (
     <div>
