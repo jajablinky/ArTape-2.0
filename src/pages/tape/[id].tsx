@@ -81,6 +81,9 @@ const Tape = () => {
     console.log(loading, 'loading');
   }, [loading]);
 
+  const handleModuleDetailFocus = (moduleNumber: number) => {
+    router.push(`${id}/${moduleNumber}`);
+  };
   return (
     <>
       {loading && <LoadingOverlay progress={progress} />}

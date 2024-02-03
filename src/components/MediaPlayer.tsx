@@ -14,6 +14,7 @@ import VolumeSlider from './VolumeSlider';
 import MediaProgressBar from './MediaProgressBar';
 import { useTape } from './Context/TapeContext';
 import { StaticImport } from 'next/dist/shared/lib/get-img-props';
+import getTimeInMinutes from './Helper Functions/getTimeInMinutes';
 
 interface MediaPlayerProps {
   color: string;
@@ -21,6 +22,8 @@ interface MediaPlayerProps {
   videoFiles: TrackWithFiles[] | null;
   volume: number;
   setVolume: React.Dispatch<React.SetStateAction<number>>;
+  mediaDuration: number;
+  setMediaDuration: React.Dispatch<React.SetStateAction<number>>;
   mediaProgress: number;
   setMediaProgress: React.Dispatch<React.SetStateAction<number>>;
   storedMediaProgress: number;
@@ -45,6 +48,8 @@ const MediaPlayer = ({
   videoFiles,
   volume,
   setVolume,
+  mediaDuration,
+  setMediaDuration,
   mediaProgress,
   setMediaProgress,
   storedMediaProgress,
@@ -386,7 +391,9 @@ const MediaPlayer = ({
             </button>
           </div>
           <div className={styles.progressBarWrapper}>
-            <p className={styles.progressTime}>0:00</p>
+            <p className={styles.progressTime}>
+              {getTimeInMinutes(mediaProgress)}
+            </p>
             <MediaProgressBar
               mediaProgress={mediaProgress}
               setMediaProgress={setMediaProgress}
@@ -398,7 +405,9 @@ const MediaPlayer = ({
               setIsMediaPlaying={setIsMediaPlaying}
               handlePauseResume={handlePauseResume}
             />
-            <p className={styles.progressTime}>2:45</p>
+            <p className={styles.progressTime}>
+              {getTimeInMinutes(mediaDuration)}
+            </p>
           </div>
         </div>
         <div className={styles.musicPlayerRight}>
