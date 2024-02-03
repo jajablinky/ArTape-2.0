@@ -41,6 +41,8 @@ const Tape = () => {
     videoFiles,
     volume,
     setVolume,
+    mediaDuration,
+    setMediaDuration,
     mediaProgress,
     setMediaProgress,
     storedMediaProgress,
@@ -131,6 +133,8 @@ const Tape = () => {
                   color={color}
                   volume={volume}
                   setVolume={setVolume}
+                  mediaDuration={mediaDuration}
+                  setMediaDuration={setMediaDuration}
                   mediaProgress={mediaProgress}
                   setMediaProgress={setMediaProgress}
                   storedMediaProgress={storedMediaProgress}

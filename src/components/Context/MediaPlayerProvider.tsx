@@ -18,6 +18,7 @@ const MediaPlayerProvider: React.FC<MediaPlayerProviderProps> = ({
   const color = '#000';
   const [volume, setVolume] = useState(1);
   const [mediaProgress, setMediaProgress] = useState(0);
+  const [mediaDuration, setMediaDuration] = useState(0);
   const [storedMediaProgress, setStoredMediaProgress] = useState(0);
   const [seekMediaProgress, setSeekMediaProgress] = useState(-1);
   const [currentModuleIndex, setCurrentModuleIndex] = useState(-1);
@@ -39,6 +40,8 @@ const MediaPlayerProvider: React.FC<MediaPlayerProviderProps> = ({
     color,
     volume,
     setVolume,
+    mediaDuration,
+    setMediaDuration,
     mediaProgress,
     setMediaProgress,
     storedMediaProgress,

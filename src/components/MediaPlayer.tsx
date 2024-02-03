@@ -7,7 +7,7 @@ import NextIcon from './Images/UI/NextIcon';
 import PlayIcon from './Images/UI/PlayIcon';
 import PauseIcon from './Images/UI/PauseIcon';
 import { TrackWithFiles } from '@/types/TapeInfo';
-import { MediaClickType } from './Context/MediaPlayerContext';
+import { MediaClickType, useMediaContext } from './Context/MediaPlayerContext';
 import fallbackImage from './Images/Images/dummyProfilePhoto.png';
 
 import VolumeSlider from './VolumeSlider';
@@ -15,64 +15,41 @@ import MediaProgressBar from './MediaProgressBar';
 import { useTape } from './Context/TapeContext';
 import { StaticImport } from 'next/dist/shared/lib/get-img-props';
 import getTimeInMinutes from './Helper Functions/getTimeInMinutes';
+import Image from 'next/image';
 
-interface MediaPlayerProps {
-  color: string;
-  audioFiles: TrackWithFiles[] | null;
-  videoFiles: TrackWithFiles[] | null;
-  volume: number;
-  setVolume: React.Dispatch<React.SetStateAction<number>>;
-  mediaDuration: number;
-  setMediaDuration: React.Dispatch<React.SetStateAction<number>>;
-  mediaProgress: number;
-  setMediaProgress: React.Dispatch<React.SetStateAction<number>>;
-  storedMediaProgress: number;
-  seekMediaProgress: number;
-  setSeekMediaProgress: React.Dispatch<React.SetStateAction<number>>;
-  currentModuleIndex: number;
-  setCurrentModuleIndex: React.Dispatch<React.SetStateAction<number>>;
-  mediaSelected: string;
-  setMediaSelected: React.Dispatch<React.SetStateAction<string>>;
-  isVideoPlaying: boolean;
-  setIsVideoPlaying: React.Dispatch<React.SetStateAction<boolean>>;
-  isMediaPlaying: boolean;
-  setIsMediaPlaying: React.Dispatch<React.SetStateAction<boolean>>;
-  mediaClickType: MediaClickType;
-  setMediaClickType: React.Dispatch<React.SetStateAction<MediaClickType>>;
-  lastSelectedMedia: number;
-}
-
-const MediaPlayer = ({
-  color,
-  audioFiles,
-  videoFiles,
-  volume,
-  setVolume,
-  mediaDuration,
-  setMediaDuration,
-  mediaProgress,
-  setMediaProgress,
-  storedMediaProgress,
-  seekMediaProgress,
-  setSeekMediaProgress,
-  currentModuleIndex,
-  setCurrentModuleIndex,
-  mediaSelected,
-  setMediaSelected,
-  isVideoPlaying,
-  setIsVideoPlaying,
-  isMediaPlaying,
-  setIsMediaPlaying,
-  mediaClickType,
-  setMediaClickType,
-  lastSelectedMedia,
-}: MediaPlayerProps) => {
+const MediaPlayer = () => {
   const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
   const audioPlayer = useRef<HTMLAudioElement | null>(null);
   const [songDuration, setSongDuration] = useState<number>(0);
   const [bufferProgress, setBufferProgress] = useState<number>(0);
 
   const { tape } = useTape();
+  const {
+    isVideoPlaying,
+    setIsVideoPlaying,
+    audioFiles,
+    videoFiles,
+    volume,
+    setVolume,
+    mediaDuration,
+    setMediaDuration,
+    mediaProgress,
+    setMediaProgress,
+    storedMediaProgress,
+    seekMediaProgress,
+    setSeekMediaProgress,
+    currentModuleIndex,
+    setCurrentModuleIndex,
+    mediaSelected,
+    setMediaSelected,
+    mediaClickType,
+    setMediaClickType,
+    lastSelectedMedia,
+    isMediaPlaying,
+    setIsMediaPlaying,
+    color,
+    loading,
+  } = useMediaContext();
 
   // get song name
   const getCurrentMediaName = (): string => {
@@ -99,15 +76,17 @@ const MediaPlayer = ({
   // get media image
   const getMediaImage = (): string | StaticImport => {
     if (tape) {
-      const currentModuleIndexUrl =
-        tape.modules[currentModuleIndex].additionalItem[0].url;
-      const firstModuleIndexUrl = tape.modules[0].additionalItem[0].url;
+      if (tape.modules[currentModuleIndex].additionalItem[0]) {
+        const currentModuleIndexUrl =
+          tape.modules[currentModuleIndex].additionalItem[0].url;
+        const firstModuleIndexUrl = tape.modules[0].additionalItem[0].url;
 
-      if (currentModuleIndexUrl && firstModuleIndexUrl) {
-        if (mediaSelected === 'audio' && audioFiles && tape) {
-          return currentModuleIndexUrl;
-        } else if (mediaSelected === 'video' && tape) {
-          return firstModuleIndexUrl;
+        if (currentModuleIndexUrl && firstModuleIndexUrl) {
+          if (mediaSelected === 'audio' && audioFiles && tape) {
+            return currentModuleIndexUrl;
+          } else if (mediaSelected === 'video' && tape) {
+            return firstModuleIndexUrl;
+          }
         }
       }
     }
@@ -337,6 +316,11 @@ const MediaPlayer = ({
   const handleEnded = (): void => {
     handleNextMedia();
   };
+
+  // update media duration when song duration changes
+  useEffect(() => {
+    if (mediaSelected === 'audio') setMediaDuration(songDuration);
+  }, [songDuration, mediaSelected]);
 
   return (
     <div className={styles.AudioPlayer}>

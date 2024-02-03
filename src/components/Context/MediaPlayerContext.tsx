@@ -24,6 +24,9 @@ export type MediaPlayerContextProps = {
   volume: number;
   setVolume: React.Dispatch<React.SetStateAction<number>>;
 
+  mediaDuration: number;
+  setMediaDuration: React.Dispatch<React.SetStateAction<number>>;
+
   mediaProgress: number;
   setMediaProgress: React.Dispatch<React.SetStateAction<number>>;
 
@@ -66,6 +69,9 @@ const defaultState = {
 
   volume: 1,
   setVolume: () => {},
+
+  mediaDuration: 0,
+  setMediaDuration: () => {},
 
   mediaProgress: 0,
   setMediaProgress: () => {},
