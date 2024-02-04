@@ -67,7 +67,7 @@ const Tape = () => {
   } = useMediaContext();
 
   useEffect(() => {
-    if (id) {
+    if (id && !tape) {
       fetchData({
         setLoading,
         id,
@@ -109,15 +109,18 @@ const Tape = () => {
                   });
                 }}
               >
+                <div
+                  className={styles.infoIcon}
+                  onClick={() => handleModuleDetailFocus(0)}
+                >
+                  <InfoIcon color={'var(--artape-black)'} />
+                </div>
                 <ModuleAdditional
                   tape={tape}
                   currentModuleIndex={currentModuleIndex}
                   isMediaPlaying={isMediaPlaying}
                   moduleIndex={0}
                 />{' '}
-                <div className={styles.infoIcon}>
-                  <InfoIcon color={'var(--artape-black)'} />
-                </div>
               </div>
               <div
                 className={styles.profileModuleRectangle}
@@ -130,15 +133,12 @@ const Tape = () => {
                   setIsVideoPlaying={setIsVideoPlaying}
                   videoFiles={videoFiles}
                   seekMediaProgress={seekMediaProgress}
-                  color={color}
                   volume={volume}
                   setVolume={setVolume}
                   mediaDuration={mediaDuration}
                   setMediaDuration={setMediaDuration}
                   mediaProgress={mediaProgress}
                   setMediaProgress={setMediaProgress}
-                  storedMediaProgress={storedMediaProgress}
-                  setStoredMediaProgress={setStoredMediaProgress}
                   currentModuleIndex={currentModuleIndex}
                   setCurrentModuleIndex={setCurrentModuleIndex}
                   mediaSelected={mediaSelected}
@@ -146,7 +146,6 @@ const Tape = () => {
                   mediaClickType={mediaClickType}
                   setMediaClickType={setMediaClickType}
                   setLastSelectedMedia={setLastSelectedMedia}
-                  isMediaPlaying={isMediaPlaying}
                   setIsMediaPlaying={setIsMediaPlaying}
                 />
               </div>

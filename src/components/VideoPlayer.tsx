@@ -3,11 +3,10 @@ import { motion } from 'framer-motion';
 import styles from '@/styles/Home.module.css';
 
 import { TrackWithFiles } from '@/types/TapeInfo';
-import { MediaClickType } from '@/pages/tape/[id]';
+import { MediaClickType } from './Context/MediaPlayerContext';
 import { handleSetModuleAndLastSelected } from './Helper Functions/handleSetModuleAndLastSelected';
 
 interface VideoPlayerProps {
-  color: string;
   videoFiles: TrackWithFiles[] | null;
   volume: number;
   setVolume: React.Dispatch<React.SetStateAction<number>>;
@@ -16,15 +15,14 @@ interface VideoPlayerProps {
   mediaProgress: number;
   setMediaProgress: React.Dispatch<React.SetStateAction<number>>;
   seekMediaProgress: number;
-  storedMediaProgress: number;
-  setStoredMediaProgress: React.Dispatch<React.SetStateAction<number>>;
+
   currentModuleIndex: number;
   setCurrentModuleIndex: React.Dispatch<React.SetStateAction<number>>;
   mediaSelected: string;
   setMediaSelected: React.Dispatch<React.SetStateAction<string>>;
   isVideoPlaying: boolean;
   setIsVideoPlaying: React.Dispatch<React.SetStateAction<boolean>>;
-  isMediaPlaying: boolean;
+
   setIsMediaPlaying: React.Dispatch<React.SetStateAction<boolean>>;
   mediaClickType: MediaClickType;
   setMediaClickType: React.Dispatch<React.SetStateAction<MediaClickType>>;
@@ -32,16 +30,13 @@ interface VideoPlayerProps {
 }
 
 const VideoPlayer = ({
-  color,
   videoFiles,
   volume,
-  setVolume,
-  mediaDuration,
+
   setMediaDuration,
-  mediaProgress,
+
   setMediaProgress,
-  storedMediaProgress,
-  setStoredMediaProgress,
+
   seekMediaProgress,
   currentModuleIndex,
   setCurrentModuleIndex,
@@ -49,7 +44,7 @@ const VideoPlayer = ({
   setMediaSelected,
   isVideoPlaying,
   setIsVideoPlaying,
-  isMediaPlaying,
+
   setIsMediaPlaying,
   mediaClickType,
   setMediaClickType,

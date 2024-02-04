@@ -3,6 +3,7 @@ import MediaPlayerContext, {
   MediaClickType,
   MediaPlayerContextProps,
 } from './MediaPlayerContext';
+import { TrackWithFiles } from '@/types/TapeInfo';
 
 type MediaPlayerProviderProps = {
   children: React.ReactNode;
@@ -13,8 +14,8 @@ const MediaPlayerProvider: React.FC<MediaPlayerProviderProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
-  const [audioFiles, setAudioFiles] = useState(null);
-  const [videoFiles, setVideoFiles] = useState(null);
+  const [audioFiles, setAudioFiles] = useState<TrackWithFiles[] | null>(null);
+  const [videoFiles, setVideoFiles] = useState<TrackWithFiles[] | null>(null);
   const color = '#000';
   const [volume, setVolume] = useState(1);
   const [mediaProgress, setMediaProgress] = useState(0);
