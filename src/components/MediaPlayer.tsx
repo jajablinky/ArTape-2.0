@@ -2,109 +2,72 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import styles from '@/styles/Home.module.css';
 
-import Loader from './Loader';
-
 import PrevIcon from './Images/UI/PrevIcon';
 import NextIcon from './Images/UI/NextIcon';
 import PlayIcon from './Images/UI/PlayIcon';
 import PauseIcon from './Images/UI/PauseIcon';
 import { TrackWithFiles } from '@/types/TapeInfo';
-import { MediaClickType } from '@/pages/tape/[id]';
-import fallbackImage from './Images/Images/dummyProfilePhoto.png'
+import { MediaClickType, useMediaContext } from './Context/MediaPlayerContext';
+import fallbackImage from './Images/Images/dummyProfilePhoto.png';
 
-import Image from 'next/image';
 import VolumeSlider from './VolumeSlider';
 import MediaProgressBar from './MediaProgressBar';
-import { useTape } from './TapeContext';
+import { useTape } from './Context/TapeContext';
 import { StaticImport } from 'next/dist/shared/lib/get-img-props';
 import getTimeInMinutes from './Helper Functions/getTimeInMinutes';
+import Image from 'next/image';
 
-interface MediaPlayerProps {
-  color: string;
-  audioFiles: TrackWithFiles[] | null;
-  videoFiles: TrackWithFiles[] | null;
-  volume: number;
-  setVolume: React.Dispatch<React.SetStateAction<number>>;
-  mediaDuration: number;
-  setMediaDuration: React.Dispatch<React.SetStateAction<number>>;
-  mediaProgress: number;
-  setMediaProgress: React.Dispatch<React.SetStateAction<number>>;
-  storedMediaProgress: number;
-  setStoredMediaProgress: React.Dispatch<React.SetStateAction<number>>;
-  seekMediaProgress: number;
-  setSeekMediaProgress: React.Dispatch<React.SetStateAction<number>>;
-  currentModuleIndex: number;
-  setCurrentModuleIndex: React.Dispatch<React.SetStateAction<number>>;
-  mediaSelected: string;
-  setMediaSelected: React.Dispatch<React.SetStateAction<string>>;
-  isVideoPlaying: boolean;
-  setIsVideoPlaying: React.Dispatch<React.SetStateAction<boolean>>;
-  isMediaPlaying: boolean;
-  setIsMediaPlaying: React.Dispatch<React.SetStateAction<boolean>>;
-  mediaClickType: MediaClickType;
-  setMediaClickType: React.Dispatch<React.SetStateAction<MediaClickType>>;
-  lastSelectedMedia: number;
-}
-
-const MediaPlayer = ({
-  color,
-  audioFiles,
-  videoFiles,
-  volume,
-  setVolume,
-  mediaDuration,
-  setMediaDuration,
-  mediaProgress,
-  setMediaProgress,
-  storedMediaProgress,
-  setStoredMediaProgress,
-  seekMediaProgress,
-  setSeekMediaProgress,
-  currentModuleIndex,
-  setCurrentModuleIndex,
-  mediaSelected,
-  setMediaSelected,
-  isVideoPlaying,
-  setIsVideoPlaying,
-  isMediaPlaying,
-  setIsMediaPlaying,
-  mediaClickType,
-  setMediaClickType,
-  lastSelectedMedia,
-}: MediaPlayerProps) => {
-  const [audioFetched, setAudioFetched] = useState<boolean>(true);
-
-  // need to raise this to [id] file
-  //const [isMediaPlaying, setIsMediaPlaying] = useState<boolean>(false);
-
+const MediaPlayer = () => {
   const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
   const audioPlayer = useRef<HTMLAudioElement | null>(null);
   const [songDuration, setSongDuration] = useState<number>(0);
   const [bufferProgress, setBufferProgress] = useState<number>(0);
 
-  const {tape} = useTape();
-
-  // check if mouse button held
-  const [mouseDown, setMouseDown] = useState<boolean>(false);
-  onmousedown = function () {
-    setMouseDown(true);
-  };
-  onmouseup = function () {
-    setMouseDown(false);
-  };
+  const { tape } = useTape();
+  const {
+    isVideoPlaying,
+    setIsVideoPlaying,
+    audioFiles,
+    videoFiles,
+    volume,
+    setVolume,
+    mediaDuration,
+    setMediaDuration,
+    mediaProgress,
+    setMediaProgress,
+    storedMediaProgress,
+    seekMediaProgress,
+    setSeekMediaProgress,
+    currentModuleIndex,
+    setCurrentModuleIndex,
+    mediaSelected,
+    setMediaSelected,
+    mediaClickType,
+    setMediaClickType,
+    lastSelectedMedia,
+    isMediaPlaying,
+    setIsMediaPlaying,
+    color,
+    loading,
+  } = useMediaContext();
 
   // get song name
   const getCurrentMediaName = (): string => {
     if (mediaSelected === 'audio' && audioFiles)
-      return currentModuleIndex === 0 ? audioFiles[currentModuleIndex].metadata.name : audioFiles[currentModuleIndex - 1].metadata.name;
-    else if (mediaSelected === 'video' && videoFiles) return videoFiles[0].metadata.name;
+      return currentModuleIndex === 0
+        ? audioFiles[currentModuleIndex].metadata.name
+        : audioFiles[currentModuleIndex - 1].metadata.name;
+    else if (mediaSelected === 'video' && videoFiles)
+      return videoFiles[0].metadata.name;
     else return '-----';
   };
 
   // get artist name
   const getArtistName = (): string => {
     if (mediaSelected === 'audio' && audioFiles)
-      return currentModuleIndex === 0 ? audioFiles[currentModuleIndex].metadata.artistName : audioFiles[currentModuleIndex - 1].metadata.artistName;
+      return currentModuleIndex === 0
+        ? audioFiles[currentModuleIndex].metadata.artistName
+        : audioFiles[currentModuleIndex - 1].metadata.artistName;
     else if (mediaSelected === 'video' && videoFiles)
       return videoFiles[0].metadata.artistName;
     else return '-----';
@@ -112,31 +75,29 @@ const MediaPlayer = ({
 
   // get media image
   const getMediaImage = (): string | StaticImport => {
-    if (mediaSelected === 'audio' && audioFiles) {
-      try { // try to get regular image, otherwise load the fallback
-        return tape.modules[currentModuleIndex].additionalItem[0].url;
-      }
-      catch (e) {
-        return fallbackImage;
+    if (tape) {
+      if (tape.modules[currentModuleIndex].additionalItem[0]) {
+        const currentModuleIndexUrl =
+          tape.modules[currentModuleIndex].additionalItem[0].url;
+        const firstModuleIndexUrl = tape.modules[0].additionalItem[0].url;
+
+        if (currentModuleIndexUrl && firstModuleIndexUrl) {
+          if (mediaSelected === 'audio' && audioFiles && tape) {
+            return currentModuleIndexUrl;
+          } else if (mediaSelected === 'video' && tape) {
+            return firstModuleIndexUrl;
+          }
+        }
       }
     }
-    else if (mediaSelected === 'video') return tape.modules[0].additionalItem[0].url;
-    else return fallbackImage;
-  };  
-
-  // update media duration when song duration changes
-  useEffect(() => {
-    if (mediaSelected === 'audio') setMediaDuration(songDuration);
-  }, [songDuration, mediaSelected]);
+    return fallbackImage;
+  };
 
   useEffect(() => {
-    // This useEffect is for audio only
-
     if (!audioPlayer.current) {
       audioPlayer.current = new Audio();
     }
 
-    // load music
     if (
       (mediaSelected === 'audio' &&
         mediaClickType.clickType === 'audioModule' &&
@@ -145,7 +106,10 @@ const MediaPlayer = ({
         (mediaClickType.button === 'prev' || mediaClickType.button === 'next'))
     ) {
       if (audioPlayer.current && currentModuleIndex !== -1 && audioFiles) {
-        const currentAudioUrl = currentModuleIndex === 0 ? audioFiles[currentModuleIndex].url : audioFiles[currentModuleIndex - 1].url;
+        const currentAudioUrl =
+          currentModuleIndex === 0
+            ? audioFiles[currentModuleIndex].url
+            : audioFiles[currentModuleIndex - 1].url;
         if (currentAudioUrl) {
           audioPlayer.current.removeEventListener('ended', handleEnded);
           audioPlayer.current.src = currentAudioUrl;
@@ -353,20 +317,20 @@ const MediaPlayer = ({
     handleNextMedia();
   };
 
+  // update media duration when song duration changes
+  useEffect(() => {
+    if (mediaSelected === 'audio') setMediaDuration(songDuration);
+  }, [songDuration, mediaSelected]);
+
   return (
-    <>
+    <div className={styles.AudioPlayer}>
       <motion.div
         className={styles.musicPlayerContainer}
         onClick={(e) => e.stopPropagation()}
       >
         <div className={styles.musicPlayerLeft}>
           <div className={styles.musicPlayerArtwork}>
-          <Image
-              src={getMediaImage()}
-              alt={'test'}
-              height={60}
-              width={60}
-            />
+            {/* <Image src={getMediaImage()} alt={'test'} height={60} width={60} /> */}
           </div>
           <div className={styles.musicPlayerText}>
             <p className={styles.songName}>{getCurrentMediaName()}</p>
@@ -411,7 +375,9 @@ const MediaPlayer = ({
             </button>
           </div>
           <div className={styles.progressBarWrapper}>
-            <p className={styles.progressTime}>{getTimeInMinutes(mediaProgress)}</p>
+            <p className={styles.progressTime}>
+              {getTimeInMinutes(mediaProgress)}
+            </p>
             <MediaProgressBar
               mediaProgress={mediaProgress}
               setMediaProgress={setMediaProgress}
@@ -423,14 +389,16 @@ const MediaPlayer = ({
               setIsMediaPlaying={setIsMediaPlaying}
               handlePauseResume={handlePauseResume}
             />
-            <p className={styles.progressTime}>{getTimeInMinutes(mediaDuration)}</p>
+            <p className={styles.progressTime}>
+              {getTimeInMinutes(mediaDuration)}
+            </p>
           </div>
         </div>
         <div className={styles.musicPlayerRight}>
           <VolumeSlider volume={volume} setVolume={setVolume} />
         </div>
       </motion.div>
-    </>
+    </div>
   );
 };
 

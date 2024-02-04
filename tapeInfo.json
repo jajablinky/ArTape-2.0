@@ -50,10 +50,10 @@
       "track": {
         "type": "audio",
         "metadata": {
-          "name": "Supernova",
+          "name": "Spend The Money",
           "artistName": "Fousheé",
-          "duration": 91.718821,
-          "fileName": "03-supernova.mp3"
+          "duration": 198.344853,
+          "fileName": "03-spend the money.mp3"
         }
       },
       "additional": [
@@ -79,10 +79,10 @@
       "track": {
         "type": "audio",
         "metadata": {
-          "name": "Spend The Money",
+          "name": "Clap For Him",
           "artistName": "Fousheé",
-          "duration": 198.344853,
-          "fileName": "04-spend the money.mp3"
+          "duration": 180,
+          "fileName": "04-clap for him.mp3"
         }
       },
       "additional": [
@@ -108,10 +108,10 @@
       "track": {
         "type": "audio",
         "metadata": {
-          "name": "Clap For Him",
+          "name": "Supernova",
           "artistName": "Fousheé",
-          "duration": 180,
-          "fileName": "05-clap for him.mp3"
+          "duration": 91.718821,
+          "fileName": "05-supernova.mp3"
         }
       },
       "additional": [
@@ -195,10 +195,10 @@
       "track": {
         "type": "audio",
         "metadata": {
-          "name": "Single AF",
+          "name": "Double Standard",
           "artistName": "Fousheé",
           "duration": 279,
-          "fileName": "07-single af.mp3"
+          "fileName": "08-double standard.mp3"
         }
       },
       "additional": [

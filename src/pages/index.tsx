@@ -5,7 +5,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { useRouter } from 'next/router';
 import { Akord, Auth, NodeLike } from '@akord/akord-js';
 
-import { useTape } from '@/components/TapeContext';
+import { useTape } from '@/components/Context/TapeContext';
 import Link from 'next/link';
 import Loader from '@/components/Loader';
 import LoadingOverlay from '@/components/LoadingOverlay';
