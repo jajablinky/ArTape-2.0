@@ -93,34 +93,35 @@ const Tape = () => {
         <>
           <div className={styles.scrollableContainer}>
             <div className={styles.gridProfile}>
-              <div
-                className={styles.profileModule}
-                onClick={() => {
-                  handleSetModuleAndLastSelected(
-                    0,
-                    setLastSelectedMedia,
-                    currentModuleIndex,
-                    setCurrentModuleIndex
-                  );
-                  setMediaSelected('audio');
-                  setMediaClickType({
-                    button: 'module',
-                    clickType: 'audioModule',
-                  });
-                }}
-              >
-                <div
+              <div className={styles.profileModule}>
+                <button
                   className={styles.infoIcon}
                   onClick={() => handleModuleDetailFocus(0)}
                 >
-                  <InfoIcon color={'var(--artape-black)'} />
+                  <InfoIcon color={'var(--artape-white)'} />
+                </button>
+                <div
+                  onClick={() => {
+                    handleSetModuleAndLastSelected(
+                      0,
+                      setLastSelectedMedia,
+                      currentModuleIndex,
+                      setCurrentModuleIndex
+                    );
+                    setMediaSelected('audio');
+                    setMediaClickType({
+                      button: 'module',
+                      clickType: 'audioModule',
+                    });
+                  }}
+                >
+                  <ModuleAdditional
+                    tape={tape}
+                    currentModuleIndex={currentModuleIndex}
+                    isMediaPlaying={isMediaPlaying}
+                    moduleIndex={0}
+                  />
                 </div>
-                <ModuleAdditional
-                  tape={tape}
-                  currentModuleIndex={currentModuleIndex}
-                  isMediaPlaying={isMediaPlaying}
-                  moduleIndex={0}
-                />{' '}
               </div>
               <div
                 className={styles.profileModuleRectangle}
@@ -148,6 +149,12 @@ const Tape = () => {
                   setLastSelectedMedia={setLastSelectedMedia}
                   setIsMediaPlaying={setIsMediaPlaying}
                 />
+                <button
+                  className={styles.infoIcon}
+                  onClick={() => handleModuleDetailFocus(1)}
+                >
+                  <InfoIcon color={'var(--artape-black)'} />
+                </button>
               </div>
 
               {tape.modules &&
@@ -157,24 +164,14 @@ const Tape = () => {
                     return (
                       <div
                         className={`${styles.profileModule} moduleIndex${moduleIndex}`}
-                        onClick={() => {
-                          handleSetModuleAndLastSelected(
-                            moduleIndex,
-                            setLastSelectedMedia,
-                            currentModuleIndex,
-                            setCurrentModuleIndex
-                          );
-                          setMediaSelected('audio');
-                          setMediaClickType({
-                            button: 'module',
-                            clickType: 'audioModule',
-                          });
-                        }}
                         key={`${moduleIndex}`}
                       >
-                        <div className={styles.infoIcon}>
-                          <InfoIcon color={'var(--artape-black)'} />
-                        </div>
+                        <button
+                          className={styles.infoIcon}
+                          onClick={() => handleModuleDetailFocus(moduleIndex)}
+                        >
+                          <InfoIcon color={'var(--artape-white)'} />
+                        </button>
                         {module.additionalItem.map((image, imageIndex) => {
                           if (!image.url) {
                             return null;
@@ -182,6 +179,19 @@ const Tape = () => {
                           return (
                             <div
                               key={`${moduleIndex}-${imageIndex}`} // Combined key from module and image indices
+                              onClick={() => {
+                                handleSetModuleAndLastSelected(
+                                  moduleIndex,
+                                  setLastSelectedMedia,
+                                  currentModuleIndex,
+                                  setCurrentModuleIndex
+                                );
+                                setMediaSelected('audio');
+                                setMediaClickType({
+                                  button: 'module',
+                                  clickType: 'audioModule',
+                                });
+                              }}
                             >
                               <ModuleAdditional
                                 tape={tape}

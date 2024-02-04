@@ -15,6 +15,7 @@ const FadeInAndOut: React.FC<FadeInAndOutProps> = ({ children }) => {
       transition={{
         duration: 0.3,
       }}
+      style={{ width: '100%' }}
     >
       {children}
     </motion.div>

@@ -206,6 +206,14 @@
   gap: 10px;
 }
 
+.songDetailTop {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .aboveGrid {
   display: flex;
   flex-direction: column;
@@ -238,7 +246,23 @@
   aspect-ratio: 1/1;
 }
 
+.profileModuleDetail {
+  position: relative;
+  background: (var(--artape-black));
+  text-align: center;
+  color: var(--artape-black);
+  transition: all 100ms ease-in-out;
+  overflow: hidden;
+  aspect-ratio: 1/1;
+  width: 300px;
+}
+
 .profileModule:hover {
+  opacity: 90%;
+  cursor: pointer;
+}
+
+.profileModuleDetail:hover {
   opacity: 90%;
   cursor: pointer;
 }
