@@ -16,6 +16,7 @@ import fetchData from '@/components/Helper Functions/fetchData';
 import { ModuleWithFiles } from '@/types/TapeInfo';
 import ModuleAdditional from '@/components/Helper Functions/ModuleAdditional';
 import { useMediaContext } from '@/components/Context/MediaPlayerContext';
+import ModuleStats from '@/components/ModuleStats';
 
 interface Image {
   moduleId: number | string | null;
@@ -93,7 +94,8 @@ const Tape = () => {
         <>
           <div className={styles.scrollableContainer}>
             <div className={styles.gridProfile}>
-              <div className={styles.profileModule}>
+              <div className={styles.firstProfileModule}>
+                <ModuleStats />
                 <button
                   className={styles.infoIcon}
                   onClick={() => handleModuleDetailFocus(0)}
@@ -129,6 +131,8 @@ const Tape = () => {
                   backgroundColor: 'var(--artape-primary-color)',
                 }}
               >
+                <ModuleStats />
+
                 <VideoPlayer
                   isVideoPlaying={isVideoPlaying}
                   setIsVideoPlaying={setIsVideoPlaying}
@@ -166,6 +170,7 @@ const Tape = () => {
                         className={`${styles.profileModule} moduleIndex${moduleIndex}`}
                         key={`${moduleIndex}`}
                       >
+                        <ModuleStats />
                         <button
                           className={styles.infoIcon}
                           onClick={() => handleModuleDetailFocus(moduleIndex)}

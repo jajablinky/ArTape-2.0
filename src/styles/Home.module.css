@@ -2,6 +2,7 @@
   display: flex;
   --artape-primary-color: #ff9500;
   --artape-black: #242424;
+  --artape-black-light: #24242490;
 }
 
 .fullContainer {
@@ -33,30 +34,6 @@
   padding: 24px 0px 24px 0px;
 }
 
-.vaultSelection input[type='radio'] {
-  -webkit-appearance: none;
-  appearance: none;
-  margin: 0;
-  width: 8em;
-  height: 8em;
-  border: 0.15em solid;
-  display: grid;
-  place-content: center;
-  cursor: pointer;
-  transition: all 150ms;
-  background-color: var(--artape-primary-color);
-}
-
-.vaultSelection input[type='radio']:hover {
-  transform: scale(1.02);
-  opacity: 50%;
-}
-
-.vaultSelection input[type='radio']:checked {
-  transform: scale(1.1);
-  border: 1px solid var(--artape-primary-color);
-}
-
 .profileName {
   margin-top: 0px;
 }
@@ -80,6 +57,7 @@
   background: var(--artape-white);
   padding: 10px 0px 10px 0px;
   border-top: #d1d1d1 1px solid;
+  z-index: 999;
 }
 
 .trackContainer {
@@ -133,7 +111,6 @@
   color: var(--artape-black);
   padding: 0.6em 1.2em;
   object-fit: contain;
-  z-index: 150;
   flex-grow: 0.5;
 }
 
@@ -178,14 +155,6 @@
   margin-bottom: 20px;
 }
 
-.artistHeaderRight {
-  cursor: pointer;
-  transition: opacity 250ms ease-in-out;
-}
-.artistHeaderRight:hover {
-  opacity: 50%;
-}
-
 .songArt {
   width: 75px;
   height: 75px;
@@ -220,46 +189,112 @@
   gap: 24px;
 }
 
-.mementoForm {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.profileColorForm {
-  position: fixed;
-  right: 0px;
-  bottom: 52px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  z-index: 200;
-}
-
 .profileModule {
   position: relative;
   background: (var(--artape-black));
   text-align: center;
   color: var(--artape-black);
-  transition: all 100ms ease-in-out;
+  transition: all 200ms ease-in-out;
   overflow: hidden;
   aspect-ratio: 1/1;
+}
+
+.firstProfileModule {
+  position: relative;
+  background: (var(--artape-black));
+  text-align: center;
+  color: var(--artape-black);
+  transition: all 200ms ease-in-out;
+  overflow: hidden;
+}
+
+.mintButton {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--artape-white);
+  border: 1px solid var(--artape-white);
+  text-transform: uppercase;
+  padding: 5px 20px 5px 20px;
+}
+
+.moduleStats {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  background: var(--artape-black-light);
+  width: 100%;
+  z-index: 5;
+}
+
+.moduleStatsInner {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 20px 30px 20px 30px;
+  justify-content: space-between;
+}
+
+.moduleStatsLeft {
+  display: flex;
+  gap: 24px;
+}
+
+.moduleStats p {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--artape-white);
+}
+
+.mint {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.plays {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.moduleStats span {
+  font-size: 16px;
+  color: var(--artape-white);
 }
 
 .profileModuleDetail {
   position: relative;
   background: (var(--artape-black));
   text-align: center;
-  color: var(--artape-black);
-  transition: all 100ms ease-in-out;
+
+  transition: all 200ms ease-in-out;
   overflow: hidden;
   aspect-ratio: 1/1;
   width: 300px;
 }
 
+.firstProfileModule:hover {
+  opacity: 90%;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+.firstProfileModule:hover .embla {
+  transform: scale(110%);
+}
+
 .profileModule:hover {
   opacity: 90%;
   cursor: pointer;
+  border-radius: 10px;
+}
+
+.profileModule:hover .embla {
+  transform: scale(110%);
+}
+
+.profileModuleRectangle:hover video {
+  transform: scale(110%);
 }
 
 .profileModuleDetail:hover {
@@ -270,6 +305,7 @@
 .profileModuleRectangle:hover {
   opacity: 90%;
   cursor: pointer;
+  border-radius: 10px;
 }
 
 .profileModuleRectangle {
@@ -277,9 +313,17 @@
   grid-column: span 2;
   position: relative;
   text-align: center;
-  color: var(--artape-black);
-  transition: all 100ms ease-in-out;
+
+  transition: all 200ms ease-in-out;
+
+  will-change: transform;
+
   overflow: hidden;
+}
+
+.profileModuleRectangle video {
+  transition: transform 350ms;
+  will-change: transform;
 }
 
 .placeholder {
@@ -340,16 +384,16 @@
 
 .infoIcon {
   position: absolute;
-  bottom: 0;
+  top: 0;
   right: 0;
   z-index: 2;
-  margin-right: 10px;
-  margin-bottom: 10px;
   display: none;
 }
 
 .embla {
   overflow: hidden;
+  transition: transform 350ms;
+  will-change: transform;
 }
 .embla__container {
   display: flex;
@@ -357,6 +401,10 @@
 .embla__slide {
   flex: 0 0 100%;
   min-width: 0;
+}
+
+.firstProfileModule:hover .infoIcon {
+  display: flex;
 }
 
 .profileModule:hover .infoIcon {
