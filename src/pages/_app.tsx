@@ -19,7 +19,7 @@ export default function App({ Component, pageProps }: AppProps) {
           <FadeInAndOut>
             <div className={styles.fullWrapper}>
               <div className={styles.fullContainer}>
-                <NavSidebar router={router} />
+                {/* <NavSidebar router={router} /> */}
                 <Component {...pageProps} />
               </div>
             </div>

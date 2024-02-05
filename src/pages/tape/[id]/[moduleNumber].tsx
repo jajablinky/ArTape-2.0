@@ -82,9 +82,17 @@ const Module = () => {
         <>
           <FadeInAndOut>
             <div className={styles.scrollableContainer}>
-              <div className={styles.gridProfile}>
+              <div className={styles.songDetailTop}>
+                <div className={styles.songMetadataTop}>
+                  <b>
+                    <p>Deep End</p>
+                  </b>
+                  <p>Foushee</p>
+
+                  <p>2:30</p>
+                </div>
                 <div
-                  className={styles.profileModule}
+                  className={styles.profileModuleDetail}
                   onClick={() => {
                     handleSetModuleAndLastSelected(
                       Number(moduleNumber),
@@ -105,9 +113,6 @@ const Module = () => {
                     isMediaPlaying={isMediaPlaying}
                     moduleIndex={Number(moduleNumber)}
                   />
-                  <div className={styles.infoIcon}>
-                    <InfoIcon color={'var(--artape-black)'} />
-                  </div>
                 </div>
               </div>
             </div>
