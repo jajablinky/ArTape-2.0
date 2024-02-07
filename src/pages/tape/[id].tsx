@@ -95,7 +95,7 @@ const Tape = () => {
           <div className={styles.scrollableContainer}>
             <div className={styles.gridProfile}>
               <div className={styles.firstProfileModule}>
-                <ModuleStats />
+                <ModuleStats live={true} />
                 <button
                   className={styles.infoIcon}
                   onClick={() => handleModuleDetailFocus(0)}
@@ -131,7 +131,7 @@ const Tape = () => {
                   backgroundColor: 'var(--artape-primary-color)',
                 }}
               >
-                <ModuleStats />
+                <ModuleStats live={true} />
 
                 <VideoPlayer
                   isVideoPlaying={isVideoPlaying}
@@ -170,7 +170,7 @@ const Tape = () => {
                         className={`${styles.profileModule} moduleIndex${moduleIndex}`}
                         key={`${moduleIndex}`}
                       >
-                        <ModuleStats />
+                        <ModuleStats live={true} />
                         <button
                           className={styles.infoIcon}
                           onClick={() => handleModuleDetailFocus(moduleIndex)}

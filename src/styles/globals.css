@@ -17,6 +17,13 @@
   --buffer-width: 0;
 }
 
+nav {
+  display: flex;
+  padding: 5px 20px 5px 20px;
+  align-items: center;
+  justify-content: space-between;
+}
+
 body {
   margin: 0;
   --artape-white: #ffffff;
@@ -24,6 +31,7 @@ body {
   align-items: center;
   min-width: 320px;
   min-height: 100vh;
+  color: (--artape-black);
 }
 
 h1 {
