@@ -7,6 +7,7 @@ import NavSidebar from '@/components/NavSidebar';
 import { useRouter } from 'next/router';
 import MediaPlayerProvider from '@/components/Context/MediaPlayerProvider';
 import MediaPlayer from '@/components/MediaPlayer';
+import Loader from '@/components/Loader';
 
 export default function App({ Component, pageProps }: AppProps) {
   const { tape, setTape } = useTape();
@@ -17,9 +18,15 @@ export default function App({ Component, pageProps }: AppProps) {
       <MediaPlayerProvider>
         <main className={styles.main}>
           <FadeInAndOut>
+            <header>
+              <nav>
+                <Loader invert size="sm" />
+                <button className={styles.mintButton}>Connect Wallet</button>
+              </nav>
+            </header>
             <div className={styles.fullWrapper}>
               <div className={styles.fullContainer}>
-                {/* <NavSidebar router={router} /> */}
+                {/* <NavSidebar router={router} />s */}
                 <Component {...pageProps} />
               </div>
             </div>
