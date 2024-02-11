@@ -32,6 +32,7 @@
   flex: 1 1 0%;
   height: 100%;
   padding: 0px 0px 24px 0px;
+  width: 100%;
 }
 
 .profileName {
@@ -181,9 +182,9 @@
 .songDetailTop {
   display: flex;
   flex-direction: row;
-  width: 100%;
   justify-content: space-between;
   align-items: center;
+  padding: 0px 20px 0px 20px;
 }
 
 .aboveGrid {
@@ -272,7 +273,7 @@
   transition: all 200ms ease-in-out;
   overflow: hidden;
   aspect-ratio: 1/1;
-  width: 300px;
+  width: 500px;
 }
 
 .firstProfileModule:hover {

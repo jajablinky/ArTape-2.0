@@ -15,6 +15,7 @@ import InfoIcon from '@/components/Images/UI/InfoIcon';
 import fetchData from '@/components/Helper Functions/fetchData';
 import { useMediaContext } from '@/components/Context/MediaPlayerContext';
 import { useTape } from '@/components/Context/TapeContext';
+import Tabs from '@/components/Tabs/TabsDemo';
 
 const Module = () => {
   const [progress, setProgress] = useState({
@@ -83,14 +84,6 @@ const Module = () => {
           <FadeInAndOut>
             <div className={styles.scrollableContainer}>
               <div className={styles.songDetailTop}>
-                <div className={styles.songMetadataTop}>
-                  <b>
-                    <p>Deep End</p>
-                  </b>
-                  <p>Foushee</p>
-
-                  <p>2:30</p>
-                </div>
                 <div
                   className={styles.profileModuleDetail}
                   onClick={() => {
@@ -113,6 +106,35 @@ const Module = () => {
                     isMediaPlaying={isMediaPlaying}
                     moduleIndex={Number(moduleNumber)}
                   />
+                </div>
+                <div className={styles.songMetadataTop}>
+                  <div>
+                    <b>
+                      <h1>Deep End</h1>
+                    </b>
+                    <h2>Foushee</h2>
+
+                    <span>8.2k plays</span>
+                  </div>
+                  <div>
+                    <span>15:30</span>
+                    <p>1. Deep End</p>
+                    <p>2. Clap For Him</p>
+                    <p>3. Spend The Money</p>
+                  </div>
+                  <div>
+                    <h3>UDL</h3>
+                    <p>Type of UDL</p>
+                    <p>TYPE OF UDL</p>
+                    <p>3115195105</p>
+                  </div>
+                  <div>
+                    <h3>View On Akord</h3>
+                    <p>Type of UDL</p>
+                    <p>TYPE OF UDL</p>
+                    <p>3115195105</p>
+                  </div>
+                  <Tabs />
                 </div>
               </div>
             </div>
